@@ -1,12 +1,41 @@
 package maze;
+import java.util.Random;
 import java.util.Scanner;
 
+import maze.Dragon.DRAGON_STATE;
 import maze.Hero.HERO_STATE;
+
 
 public class Maze {
 
-	private char[][] maze;
+	public static void main(String[] args) {
 
+		Scanner scan = new Scanner(System.in);
+
+		Maze maze = new Maze();
+		Hero hero = new Hero();
+		Dragon dragon = new Dragon();
+
+		while (hero.getState() == HERO_STATE.ALIVE) {
+			maze.display();
+			System.out.println();
+			System.out.print("Direcao desejada (WASD): ");
+
+			if (scan.hasNext()) {
+				char direction = scan.next().charAt(0);
+				maze.update(hero, direction, dragon);
+			}
+		}
+
+
+		maze.display();
+		scan.close();
+	}
+
+
+
+
+	private char[][] maze;
 
 	public Maze() {
 		loadMaze();
@@ -53,72 +82,123 @@ public class Maze {
 	}
 
 
-	public void moveHero(Hero hero, char direction) {
+	public void update(Hero hero, char direction, Dragon dragon) {
 
-		int x = hero.getX();
-		int y = hero.getY();
+		int yHero = hero.getVerPos();
+		int xHero = hero.getHorPos();
 
-		switch (Character.toLowerCase(direction)) {
+		switch (direction) {
 		case 'w':
-			if (maze[x-1][y] != 'X') {
-				maze[x][y] = '.';				
-				x--;
+			if (maze[yHero-1][xHero] != 'X') {
+				maze[yHero][xHero] = '.';				
+				yHero--;
 			}
 			break;
 		case 's':
-			if (maze[x+1][y] != 'X') {
-				maze[x][y] = '.';				
-				x++;
+			if (maze[yHero+1][xHero] != 'X') {
+				maze[yHero][xHero] = '.';				
+				yHero++;
 			}
 			break;
 		case 'a':
-			if (maze[x][y-1] != 'X') {
-				maze[x][y] = '.';
-				y--;		
+			if (maze[yHero][xHero-1] != 'X') {
+				maze[yHero][xHero] = '.';
+				xHero--;		
 			}
 			break;
 		case 'd':
-			if (maze[x][y+1] != 'X') {
-				maze[x][y] = '.';
-				y++;
+			if (maze[yHero][xHero+1] != 'X') {
+				maze[yHero][xHero] = '.';
+				xHero++;
 			}
 			break;
 		}
 
-		
-		hero.move(x, y);	// moves hero, independently of the result
-		
-		if (maze[x][y] == 'D' && hero.hasSword())
-			maze[x][y] = 'H';
-		else if (maze[x][y] == 'D' && !hero.hasSword())
-			hero.dies();
-		else if (maze[x][y] == 'E') {
+
+		hero.move(yHero, xHero);	// moves hero, independently of the result
+
+
+		if (maze[yHero][xHero] == '.')
+			maze[yHero][xHero] = 'H';
+		else if (maze[yHero][xHero] == 'E') {
+			maze[yHero][xHero] = 'H';
 			hero.pickedSword();
-			maze[x][y] = 'H';
 		}
-		else maze[x][y] = 'H';
-	}
+		else if (maze[yHero][xHero] == 'S' && dragon.getState() == DRAGON_STATE.DEAD) {
+			maze[yHero][xHero] = 'H';
+			hero.wins();
+		}
 
 
-	public static void main(String[] args) {
+		if (dragon.getState() == DRAGON_STATE.ALIVE && hero.getState() == HERO_STATE.ALIVE) {
 
-		Scanner scan = new Scanner(System.in);
-		
-		Hero hero = new Hero();
-		Maze maze = new Maze();
+			int yDragon = dragon.getVerPos();
+			int xDragon = dragon.getHorPos();
 
-		while (hero.getState() == HERO_STATE.ALIVE) {
-			maze.display();
-			System.out.println();
-			System.out.print("Direcao desejada (WASD): ");
+			if (fighting(hero, dragon)) {
 
-			if (scan.hasNext()) {
-				char direction = scan.next().charAt(0);
-				maze.moveHero(hero, direction);
+				if (hero.hasSword()) {
+					maze[yHero][xHero] = 'H';
+					maze[yDragon][xDragon] = '.';
+					dragon.dies();
+				}
+				else hero.dies();
+			}
+			else {
+				
+				boolean movement = false;
+				do {
+					Random rand = new Random();
+					int posRand = rand.nextInt() % 4;
+					
+					if (posRand == 0 && maze[yDragon+1][xDragon] != 'X') {
+						
+						movement = true;
+						maze[yDragon][xDragon] = '.';
+						yDragon++;
+						maze[yDragon][xDragon] = 'D';
+					}
+					else if (posRand == 1 && maze[yDragon-1][xDragon] != 'X') {
+						
+						movement = true;
+						maze[yDragon][xDragon] = '.';
+						yDragon--;
+						maze[yDragon][xDragon] = 'D';
+					}
+					else if (posRand == 2 && maze[yDragon][xDragon+1] != 'X') {
+						
+						movement = true;
+						maze[yDragon][xDragon] = '.';
+						xDragon++;
+						maze[yDragon][xDragon] = 'D';
+					}
+					else if (posRand == 3 && maze[yDragon][xDragon-1] != 'X') {
+						
+						movement = true;
+						maze[yDragon][xDragon] = '.';
+						xDragon--;
+						maze[yDragon][xDragon] = 'D';
+					}
+				} while (!movement);
+				
+				dragon.move(yDragon, xDragon);
 			}
 		}
-		
-		scan.close();
+	}
+
+	private boolean fighting(Hero hero, Dragon dragon) {
+
+		int yHero = hero.getVerPos();
+		int xHero = hero.getHorPos();
+		int yDragon = dragon.getVerPos();
+		int xDragon = dragon.getHorPos();
+
+		if (xHero == xDragon && Math.abs(yHero - yDragon) == 1)
+			return true;
+		else if (yHero == yDragon && Math.abs(xHero - xDragon) == 1)
+			return true;
+
+		return false;
 	}
 
 }

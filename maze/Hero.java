@@ -17,9 +17,9 @@ public class Hero {
 	}
 	
 	
-	public void move(int x, int y) {
-		verPosition = x;
-		horPosition = y;
+	public void move(int y, int x) {
+		verPosition = y;
+		horPosition = x;
 	}
 	
 	
@@ -31,9 +31,13 @@ public class Hero {
 		heroState = HERO_STATE.DEAD;
 	}
 	
+	public void wins() {
+		heroState = HERO_STATE.WIN;
+	}
 	
-	public int getX() { return verPosition; }
-	public int getY() { return horPosition; }
+	
+	public int getVerPos() { return verPosition; }
+	public int getHorPos() { return horPosition; }
 	public boolean hasSword() { return hasSword; }
 	public HERO_STATE getState() { return heroState; }
 }
