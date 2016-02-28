@@ -1,12 +1,10 @@
 package maze.logic;
 
 
-public class Dragon {
+public class Dragon extends Object {
 	
 	public enum DRAGON_STATE {AWAKE, SLEEPING, DEAD};
 	
-	private int verPosition;
-	private int horPosition;
 	private DRAGON_STATE dragonState;
 	
 	public Dragon() {
@@ -15,13 +13,10 @@ public class Dragon {
 		dragonState = DRAGON_STATE.AWAKE;
 	}
 	
-	
 	public void move(int y, int x) {
 		verPosition = y;
 		horPosition = x;
 	}
-	
-	
 	
 	public void wakeUp() {
 		dragonState = DRAGON_STATE.AWAKE;
@@ -35,8 +30,5 @@ public class Dragon {
 		dragonState = DRAGON_STATE.DEAD;
 	}
 	
-	
-	public int getVerPos() { return verPosition; }
-	public int getHorPos() { return horPosition; }
 	public DRAGON_STATE getState() { return dragonState; }
 }

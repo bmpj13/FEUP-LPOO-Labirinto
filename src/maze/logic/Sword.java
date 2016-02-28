@@ -1,16 +1,10 @@
 package maze.logic;
 
-public class Sword {
+public class Sword extends Object{
 
-	private int verPosition;
-	private int horPosition;
-	
-	
 	public Sword() {
 		 verPosition = 8;
 		 horPosition = 1;
 	}
-	
-	public int getVerPos() { return verPosition; }
-	public int getHorPos() { return horPosition; }
+
 }

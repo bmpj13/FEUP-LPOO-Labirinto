@@ -21,12 +21,15 @@ public class Maze {
 		while (hero.getState() == HERO_STATE.ALIVE) {
 			maze.display();
 			System.out.println();
-			System.out.print("Direcao desejada (WASD): ");
-
-			if (scan.hasNext()) {
-				char direction = scan.next().charAt(0);
-				maze.update(hero, direction, dragon, sword);
-			}
+			char direction = 'Q';
+			do{
+				System.out.print("Direcao desejada (WASD): ");
+	
+				if (scan.hasNext()) {
+					direction = Character.toLowerCase(scan.next().charAt(0));
+				}
+			}while(direction != 'w' && direction != 'a' && direction != 's' && direction != 'd');
+			maze.update(hero, direction, dragon, sword);
 		}
 
 

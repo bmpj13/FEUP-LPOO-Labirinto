@@ -1,11 +1,8 @@
 package maze.logic;
 
-public class Hero {
+public class Hero extends Object {
 
 	public enum HERO_STATE {ALIVE, DEAD, WIN};
-	
-	private int verPosition;
-	private int horPosition;
 	private boolean hasSword;
 	private HERO_STATE heroState;
 	
@@ -16,12 +13,10 @@ public class Hero {
 		heroState = HERO_STATE.ALIVE;
 	}
 	
-	
 	public void move(int y, int x) {
 		verPosition = y;
 		horPosition = x;
 	}
-	
 	
 	public void pickedSword() {
 		hasSword = true;
@@ -35,9 +30,6 @@ public class Hero {
 		heroState = HERO_STATE.WIN;
 	}
 	
-	
-	public int getVerPos() { return verPosition; }
-	public int getHorPos() { return horPosition; }
 	public boolean hasSword() { return hasSword; }
 	public HERO_STATE getState() { return heroState; }
 }
