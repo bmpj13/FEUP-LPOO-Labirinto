@@ -1,9 +1,9 @@
-package maze;
+package maze.logic;
 
 
 public class Dragon {
 	
-	public enum DRAGON_STATE {ALIVE, DEAD};
+	public enum DRAGON_STATE {AWAKE, SLEEPING, DEAD};
 	
 	private int verPosition;
 	private int horPosition;
@@ -12,7 +12,7 @@ public class Dragon {
 	public Dragon() {
 		verPosition = 3;
 		horPosition = 1;
-		dragonState = DRAGON_STATE.ALIVE;
+		dragonState = DRAGON_STATE.AWAKE;
 	}
 	
 	
@@ -21,6 +21,15 @@ public class Dragon {
 		horPosition = x;
 	}
 	
+	
+	
+	public void wakeUp() {
+		dragonState = DRAGON_STATE.AWAKE;
+	}
+	
+	public void sleep() {
+		dragonState = DRAGON_STATE.SLEEPING;
+	}
 	
 	public void dies() {
 		dragonState = DRAGON_STATE.DEAD;

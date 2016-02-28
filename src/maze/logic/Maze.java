@@ -1,9 +1,9 @@
-package maze;
+package maze.logic;
 import java.util.Random;
 import java.util.Scanner;
 
-import maze.Dragon.DRAGON_STATE;
-import maze.Hero.HERO_STATE;
+import maze.logic.Dragon.DRAGON_STATE;
+import maze.logic.Hero.HERO_STATE;
 
 
 public class Maze {
@@ -16,6 +16,7 @@ public class Maze {
 		Hero hero = new Hero();
 		Sword sword = new Sword();
 		Dragon dragon = new Dragon();
+
 
 		while (hero.getState() == HERO_STATE.ALIVE) {
 			maze.display();
@@ -30,6 +31,13 @@ public class Maze {
 
 
 		maze.display();
+
+		if (hero.getState() == HERO_STATE.WIN)
+			System.out.println("Congratulations, you won!");
+		else
+			System.out.println("You lost. Try again?");
+
+
 		scan.close();
 	}
 
@@ -90,25 +98,25 @@ public class Maze {
 
 		switch (direction) {
 		case 'w':
-			if (maze[yHero-1][xHero] != 'X') {
+			if (maze[yHero-1][xHero] != 'X' && maze[yHero-1][xHero] != 'd') {
 				maze[yHero][xHero] = '.';				
 				yHero--;
 			}
 			break;
 		case 's':
-			if (maze[yHero+1][xHero] != 'X') {
+			if (maze[yHero+1][xHero] != 'X' && maze[yHero+1][xHero] != 'd') {
 				maze[yHero][xHero] = '.';				
 				yHero++;
 			}
 			break;
 		case 'a':
-			if (maze[yHero][xHero-1] != 'X') {
+			if (maze[yHero][xHero-1] != 'X' && maze[yHero][xHero-1] != 'd') {
 				maze[yHero][xHero] = '.';
 				xHero--;		
 			}
 			break;
 		case 'd':
-			if (maze[yHero][xHero+1] != 'X') {
+			if (maze[yHero][xHero+1] != 'X' && maze[yHero][xHero+1] != 'd') {
 				maze[yHero][xHero] = '.';
 				xHero++;
 			}
@@ -133,7 +141,10 @@ public class Maze {
 		}
 
 
-		if (dragon.getState() == DRAGON_STATE.ALIVE && hero.getState() == HERO_STATE.ALIVE) {
+
+		DRAGON_STATE dragonState = dragon.getState();
+
+		if (dragonState != DRAGON_STATE.DEAD) {
 
 			int yDragon = dragon.getVerPos();
 			int xDragon = dragon.getHorPos();
@@ -141,69 +152,85 @@ public class Maze {
 			if (fighting(hero, dragon)) {
 
 				if (hero.hasSword()) {
-					maze[yHero][xHero] = 'A';
 					maze[yDragon][xDragon] = '.';
+					maze[yHero][xHero] = 'A';
 					dragon.dies();
 				}
-				else hero.dies();
+				else if (dragonState == DRAGON_STATE.AWAKE) 
+					hero.dies();
 			}
 			else {
-				
-				boolean movement = false;
-				do {
-					Random rand = new Random();
-					int posRand = rand.nextInt() % 4;
-					
+
+				Random rand = new Random();
+
+				if (dragonState == DRAGON_STATE.AWAKE) {
+
+					int posRand = rand.nextInt() % 5;
+
+					if (yDragon == 8 && xDragon == 1)
+						posRand = 1;
+
 					if (posRand == 0 && maze[yDragon+1][xDragon] != 'X') {
-						
-						movement = true;
+
 						maze[yDragon][xDragon] = '.';
 						yDragon++;
-						maze[yDragon][xDragon] = 'D';
 					}
 					else if (posRand == 1 && maze[yDragon-1][xDragon] != 'X') {
-						
-						movement = true;
+
 						maze[yDragon][xDragon] = '.';
 						yDragon--;
-						maze[yDragon][xDragon] = 'D';
 					}
 					else if (posRand == 2 && maze[yDragon][xDragon+1] != 'X') {
-						
-						movement = true;
+
 						maze[yDragon][xDragon] = '.';
 						xDragon++;
-						maze[yDragon][xDragon] = 'D';
 					}
 					else if (posRand == 3 && maze[yDragon][xDragon-1] != 'X') {
-						
-						movement = true;
+
 						maze[yDragon][xDragon] = '.';
 						xDragon--;
-						maze[yDragon][xDragon] = 'D';
-					}
-				} while (!movement);
-				
-				
+					}						
+				}					
+
+
 				dragon.move(yDragon, xDragon);
-				
+
+
+				int stateRand = rand.nextInt() % 3;
+				if (stateRand == 0) {
+					dragon.sleep();
+					dragonState = DRAGON_STATE.SLEEPING;
+				}
+				else {
+					dragon.wakeUp();
+					dragonState = DRAGON_STATE.AWAKE;
+				}
+
+				if (dragonState == DRAGON_STATE.AWAKE)
+					maze[yDragon][xDragon] = 'D';
+				else if (dragonState == DRAGON_STATE.SLEEPING)
+					maze[yDragon][xDragon] = 'd';
+
+
 				if (fighting(hero, dragon)) {
 
 					if (hero.hasSword()) {
-						maze[yHero][xHero] = 'H';
 						maze[yDragon][xDragon] = '.';
+						maze[yHero][xHero] = 'A';
 						dragon.dies();
 					}
-					else hero.dies();
+					else if (dragonState == DRAGON_STATE.AWAKE) 
+						hero.dies();
 				}
-				
-				int xSword = sword.getXpos();
-				int ySword = sword.getYpos();
-				if(maze[yDragon][xDragon]== maze[ySword][xSword])
+
+
+				int ySword = sword.getVerPos();
+				int xSword = sword.getHorPos();
+				if(maze[yDragon][xDragon] == maze[ySword][xSword])
 					maze[yDragon][xDragon] = 'F';
 				else if(!hero.hasSword())
 					maze[ySword][xSword] = 'E';
-				
+
 			}
 		}
 	}
@@ -215,9 +242,9 @@ public class Maze {
 		int yDragon = dragon.getVerPos();
 		int xDragon = dragon.getHorPos();
 
-		if (xHero == xDragon && Math.abs(yHero - yDragon) == 1)
+		if (xHero == xDragon && Math.abs(yHero - yDragon) <= 1)
 			return true;
-		else if (yHero == yDragon && Math.abs(xHero - xDragon) == 1)
+		else if (yHero == yDragon && Math.abs(xHero - xDragon) <= 1)
 			return true;
 
 		return false;

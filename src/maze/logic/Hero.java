@@ -1,4 +1,4 @@
-package maze;
+package maze.logic;
 
 public class Hero {
 
