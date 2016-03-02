@@ -7,8 +7,9 @@ import maze.logic.Dragon.DRAGON_MODE;
 import maze.logic.Dragon.DRAGON_STATE;
 import maze.logic.Hero.HERO_STATE;
 
-public class Maze {
 
+public class Maze {
+	private Hero hero;
 	private char[][] maze;
 
 	public Maze() {
@@ -16,6 +17,16 @@ public class Maze {
 	}
 	public Maze(char[][] m){
 		maze = m;
+		for(int i=0;i < maze.length;i++){
+			for( int j=0; j<maze[0].length; j++){
+				/*	if(maze[i][j]=='H')				
+					Hero hero = new Hero(i,j);
+				else if (maze[i][j] == 'D')
+					Dragon dragon = new Dragon (i,j);
+				else if(maze [i][j] == 'E')
+					Sword sword = new Sword (i,j);*/
+			}
+		}
 	}
 
 	public void loadMaze() {
@@ -64,7 +75,7 @@ public class Maze {
 		moveHero(hero, direction, dragon);
 		int yHero = hero.getVerPos();
 		int xHero = hero.getHorPos();
-		
+
 		DRAGON_STATE dragonState = dragon.getState();
 
 		if (dragonState != DRAGON_STATE.DEAD) {
@@ -83,77 +94,88 @@ public class Maze {
 					hero.dies();
 			}
 			else {
+				DRAGON_MODE dragonMode = dragon.getMode();
+				if(dragonMode != DRAGON_MODE.FROZEN){
+					Random rand = new Random();
 
-				Random rand = new Random();
+					if (dragonState == DRAGON_STATE.AWAKE) {
+						boolean dragonMove;
+						do{
+							dragonMove = true;
+						int posRand = rand.nextInt() % 5;
 
-				if (dragonState == DRAGON_STATE.AWAKE) {
+						if (yDragon == 8 && xDragon == 1)
+							posRand = 1;
 
-					int posRand = rand.nextInt() % 5;
+						if (posRand == 0 && maze[yDragon+1][xDragon] != 'X' && maze[yDragon+1][xDragon] != 'S') {
 
-					if (yDragon == 8 && xDragon == 1)
-						posRand = 1;
+							maze[yDragon][xDragon] = '.';
+							yDragon++;
+						}
+						else if (posRand == 1 && maze[yDragon-1][xDragon] != 'X' && maze[yDragon-1][xDragon] != 'S') {
 
-					if (posRand == 0 && maze[yDragon+1][xDragon] != 'X') {
+							maze[yDragon][xDragon] = '.';
+							yDragon--;
+						}
+						else if (posRand == 2 && maze[yDragon][xDragon+1] != 'X' && maze[yDragon][xDragon+1] != 'S') {
 
-						maze[yDragon][xDragon] = '.';
-						yDragon++;
+							maze[yDragon][xDragon] = '.';
+							xDragon++;
+						}
+						else if (posRand == 3 && maze[yDragon][xDragon-1] != 'X' && maze[yDragon+1][xDragon-1] != 'S') {
+
+							maze[yDragon][xDragon] = '.';
+							xDragon--;
+						}				
+						else if(posRand == 4){
+							
+						}
+						else{
+							dragonMove = false;
+						}
+						}while(dragonMove == false);
+					}					
+
+
+					dragon.move(yDragon, xDragon);
+
+					if(dragonMode == DRAGON_MODE.CAN_SLEEP){
+
+						int stateRand = rand.nextInt() % 3;
+						if (stateRand == 0) {
+							dragon.sleep();
+							dragonState = DRAGON_STATE.SLEEPING;
+						}
+						else {
+							dragon.wakeUp();
+							dragonState = DRAGON_STATE.AWAKE;
+						}
 					}
-					else if (posRand == 1 && maze[yDragon-1][xDragon] != 'X') {
+					if (dragonState == DRAGON_STATE.AWAKE)
+						maze[yDragon][xDragon] = 'D';
+					else if (dragonState == DRAGON_STATE.SLEEPING)
+						maze[yDragon][xDragon] = 'd';
 
-						maze[yDragon][xDragon] = '.';
-						yDragon--;
+
+					if (fighting(hero, dragon)) {
+
+						if (hero.hasSword()) {
+							maze[yDragon][xDragon] = '.';
+							maze[yHero][xHero] = 'A';
+							dragon.dies();
+						}
+						else if (dragonState == DRAGON_STATE.AWAKE) 
+							hero.dies();
 					}
-					else if (posRand == 2 && maze[yDragon][xDragon+1] != 'X') {
-
-						maze[yDragon][xDragon] = '.';
-						xDragon++;
-					}
-					else if (posRand == 3 && maze[yDragon][xDragon-1] != 'X') {
-
-						maze[yDragon][xDragon] = '.';
-						xDragon--;
-					}						
-				}					
 
 
-				dragon.move(yDragon, xDragon);
-
-
-				int stateRand = rand.nextInt() % 3;
-				if (stateRand == 0) {
-					dragon.sleep();
-					dragonState = DRAGON_STATE.SLEEPING;
+					int ySword = sword.getVerPos();
+					int xSword = sword.getHorPos();
+					if(maze[yDragon][xDragon] == maze[ySword][xSword])
+						maze[yDragon][xDragon] = 'F';
+					else if(!hero.hasSword())
+						maze[ySword][xSword] = 'E';
 				}
-				else {
-					dragon.wakeUp();
-					dragonState = DRAGON_STATE.AWAKE;
-				}
-
-				if (dragonState == DRAGON_STATE.AWAKE)
-					maze[yDragon][xDragon] = 'D';
-				else if (dragonState == DRAGON_STATE.SLEEPING)
-					maze[yDragon][xDragon] = 'd';
-
-
-				if (fighting(hero, dragon)) {
-
-					if (hero.hasSword()) {
-						maze[yDragon][xDragon] = '.';
-						maze[yHero][xHero] = 'A';
-						dragon.dies();
-					}
-					else if (dragonState == DRAGON_STATE.AWAKE) 
-						hero.dies();
-				}
-
-
-				int ySword = sword.getVerPos();
-				int xSword = sword.getHorPos();
-				if(maze[yDragon][xDragon] == maze[ySword][xSword])
-					maze[yDragon][xDragon] = 'F';
-				else if(!hero.hasSword())
-					maze[ySword][xSword] = 'E';
-
 			}
 		}
 	}
@@ -176,12 +198,12 @@ public class Maze {
 	public void moveHero(Hero hero, char direction, Dragon dragon){
 		int yHero = hero.getVerPos();
 		int xHero = hero.getHorPos();
-		
+
 
 		switch (direction) {
 		case 'w':
 			if (maze[yHero-1][xHero] != 'X' && maze[yHero-1][xHero] != 'd') {
-				
+
 				maze[yHero][xHero] = '.';				
 				yHero--;
 			}

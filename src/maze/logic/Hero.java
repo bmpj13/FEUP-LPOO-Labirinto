@@ -12,6 +12,12 @@ public class Hero extends Object {
 		hasSword = false;
 		heroState = HERO_STATE.ALIVE;
 	}
+	public Hero(int line, int column){
+		verPosition = line;
+		horPosition = column;
+		hasSword = false;
+		heroState = HERO_STATE.ALIVE;
+	}
 	
 	public void move(int y, int x) {
 		verPosition = y;

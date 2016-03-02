@@ -15,6 +15,12 @@ public class Dragon extends Object {
 		dragonState = DRAGON_STATE.AWAKE;
 		dragonMode = dm;
 	}
+	public Dragon(DRAGON_MODE dm, int line, int column) {
+		verPosition = line;
+		horPosition = column;
+		dragonState = DRAGON_STATE.AWAKE;
+		dragonMode = dm;
+	}
 	
 	public void move(int y, int x) {
 		verPosition = y;
