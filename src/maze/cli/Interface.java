@@ -5,81 +5,79 @@ import java.util.Scanner;
 
 public class Interface {
 
-	//	public static void main(String[] args) {
-	//
-	//		Scanner scan = new Scanner(System.in);
-	//
-	//		while (hero.getState() == HERO_STATE.ALIVE) {
-	//			//maze.display();
-	//			System.out.println();
-	//			System.out.print("Direcao desejada (WASD): ");
-	//
-	//			if (scan.hasNext()) {
-	//				char direction = scan.next().charAt(0);
-	//				maze.update(hero, direction, dragon, sword);
-	//			}
-	//		}
-	//
-	//
-	//		maze.display();
-	//
-	//		if (hero.getState() == HERO_STATE.WIN)
-	//			System.out.println("Congratulations, you won!");
-	//		else
-	//			System.out.println("You lost. Try again?");
-	//
-	//
-	//		scan.close();
-	//	}
-
 	private Scanner scan;
-	
+
+
 	public Interface(){
 		scan = new Scanner (System.in);
 	}
-	
+
+
 	public void finalize(){
 		scan.close();
 	}
-	
+
+
 	public int askDragonMode() {
 
 		int option = 0;
-		Scanner scan = new Scanner(System.in);
 
 		System.out.println("Select game mode:");
 		System.out.println("1 - Dragon doesn't move");
 		System.out.println("2 - Dragon can move");
 		System.out.println("3 - Dragon moves and falls asleep");
+		System.out.println("0 - Default");
+		System.out.print("Choose option: ");
 
-		do{
-
+		do {
 			if (scan.hasNextInt())
 				option = scan.nextInt();
 			else
 				scan.next();
-		} while(option < 1 && option > 3);
+		} while (option < 0 && option > 3);
 
 		scan.nextLine();
-
 		return option;
 	}
 
 
 	public char askDirection() {
 
+		boolean firstAsk = true;
+		char direction = ' ';
 
 		System.out.println();
-		char direction = 'Q';
-		System.out.print("Direcao desejada (WASD): ");
+		System.out.print("Desired direction (WASD): ");
 		do {
+			if (!firstAsk)
+				System.out.print("Choose one of WASD keys: ");
+
 			if (scan.hasNext())
 				direction = Character.toLowerCase(scan.next().charAt(0));
+
+			firstAsk = false;
 		} while (direction != 'w' && direction != 'a' && direction != 's' && direction != 'd');
 
 		return direction;
 	}
 
+
+
+	
+	public void WinMsg() {
+
+		System.out.println();
+		System.out.println("Congratulations, you won!");
+	}
+
+
+	public void LoseMsg() {
+
+		System.out.println();
+		System.out.println("You lost. Try again?");
+	}
+	
+	
 
 	public <T> void display(T obj) {
 

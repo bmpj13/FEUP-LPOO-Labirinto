@@ -1,21 +1,10 @@
 package maze.logic;
 
 public abstract class Object {
-
-	protected int verPosition;
-	protected int horPosition;
 	
-	public int getHorPos() {
-		return horPosition;
+	protected Position position;
+	
+	public Position getPosition() {
+		return new Position(position.y, position.x);
 	}
-	public void setHorPos(int horPosition) {
-		this.horPosition = horPosition;
-	}
-	public int getVerPos() {
-		return verPosition;
-	}
-	public void setVerPos(int verPosition) {
-		this.verPosition = verPosition;
-	}
-
 }

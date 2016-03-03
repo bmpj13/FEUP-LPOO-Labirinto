@@ -1,3 +1,4 @@
+package maze.logic;
 /*package maze.logic;
 
 import static org.junit.Assert.*;

@@ -7,35 +7,52 @@ public class Hero extends Object {
 	private HERO_STATE heroState;
 	
 	public Hero() {
-		verPosition = 1;
-		horPosition = 1;
-		hasSword = false;
-		heroState = HERO_STATE.ALIVE;
-	}
-	public Hero(int line, int column){
-		verPosition = line;
-		horPosition = column;
+		
+		position = new Position(1,1);
 		hasSword = false;
 		heroState = HERO_STATE.ALIVE;
 	}
 	
-	public void move(int y, int x) {
-		verPosition = y;
-		horPosition = x;
+	
+	public Hero(int line, int column){
+		
+		position = new Position(line, column);
+		hasSword = false;
+		heroState = HERO_STATE.ALIVE;
 	}
+	
+	
+	
+	public void move(int y, int x) {
+		
+		position.y = y;
+		position.x = x;
+	}
+	
+	
+	public void move(Position pos) {
+		
+		position.y = pos.y;
+		position.x = pos.x;
+	}
+	
 	
 	public void pickedSword() {
 		hasSword = true;
 	}
 	
+	
 	public void dies() {
 		heroState = HERO_STATE.DEAD;
 	}
+	
 	
 	public void wins() {
 		heroState = HERO_STATE.WIN;
 	}
 	
+	
 	public boolean hasSword() { return hasSword; }
+	
 	public HERO_STATE getState() { return heroState; }
 }
