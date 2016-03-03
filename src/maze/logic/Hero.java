@@ -1,6 +1,6 @@
 package maze.logic;
 
-public class Hero extends Object {
+public class Hero extends Element {
 
 	public enum HERO_STATE {ALIVE, DEAD, WIN};
 	private boolean hasSword;

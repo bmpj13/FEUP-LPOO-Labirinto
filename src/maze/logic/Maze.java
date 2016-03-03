@@ -6,8 +6,10 @@ import maze.logic.Dragon.DRAGON_STATE;
 import maze.logic.Hero.HERO_STATE;
 
 
+
 public class Maze {
 
+	public enum DIRECTION {UP, LEFT, DOWN, RIGHT};
 	public enum DRAGON_MODE {FROZEN, RANDOM, CAN_SLEEP};
 
 
@@ -44,8 +46,8 @@ public class Maze {
 		while (hero.getState() == HERO_STATE.ALIVE) {
 
 			interf.display(maze);
-			char direction = interf.askDirection();
-			maze.update(direction);
+			char key = interf.askDirection();
+			maze.update(key2direction(key));
 		}
 
 		interf.display(maze);
@@ -56,6 +58,20 @@ public class Maze {
 			interf.LoseMsg();
 	}
 
+
+
+
+	private DIRECTION key2direction(char key) {
+		
+		if (key == 'w')
+			return DIRECTION.UP;
+		else if (key == 'a')
+			return DIRECTION.LEFT;
+		else if (key == 's')
+			return DIRECTION.DOWN;
+		else
+			return DIRECTION.RIGHT;
+	}
 
 
 
@@ -81,7 +97,7 @@ public class Maze {
 		outer_loop:
 			for(int i = 0; i < maze.length; i++) {
 				for(int j = 0; j < maze[i].length; j++) {
-					if (maze[i][j]=='H') {				
+					if (maze[i][j] == 'H') {				
 						hero = new Hero(i,j);
 						counter++;
 					}
@@ -154,9 +170,11 @@ public class Maze {
 
 
 
-	public void update(char direction) {
+	public void update(DIRECTION direction) {
 
 		moveHero(direction);
+		
+		HeroVsDragon();
 
 		if (dragon.getState() != DRAGON_STATE.DEAD) {
 
@@ -168,10 +186,12 @@ public class Maze {
 			Position dragonPos = dragon.getPosition();
 
 
-			if(getMazeContent(dragonPos) == getMazeContent(swordPos))
-				maze[dragonPos.y][dragonPos.x] = 'F';
-			else if(!hero.hasSword())
-				maze[swordPos.y][swordPos.x] = 'E';
+			if (!hero.hasSword()) {
+				if(getMazeContent(dragonPos) == getMazeContent(swordPos))
+					maze[dragonPos.y][dragonPos.x] = 'F';
+				else
+					maze[swordPos.y][swordPos.x] = 'E';
+			}
 
 			HeroVsDragon();
 		}
@@ -198,32 +218,32 @@ public class Maze {
 
 
 
-	public void moveHero(char direction){
+	public void moveHero(DIRECTION direction){
 
 		Position currHeroPos = hero.getPosition();
 		Position newHeroPos = hero.getPosition();
 
 		boolean checkMove = false;
 		switch (direction) {
-		case 'w':
+		case UP:
 			if (maze[currHeroPos.y-1][currHeroPos.x]  != 'X' && maze[currHeroPos.y-1][currHeroPos.x] != 'd') {
 				checkMove = true;
 				newHeroPos.y--;
 			}
 			break;
-		case 's':
+		case DOWN:
 			if (maze[currHeroPos.y+1][currHeroPos.x] != 'X' && maze[currHeroPos.y+1][currHeroPos.x] != 'd') {
 				checkMove = true;
 				newHeroPos.y++;
 			}
 			break;
-		case 'a':
+		case LEFT:
 			if (maze[currHeroPos.y][currHeroPos.x-1] != 'X' && maze[currHeroPos.y][currHeroPos.x-1] != 'd') {
 				checkMove = true;
 				newHeroPos.x--;		
 			}
 			break;
-		case 'd':
+		case RIGHT:
 			if (maze[currHeroPos.y][currHeroPos.x+1] != 'X' && maze[currHeroPos.y][currHeroPos.x+1] != 'd') {
 				checkMove = true;
 				newHeroPos.x++;
@@ -286,7 +306,7 @@ public class Maze {
 				if (posRand == 0) {
 
 					if (maze[dragonPos.y+1][dragonPos.x] != 'X' && maze[dragonPos.y+1][dragonPos.x] != 'S') {
-						
+
 						dragonMove = true;
 						setMazeContent(dragonPos, '.');
 						dragonPos.y++;
@@ -295,7 +315,7 @@ public class Maze {
 				else if (posRand == 1) {
 
 					if (maze[dragonPos.y-1][dragonPos.x] != 'X' && maze[dragonPos.y-1][dragonPos.x] != 'S') {
-						
+
 						dragonMove = true;
 						setMazeContent(dragonPos, '.');
 						dragonPos.y--;
@@ -304,7 +324,7 @@ public class Maze {
 				else if (posRand == 2) {
 
 					if (maze[dragonPos.y][dragonPos.x+1] != 'X' && maze[dragonPos.y][dragonPos.x+1] != 'S') {
-						
+
 						dragonMove = true;
 						setMazeContent(dragonPos, '.');
 						dragonPos.x++;
@@ -313,7 +333,7 @@ public class Maze {
 				else if (posRand == 3) {
 
 					if (maze[dragonPos.y][dragonPos.x-1] != 'X' && maze[dragonPos.y+1][dragonPos.x-1] != 'S') {
-						
+
 						dragonMove = true;
 						setMazeContent(dragonPos, '.');
 						dragonPos.x--;
@@ -321,7 +341,7 @@ public class Maze {
 				}				
 				else if(posRand == 4)
 					dragonMove = true;
-				
+
 			} while(dragonMove == false);
 		}					
 
@@ -388,4 +408,67 @@ public class Maze {
 
 		maze[pos.y][pos.x] = content;
 	}
+
+
+
+	
+	
+	
+	
+	
+	
+	public Position getHeroPosition() {
+		
+		return hero.getPosition();
+	}
+
+
+
+	public HERO_STATE getHeroState() {
+		
+		return hero.getState();
+	}
+
+
+
+	public Position getSwordPosition() {
+		
+		return sword.getPosition();
+	}
+
+
+
+	public boolean heroHasSword() {
+		
+		return hero.hasSword();
+	}
+
+
+
+	public void heroFastSwordPick() {
+		
+		hero.pickedSword();
+	}
+
+
+
+	public DRAGON_STATE getDragonState() {
+		
+		return dragon.getState();
+	}
+
+
+
+	public Position getExitPosition() {
+
+		return exit.getPosition();
+	}
+
+
+
+	public void setDragonAsleep() {
+		
+		dragon.sleep();
+	}
+
 }

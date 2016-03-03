@@ -20,11 +20,22 @@ public class Position {
 	}
 	
 	
-	public boolean equals(Position other) {
+	
+	@Override
+	public boolean equals(Object obj) {
 		
-		if (this.x == other.x && this.y == other.y)
-			return true;
+		if (this.getClass() != obj.getClass())
+			return false;
+	
 		
-		return false;
+		Position other = (Position) obj;
+		return (this.x == other.x && this.y == other.y);
+	}
+	
+	
+	@Override
+	public int hashCode() {
+		
+		return y + x;
 	}
 }

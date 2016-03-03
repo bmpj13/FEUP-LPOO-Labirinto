@@ -1,7 +1,7 @@
 package maze.logic;
 
 
-public class Dragon extends Object {
+public class Dragon extends Element {
 
 	public enum DRAGON_STATE {AWAKE, SLEEPING, DEAD};
 

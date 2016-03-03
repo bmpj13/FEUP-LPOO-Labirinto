@@ -1,6 +1,6 @@
 package maze.logic;
 
-public class Sword extends Object {
+public class Sword extends Element {
 
 	public Sword() {
 

@@ -1,6 +1,6 @@
 package maze.logic;
 
-public class Exit extends Object {
+public class Exit extends Element {
 
 	public Exit() {
 
