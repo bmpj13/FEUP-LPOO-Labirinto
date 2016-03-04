@@ -43,22 +43,10 @@ public class Interface {
 
 	public char askDirection() {
 
-		boolean firstAsk = true;
-		char direction = ' ';
-
 		System.out.println();
 		System.out.print("Desired direction (WASD): ");
-		do {
-			if (!firstAsk)
-				System.out.print("Choose one of WASD keys: ");
-
-			if (scan.hasNext())
-				direction = Character.toLowerCase(scan.next().charAt(0));
-
-			firstAsk = false;
-		} while (direction != 'w' && direction != 'a' && direction != 's' && direction != 'd');
-
-		return direction;
+		
+		return scan.next().charAt(0);
 	}
 
 

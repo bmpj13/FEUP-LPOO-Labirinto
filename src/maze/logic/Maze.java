@@ -2,6 +2,7 @@ package maze.logic;
 import java.util.Random;
 
 import maze.cli.Interface;
+import maze.exceptions.InvalidKey;
 import maze.logic.Dragon.DRAGON_STATE;
 import maze.logic.Hero.HERO_STATE;
 
@@ -46,12 +47,25 @@ public class Maze {
 		while (hero.getState() == HERO_STATE.ALIVE) {
 
 			interf.display(maze);
-			char key = interf.askDirection();
-			maze.update(key2direction(key));
+
+
+			boolean validKey = true;
+			do {
+				char key = interf.askDirection();
+				try {	
+					DIRECTION dir = key2direction(key);
+					maze.update(dir);
+					validKey = true;
+				} catch (InvalidKey e) { 
+					validKey = false;
+					interf.display(e);
+				}
+
+			} while (!validKey);
 		}
 
-		interf.display(maze);
 
+		interf.display(maze);
 		if (hero.getState() == HERO_STATE.WIN)
 			interf.WinMsg();
 		else
@@ -61,16 +75,18 @@ public class Maze {
 
 
 
-	private DIRECTION key2direction(char key) {
-		
+	private DIRECTION key2direction(char key) throws InvalidKey {
+
 		if (key == 'w')
 			return DIRECTION.UP;
 		else if (key == 'a')
 			return DIRECTION.LEFT;
 		else if (key == 's')
 			return DIRECTION.DOWN;
-		else
+		else if (key == 'd')
 			return DIRECTION.RIGHT;
+
+		throw new InvalidKey(key);
 	}
 
 
@@ -173,7 +189,7 @@ public class Maze {
 	public void update(DIRECTION direction) {
 
 		moveHero(direction);
-		
+
 		HeroVsDragon();
 
 		if (dragon.getState() != DRAGON_STATE.DEAD) {
@@ -411,49 +427,49 @@ public class Maze {
 
 
 
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	public Position getHeroPosition() {
-		
+
 		return hero.getPosition();
 	}
 
 
 
 	public HERO_STATE getHeroState() {
-		
+
 		return hero.getState();
 	}
 
 
 
 	public Position getSwordPosition() {
-		
+
 		return sword.getPosition();
 	}
 
 
 
 	public boolean heroHasSword() {
-		
+
 		return hero.hasSword();
 	}
 
 
 
 	public void heroFastSwordPick() {
-		
+
 		hero.pickedSword();
 	}
 
 
 
 	public DRAGON_STATE getDragonState() {
-		
+
 		return dragon.getState();
 	}
 
@@ -467,7 +483,7 @@ public class Maze {
 
 
 	public void setDragonAsleep() {
-		
+
 		dragon.sleep();
 	}
 
