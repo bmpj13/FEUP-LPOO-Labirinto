@@ -1,4 +1,6 @@
 package maze.logic;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Random;
 
 import maze.cli.Interface;
@@ -30,14 +32,16 @@ public class Maze {
 		Interface interf = new Interface();
 		Maze maze = new Maze();
 
+		interf.display(maze);
 
-		int mode = interf.askDragonMode(); 
-		if (mode == 1)
-			maze.setDragonMode(DRAGON_MODE.FROZEN);
-		else if (mode == 2)
-			maze.setDragonMode(DRAGON_MODE.RANDOM);
 
-		maze.play(interf, maze);
+		//		int mode = interf.askDragonMode(); 
+		//		if (mode == 1)
+		//			maze.setDragonMode(DRAGON_MODE.FROZEN);
+		//		else if (mode == 2)
+		//			maze.setDragonMode(DRAGON_MODE.RANDOM);
+		//
+		//		maze.play(interf, maze);
 	}
 
 
@@ -93,14 +97,17 @@ public class Maze {
 
 	public Maze() {
 
-		loadDefaultMaze();
+		maze = generateMaze(9);
 
-		hero = new Hero();
-		dragon = new Dragon();
-		sword = new Sword();
-		exit = new Exit();
-		dragonMode = DRAGON_MODE.CAN_SLEEP;
+		//		loadDefaultMaze();
+		//
+		//		hero = new Hero();
+		//		dragon = new Dragon();
+		//		sword = new Sword();
+		//		exit = new Exit();
+		//		dragonMode = DRAGON_MODE.CAN_SLEEP;
 	}
+
 
 
 
@@ -141,35 +148,205 @@ public class Maze {
 
 	public void loadDefaultMaze() {
 
-		maze = new char[10][10];
+		//maze = new char[10][10];
+
+		char[][] m = { 
+				{'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'},
+				{'X', 'H', '.', '.', '.', '.', '.', '.', '.', 'X'},
+				{'X', '.', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
+				{'X', 'D', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
+				{'X', '.', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
+				{'X', '.', '.', '.', '.', '.', '.', 'X', '.', 'S'},
+				{'X', '.', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
+				{'X', '.', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
+				{'X', 'E', 'X', 'X', '.', '.', '.', '.', '.', 'X'},
+				{'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'}
+		};
+
+		maze = m;
 
 		// borders of the maze
-		for (int i = 0; i < 10; i++) {
-			maze[i][0] = 'X';
-			maze[0][i] = 'X';
-			maze[i][9] = 'X';
-			maze[9][i] = 'X';
-		}
-
-
-		for (int i = 1; i < 9; i++)
-			for (int j = 1; j < 9; j++) {
-				if ((j == 2 || j == 3 || j == 5 || j == 7) && (i > 1 && i < 8 && i != 5))
-					maze[i][j] = 'X';
-				else 
-					maze[i][j] = '.';
-			}
-
-		maze[5][7] = 'X';
-		maze[8][2] = 'X';
-		maze[8][3] = 'X';
-		maze[1][1] = 'H';
-		maze[3][1] = 'D';
-		maze[8][1] = 'E';
-		maze[5][9] = 'S';
+		//		for (int i = 0; i < 10; i++) {
+		//			maze[i][0] = 'X';
+		//			maze[0][i] = 'X';
+		//			maze[i][9] = 'X';
+		//			maze[9][i] = 'X';
+		//		}
+		//
+		//
+		//		for (int i = 1; i < 9; i++)
+		//			for (int j = 1; j < 9; j++) {
+		//				if ((j == 2 || j == 3 || j == 5 || j == 7) && (i > 1 && i < 8 && i != 5))
+		//					maze[i][j] = 'X';
+		//				else 
+		//					maze[i][j] = '.';
+		//			}
+		//
+		//		maze[5][7] = 'X';
+		//		maze[8][2] = 'X';
+		//		maze[8][3] = 'X';
+		//		maze[1][1] = 'H';
+		//		maze[3][1] = 'D';
+		//		maze[8][1] = 'E';
+		//		maze[5][9] = 'S';
 	}
 
 
+
+
+	public char[][] generateMaze(int dimension) {
+
+		char[][] maze = new char[dimension][dimension];
+		boolean[][] cells = new boolean[dimension][dimension];  // Visited flags
+		LinkedList<Position> stack = new LinkedList<Position>();
+		Random rand = new Random();
+
+
+		for (int i = 0; i < dimension; i++)
+			for (int j = 0; j < dimension; j++) {
+
+				if ( (i % 2 != 0) && (j % 2 != 0) 
+						&& (i < dimension - 1) && (j < dimension - 1) ) {
+					maze[i][j] = '.';
+					cells[i][j] = true;
+					stack.addFirst(new Position(i,j));
+				}
+				else
+					maze[i][j] = 'X';
+			}
+
+
+
+		// Position exit on the maze and step to adjacent position
+
+		int randomPos = rand.nextInt(dimension - 2) + 1;
+		Position currPos = null;
+
+		switch (rand.nextInt(4)) {
+		case 0:
+			maze[0][randomPos] = 'S';						// set content on maze
+			cells[0][randomPos] = true;						// save visited cell
+			currPos = new Position(1, randomPos);			// save starting position
+			break;
+
+		case 1:
+			maze[dimension-1][randomPos] = 'S';
+			cells[dimension-1][randomPos] = true;
+			currPos = new Position(dimension-2, randomPos);
+			break;
+
+		case 2:
+			maze[randomPos][0] = 'S';
+			cells[randomPos][0] = true;
+			currPos = new Position(randomPos, 1);
+			break;
+
+		case 3:
+			maze[randomPos][dimension-1] = 'S';
+			cells[randomPos][dimension-1] = true;
+			currPos = new Position(randomPos, dimension-2);
+			break;
+		}
+
+
+		maze[currPos.y][currPos.x] = '.';
+		cells[currPos.y][currPos.x] = true;
+		stack.addFirst(currPos);
+
+
+
+
+		// Pick a neighbour and stack it
+
+		do {
+
+			currPos = stack.getFirst();
+
+
+			// Examine current cell's neighbours
+
+			DIRECTION availableNeighbours[] = new DIRECTION[4];
+
+			int freeNeighbours = 0;
+
+			// up neighbour
+			if (currPos.y > 1 && !cells[currPos.y-1][currPos.x]) {
+
+				if (!( (currPos.x > 1 && cells[currPos.y][currPos.x-1] && cells[currPos.y-1][currPos.x-1]) 
+						|| (currPos.x < dimension - 2 && cells[currPos.y][currPos.x+1] && cells[currPos.y-1][currPos.x+1]) ))
+					availableNeighbours[freeNeighbours++] = DIRECTION.UP;
+			}
+
+
+			// left neighbour
+			if (currPos.x > 1 && !cells[currPos.y][currPos.x-1]) {	
+
+				if (!( (currPos.y > 1 && cells[currPos.y-1][currPos.x] && cells[currPos.y-1][currPos.x-1]) 
+						|| (currPos.y < dimension - 2 && cells[currPos.y+1][currPos.x] && cells[currPos.y+1][currPos.x-1]) ))
+					availableNeighbours[freeNeighbours++] = DIRECTION.LEFT;
+			}
+
+
+			// down neighbour
+			if (currPos.y < dimension - 2 && !cells[currPos.y+1][currPos.x]) {
+
+				if (!( (currPos.x > 1 && cells[currPos.y][currPos.x-1] && cells[currPos.y+1][currPos.x-1]) 
+						|| (currPos.x < dimension - 2 && cells[currPos.y][currPos.x+1] && cells[currPos.y+1][currPos.x+1]) ))
+					availableNeighbours[freeNeighbours++] = DIRECTION.DOWN;
+			}
+
+
+			// right neighbour
+			if (currPos.x < dimension - 2 && !cells[currPos.y][currPos.x+1]) {
+
+				if (!( (currPos.y > 1 && cells[currPos.y-1][currPos.x] && cells[currPos.y-1][currPos.x+1]) 
+						|| (currPos.y < dimension - 2 && cells[currPos.y+1][currPos.x] && cells[currPos.y+1][currPos.x+1]) ))
+					availableNeighbours[freeNeighbours++] = DIRECTION.RIGHT;
+			}
+
+
+
+
+			if (freeNeighbours > 0) {
+
+				switch (availableNeighbours[rand.nextInt(freeNeighbours)]) {
+
+				case UP:
+					currPos.y--;
+					maze[currPos.y][currPos.x] = '.';
+					cells[currPos.y][currPos.x] = true;
+					break;
+
+				case LEFT:
+					currPos.x--;
+					maze[currPos.y][currPos.x] = '.';
+					cells[currPos.y][currPos.x] = true;
+					break;
+
+				case DOWN:
+					currPos.y++;
+					maze[currPos.y][currPos.x] = '.';
+					cells[currPos.y][currPos.x] = true;
+					break;
+
+				case RIGHT:
+					currPos.x++;
+					maze[currPos.y][currPos.x] = '.';
+					cells[currPos.y][currPos.x] = true;
+					break;
+				}
+
+				stack.addFirst(currPos);
+			}
+			else 	
+				stack.removeFirst();
+
+		} while (!stack.isEmpty());
+
+
+
+		return maze;
+	}
 
 
 	public String toString() {
@@ -217,7 +394,7 @@ public class Maze {
 
 
 
-	private boolean fight() {
+	private boolean fightAvailabe() {
 
 		Position heroPos = hero.getPosition();
 		Position dragonPos = dragon.getPosition();
@@ -387,7 +564,7 @@ public class Maze {
 
 	public void HeroVsDragon() {
 
-		if (fight()) {
+		if (fightAvailabe()) {
 
 			if (hero.hasSword()) {
 
