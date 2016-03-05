@@ -12,4 +12,7 @@ public class Exit extends Element {
 
 		position = new Position(line, column);
 	}
+	public Exit(Position pos){
+		position = pos;
+	}
 }

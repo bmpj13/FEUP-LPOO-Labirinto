@@ -1,6 +1,7 @@
 package maze.logic;
 
-import java.util.Arrays;
+
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -31,18 +32,19 @@ public class Maze {
 	public static void main(String[] args) {
 
 		Interface interf = new Interface();
+		int mode = interf.askDragonMode(); 
+		
 		Maze maze = new Maze();
+		if (mode == 1)
+			maze.setDragonMode(DRAGON_MODE.FROZEN);
+		else if (mode == 2)
+			maze.setDragonMode(DRAGON_MODE.RANDOM);
+
+
 
 		interf.display(maze);
 
-
-		//		int mode = interf.askDragonMode(); 
-		//		if (mode == 1)
-		//			maze.setDragonMode(DRAGON_MODE.FROZEN);
-		//		else if (mode == 2)
-		//			maze.setDragonMode(DRAGON_MODE.RANDOM);
-		//
-		//		maze.play(interf, maze);
+		maze.play(interf, maze);
 	}
 
 
@@ -98,7 +100,8 @@ public class Maze {
 
 	public Maze() {
 
-		maze = generateMaze(15);
+		HashMap<Integer,Position> freePos = generateMaze(5);
+		PlaceCharacters(freePos);
 
 		//		loadDefaultMaze();
 		//
@@ -194,22 +197,28 @@ public class Maze {
 
 
 
+	//TODO generate
+	public HashMap<Integer,Position> generateMaze(int dimension) {
 
-	public char[][] generateMaze(int dimension) {
-
-		char[][] maze = new char[dimension][dimension];
+		HashMap<Integer,Position> freePos = new HashMap<Integer,Position>();
+		int hashIndex=0;
+		maze = new char[dimension][dimension];
 		boolean[][] cells = new boolean[dimension][dimension];  // Visited flags
 		LinkedList<Position> stack = new LinkedList<Position>();
 		Random rand = new Random();
 
+		for (int i = 0; i < dimension; i++)
+			for (int j = 0; j < dimension; j++) {
 
-
-		// Fill array with 'X'
-
-		for (char[] row: maze)
-			Arrays.fill(row, 'X');
-
-
+				if ( (i % 2 != 0) && (j % 2 != 0) 
+						&& (i < dimension - 1) && (j < dimension - 1) ) {
+					maze[i][j]='.';
+					cells[i][j]=true;
+					stack.addFirst(new Position(i,j));
+					freePos.put(hashIndex++,new Position(i,j));
+				}
+				else maze[i][j] = 'X';
+			}
 
 		// Position exit on the maze and step to adjacent position
 
@@ -218,26 +227,26 @@ public class Maze {
 
 		switch (rand.nextInt(4)) {
 		case 0:
-			maze[0][randomPos] = 'S';						// set content on maze
-			cells[0][randomPos] = true;						// save visited cell
+			maze[0][randomPos] = 'S';						// set content on maze	
+			exit = new Exit(0,randomPos);
 			currPos = new Position(1, randomPos);			// save starting position
 			break;
 
 		case 1:
 			maze[dimension-1][randomPos] = 'S';
-			cells[dimension-1][randomPos] = true;
+			exit = new Exit(dimension-1,randomPos);
 			currPos = new Position(dimension-2, randomPos);
 			break;
 
 		case 2:
 			maze[randomPos][0] = 'S';
-			cells[randomPos][0] = true;
+			exit = new Exit(randomPos, 0);
 			currPos = new Position(randomPos, 1);
 			break;
 
 		case 3:
 			maze[randomPos][dimension-1] = 'S';
-			cells[randomPos][dimension-1] = true;
+			exit = new Exit(randomPos, dimension-1);
 			currPos = new Position(randomPos, dimension-2);
 			break;
 		}
@@ -245,7 +254,9 @@ public class Maze {
 
 		maze[currPos.y][currPos.x] = '.';
 		cells[currPos.y][currPos.x] = true;
+
 		stack.addFirst(currPos);
+		freePos.put(hashIndex++,new Position(currPos));
 
 
 
@@ -281,8 +292,6 @@ public class Maze {
 				availableNeighbours[freeNeighbours++] = DIRECTION.RIGHT;
 
 
-
-
 			if (freeNeighbours > 0) {
 
 				switch (availableNeighbours[rand.nextInt(freeNeighbours)]) {
@@ -313,6 +322,8 @@ public class Maze {
 				}
 
 				stack.addFirst(new Position(currPos));
+				Position p = new Position (currPos);
+				freePos.put(hashIndex++,p);
 			}
 			else {
 				stack.removeFirst();
@@ -324,7 +335,7 @@ public class Maze {
 		} while (!stack.isEmpty());
 
 
-		return maze;
+		return freePos;
 	}
 
 
@@ -432,6 +443,32 @@ public class Maze {
 		return true;
 	}
 
+	//TODO Place characters
+	public void PlaceCharacters(HashMap<Integer,Position> freePos){
+		Random rand = new Random();
+		int numElem = freePos.size();
+		int pos = rand.nextInt(numElem);
+
+		hero = new Hero(new Position(freePos.get(pos)));
+		setMazeContent(hero.getPosition(),'H');
+		freePos.put(pos,freePos.get(--numElem));
+
+		pos = rand.nextInt(numElem);
+
+		sword = new Sword(new Position(freePos.get(pos)));
+		setMazeContent(sword.getPosition(),'E');
+		freePos.put(pos,freePos.get(--numElem));
+
+		do{
+			pos = rand.nextInt(numElem);
+
+			dragon = new Dragon(new Position(freePos.get(pos)));
+			freePos.put(pos,freePos.get(--numElem));
+		}while(fightAvailable());
+		setMazeContent(dragon.getPosition(),'D');
+
+	}
+
 
 
 
@@ -448,7 +485,7 @@ public class Maze {
 
 
 
-
+	//TODO update
 	public void update(DIRECTION direction) {
 
 		moveHero(direction);
@@ -480,7 +517,7 @@ public class Maze {
 
 
 
-	private boolean fightAvailabe() {
+	private boolean fightAvailable() {
 
 		Position heroPos = hero.getPosition();
 		Position dragonPos = dragon.getPosition();
@@ -565,7 +602,7 @@ public class Maze {
 
 
 
-
+	//TODO moveDragon
 	public void moveDragon() {
 
 		Random rand = new Random();
@@ -650,7 +687,7 @@ public class Maze {
 
 	public void HeroVsDragon() {
 
-		if (fightAvailabe()) {
+		if (fightAvailable()) {
 
 			if (hero.hasSword()) {
 

@@ -12,4 +12,8 @@ public class Sword extends Element {
 		
 		position = new Position(line, column);
 	}
+	
+	public Sword(Position pos){	
+		position = pos;
+	}
 }

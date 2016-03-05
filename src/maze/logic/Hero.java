@@ -20,7 +20,12 @@ public class Hero extends Element {
 		hasSword = false;
 		heroState = HERO_STATE.ALIVE;
 	}
-	
+	public Hero(Position pos){
+		
+		position = pos;
+		hasSword = false;
+		heroState = HERO_STATE.ALIVE;
+	}
 	
 	
 	public void move(int y, int x) {

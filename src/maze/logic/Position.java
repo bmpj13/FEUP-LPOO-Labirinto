@@ -41,6 +41,10 @@ public class Position {
 		return (this.x == other.x && this.y == other.y);
 	}
 
+	public String toString() {
+
+		return y + "  " + x;
+	}
 
 	@Override
 	public int hashCode() {
