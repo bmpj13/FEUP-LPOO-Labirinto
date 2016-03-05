@@ -14,13 +14,18 @@ public class Dragon extends Element {
 		dragonState = DRAGON_STATE.AWAKE;
 	}
 
+	
+	
 	public Dragon(int line, int column) {
 
 		position = new Position(line, column);
 		dragonState = DRAGON_STATE.AWAKE;
 	}
+	
+	
 	public Dragon(Position pos){	
 		position = pos;
+		dragonState = DRAGON_STATE.AWAKE;
 	}
 
 	public void move(int y, int x) {

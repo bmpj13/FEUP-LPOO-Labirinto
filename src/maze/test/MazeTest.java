@@ -7,6 +7,7 @@ import maze.logic.*;
 import maze.logic.Dragon.DRAGON_STATE;
 import maze.logic.Hero.HERO_STATE;
 import maze.logic.Maze.DIRECTION;
+import maze.logic.Maze.DRAGON_MODE;
 
 
 public class MazeTest {
@@ -123,7 +124,7 @@ public class MazeTest {
 	@Test
 	public void testHeroUnharmed() {
 		
-		Maze maze = new Maze();
+		Maze maze = new Maze(DRAGON_MODE.CAN_SLEEP);
 		
 		maze.setDragonAsleep();
 		
