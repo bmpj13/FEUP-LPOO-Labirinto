@@ -11,7 +11,7 @@ import maze.logic.Maze.DIRECTION;
 
 public class MazeTest {
 
-
+	
 	char [][] m1 = {{'X', 'X', 'X', 'X', 'X'},
 				{'X', '.', '.', 'H', 'S'},
 				{'X', '.', 'X', '.', 'X'},

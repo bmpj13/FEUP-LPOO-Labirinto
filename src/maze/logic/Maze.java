@@ -1,4 +1,5 @@
 package maze.logic;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
@@ -97,7 +98,7 @@ public class Maze {
 
 	public Maze() {
 
-		maze = generateMaze(9);
+		maze = generateMaze(15);
 
 		//		loadDefaultMaze();
 		//
@@ -202,18 +203,11 @@ public class Maze {
 		Random rand = new Random();
 
 
-		for (int i = 0; i < dimension; i++)
-			for (int j = 0; j < dimension; j++) {
 
-				if ( (i % 2 != 0) && (j % 2 != 0) 
-						&& (i < dimension - 1) && (j < dimension - 1) ) {
-					maze[i][j] = '.';
-					cells[i][j] = true;
-					stack.addFirst(new Position(i,j));
-				}
-				else
-					maze[i][j] = 'X';
-			}
+		// Fill array with 'X'
+
+		for (char[] row: maze)
+			Arrays.fill(row, 'X');
 
 
 
@@ -260,49 +254,31 @@ public class Maze {
 
 		do {
 
-			currPos = stack.getFirst();
-
 
 			// Examine current cell's neighbours
 
 			DIRECTION availableNeighbours[] = new DIRECTION[4];
-
 			int freeNeighbours = 0;
 
-			// up neighbour
-			if (currPos.y > 1 && !cells[currPos.y-1][currPos.x]) {
 
-				if (!( (currPos.x > 1 && cells[currPos.y][currPos.x-1] && cells[currPos.y-1][currPos.x-1]) 
-						|| (currPos.x < dimension - 2 && cells[currPos.y][currPos.x+1] && cells[currPos.y-1][currPos.x+1]) ))
-					availableNeighbours[freeNeighbours++] = DIRECTION.UP;
-			}
+			// up neighbour
+			if (currPos.y > 1 && !cells[currPos.y-1][currPos.x] && canCarve(dimension, DIRECTION.UP, currPos, cells))	
+				availableNeighbours[freeNeighbours++] = DIRECTION.UP;
 
 
 			// left neighbour
-			if (currPos.x > 1 && !cells[currPos.y][currPos.x-1]) {	
-
-				if (!( (currPos.y > 1 && cells[currPos.y-1][currPos.x] && cells[currPos.y-1][currPos.x-1]) 
-						|| (currPos.y < dimension - 2 && cells[currPos.y+1][currPos.x] && cells[currPos.y+1][currPos.x-1]) ))
-					availableNeighbours[freeNeighbours++] = DIRECTION.LEFT;
-			}
+			if (currPos.x > 1 && !cells[currPos.y][currPos.x-1] && canCarve(dimension, DIRECTION.LEFT, currPos, cells))
+				availableNeighbours[freeNeighbours++] = DIRECTION.LEFT;
 
 
 			// down neighbour
-			if (currPos.y < dimension - 2 && !cells[currPos.y+1][currPos.x]) {
-
-				if (!( (currPos.x > 1 && cells[currPos.y][currPos.x-1] && cells[currPos.y+1][currPos.x-1]) 
-						|| (currPos.x < dimension - 2 && cells[currPos.y][currPos.x+1] && cells[currPos.y+1][currPos.x+1]) ))
-					availableNeighbours[freeNeighbours++] = DIRECTION.DOWN;
-			}
+			if (currPos.y < dimension - 2 && !cells[currPos.y+1][currPos.x] && canCarve(dimension, DIRECTION.DOWN, currPos, cells))
+				availableNeighbours[freeNeighbours++] = DIRECTION.DOWN;
 
 
 			// right neighbour
-			if (currPos.x < dimension - 2 && !cells[currPos.y][currPos.x+1]) {
-
-				if (!( (currPos.y > 1 && cells[currPos.y-1][currPos.x] && cells[currPos.y-1][currPos.x+1]) 
-						|| (currPos.y < dimension - 2 && cells[currPos.y+1][currPos.x] && cells[currPos.y+1][currPos.x+1]) ))
-					availableNeighbours[freeNeighbours++] = DIRECTION.RIGHT;
-			}
+			if (currPos.x < dimension - 2 && !cells[currPos.y][currPos.x+1] && canCarve(dimension, DIRECTION.RIGHT, currPos, cells))
+				availableNeighbours[freeNeighbours++] = DIRECTION.RIGHT;
 
 
 
@@ -336,17 +312,127 @@ public class Maze {
 					break;
 				}
 
-				stack.addFirst(currPos);
+				stack.addFirst(new Position(currPos));
 			}
-			else 	
+			else {
 				stack.removeFirst();
+
+				if (!stack.isEmpty())
+					currPos = stack.getFirst();
+			}
 
 		} while (!stack.isEmpty());
 
 
-
 		return maze;
 	}
+
+
+
+	public boolean canCarve(int dimension, DIRECTION dir, Position currPos, boolean[][] cells) {
+
+		int x = currPos.x;
+		int y = currPos.y;
+
+		switch (dir) {
+
+		case UP:
+
+			if (x > 1) {
+				if (cells[y][x-1] && cells[y-1][x-1])
+					return false;
+				else if (cells[y-2][x] && cells[y-2][x-1] && cells[y-1][x-1])
+					return false;
+				else if (!cells[y-1][x-1] && cells[y-2][x-1] && !cells[y-2][x])
+					return false;
+			}
+
+			if (x < dimension - 1) {
+
+				if (cells[y][x+1] && cells[y-1][x+1])
+					return false;
+				if (cells[y-2][x] && cells[y-2][x+1] && cells[y-1][x+1])
+					return false;
+				else if (!cells[y-1][x+1] && cells[y-2][x+1] && !cells[y-2][x])
+					return false;
+			}
+			break;
+
+		case LEFT:
+
+			if (y > 1) {
+
+				if (cells[y-1][x] && cells[y-1][x-1])
+					return false;
+				else if (cells[y][x-2] && cells[y-1][x-2] && cells[y-1][x-1])
+					return false;
+				else if (!cells[y-1][x-1] && cells[y-1][x-2] && !cells[y][x-2])
+					return false;
+			}
+
+			if (y < dimension - 1) {
+
+				if (cells[y+1][x] && cells[y+1][x-1])
+					return false;
+				else if (cells[y][x-2] && cells[y+1][x-2] && cells[y+1][x-1])
+					return false;
+				else if (!cells[y+1][x-1] && cells[y+1][x-2] && !cells[y][x-2])
+					return false;
+			}
+			break;
+
+		case DOWN:
+
+			if (x > 1) {
+				if (cells[y][x-1] && cells[y+1][x-1])
+					return false;
+				else if (cells[y+2][x] && cells[y+2][x-1] && cells[y+1][x-1])
+					return false;
+				else if (!cells[y+1][x-1] && cells[y+2][x-1] && !cells[y+2][x])
+					return false;
+			}
+
+			if (x < dimension - 1) {
+
+				if (cells[y][x+1] && cells[y+1][x+1])
+					return false;
+				if (cells[y+2][x] && cells[y+2][x+1] && cells[y+1][x+1])
+					return false;
+				else if (!cells[y+1][x+1] && cells[y+2][x+1] && !cells[y+2][x])
+					return false;
+			}
+			break;
+
+
+		case RIGHT:
+
+			if (y > 1) {
+
+				if (cells[y-1][x] && cells[y-1][x+1])
+					return false;
+				else if (cells[y][x+2] && cells[y-1][x+2] && cells[y-1][x+1])
+					return false;
+				else if (!cells[y-1][x+1] && cells[y-1][x+2] && !cells[y][x+2])
+					return false;
+			}
+
+			if (y < dimension - 1) {
+
+				if (cells[y+1][x] && cells[y+1][x+1])
+					return false;
+				else if (cells[y][x+2] && cells[y+1][x+2] && cells[y+1][x+1])
+					return false;
+				else if (!cells[y+1][x+1] && cells[y+1][x+2] && !cells[y][x+2])
+					return false;
+			}
+			break;
+		}
+
+
+		return true;
+	}
+
+
 
 
 	public String toString() {
