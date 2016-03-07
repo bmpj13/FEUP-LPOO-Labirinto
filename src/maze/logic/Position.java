@@ -29,6 +29,12 @@ public class Position {
 	}
 
 
+	
+	boolean hasOddCoords() {
+		
+		return ((x % 2 != 0) && (y % 2 != 0));
+	}
+	
 
 	@Override
 	public boolean equals(Object obj) {
@@ -41,11 +47,16 @@ public class Position {
 		return (this.x == other.x && this.y == other.y);
 	}
 
+	
+	
 	public String toString() {
 
 		return y + "  " + x;
 	}
 
+	
+	
+	
 	@Override
 	public int hashCode() {
 

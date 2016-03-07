@@ -117,7 +117,7 @@ public class Maze {
 			dragonMode = DRAGON_MODE.CAN_SLEEP;
 
 
-		ArrayList<Position> freePos = generateMaze(10);
+		ArrayList<Position> freePos = generateMaze(100);
 		PlaceCharacters(freePos);
 
 		//		loadDefaultMaze();
@@ -169,7 +169,6 @@ public class Maze {
 
 	public void loadDefaultMaze() {
 
-		//maze = new char[10][10];
 
 		char[][] m = { 
 				{'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'},
@@ -201,25 +200,14 @@ public class Maze {
 		maze = new char[dimension][dimension];
 		boolean[][] cells = new boolean[dimension][dimension];  		// Visited flags
 		ArrayDeque<Position> stack = new ArrayDeque<Position>();		// Store visited flag's position
-		
 
-		for (int i = 0; i < dimension; i++)
-			for (int j = 0; j < dimension; j++) {
 
-				if ( (i % 2 != 0) && (j % 2 != 0) 
-						&& (i < dimension - 1) && (j < dimension - 1) ) {
-					maze[i][j]='.';
-					cells[i][j]=true;
-					stack.addFirst(new Position(i,j));
-					freePos.add(new Position(i,j));
-				}
-				else maze[i][j] = 'X';
-			}
 
-		
-		
+		startMazeGen(dimension, stack, cells, freePos);
+
+
 		// Position exit on the maze and step to adjacent position
-		
+
 		Random rand = new Random();
 		int randomPos = rand.nextInt(dimension - 2) + 1;
 		Position currPos = null;
@@ -251,19 +239,16 @@ public class Maze {
 		}
 
 
-		maze[currPos.y][currPos.x] = '.';
+		setMazeContent(currPos, '.');
 		cells[currPos.y][currPos.x] = true;
-
 		stack.addFirst(currPos);
 		freePos.add(new Position(currPos));
-
 
 
 
 		// Pick a neighbour and stack it
 
 		do {
-
 
 			// Examine current cell's neighbours
 
@@ -297,29 +282,24 @@ public class Maze {
 
 				case UP:
 					currPos.y--;
-					maze[currPos.y][currPos.x] = '.';
-					cells[currPos.y][currPos.x] = true;
 					break;
 
 				case LEFT:
 					currPos.x--;
-					maze[currPos.y][currPos.x] = '.';
-					cells[currPos.y][currPos.x] = true;
 					break;
 
 				case DOWN:
 					currPos.y++;
-					maze[currPos.y][currPos.x] = '.';
-					cells[currPos.y][currPos.x] = true;
 					break;
 
 				case RIGHT:
 					currPos.x++;
-					maze[currPos.y][currPos.x] = '.';
-					cells[currPos.y][currPos.x] = true;
 					break;
 				}
 
+
+				setMazeContent(currPos, '.');
+				cells[currPos.y][currPos.x] = true;
 				stack.addFirst(new Position(currPos));
 				freePos.add(new Position (currPos));
 			}
@@ -335,6 +315,58 @@ public class Maze {
 
 		return freePos;
 	}
+
+
+
+
+
+
+	public void startMazeGen(int dimension, ArrayDeque<Position> stack, 
+			boolean cells[][], ArrayList<Position> freePos) {
+
+		for (int i = 0; i < dimension; i++)
+			for (int j = 0; j < dimension; j++) {
+
+				if ( (i % 3 == 1) && (j % 3 == 1)
+						&& (i < dimension - 1) && (j < dimension - 1) ) {
+
+					maze[i][j] = '.';
+					cells[i][j] = true;
+					stack.addFirst(new Position(i,j));
+					freePos.add(new Position(i,j));
+				}
+				else 
+					maze[i][j] = 'X';
+			}
+
+
+
+
+		if ((dimension - 1) % 3 == 1) {
+
+			for (int i = 1; i < dimension - 1; i+=3) {
+
+				maze[i][dimension - 2] = '.';
+				cells[i][dimension - 2] = true;
+				stack.addFirst(new Position(i, dimension - 2));
+				freePos.add(new Position(i, dimension - 2));
+
+
+				maze[dimension - 2][i] = '.';
+				cells[dimension - 2][i] = true;
+				stack.addFirst(new Position (dimension - 2, i));
+				freePos.add(new Position(dimension - 2, i));
+			}
+
+
+			maze[dimension - 2][dimension - 2] = '.';
+			cells[dimension - 2][dimension - 2] = true;
+			stack.addFirst(new Position (dimension - 2, dimension - 2));
+			freePos.add(new Position(dimension - 2, dimension - 2));
+		}
+	}
+
+
 
 
 
@@ -392,6 +424,9 @@ public class Maze {
 
 		case DOWN:
 
+			if ((dimension % 2 == 0) && currPos.hasOddCoords() && (y + 1 == dimension - 2) && !cells[y-1][x])
+				return false;
+
 			if (x > 1) {
 				if (cells[y][x-1] && cells[y+1][x-1])
 					return false;
@@ -414,6 +449,10 @@ public class Maze {
 
 
 		case RIGHT:
+
+			if ((dimension % 2 == 0) && currPos.hasOddCoords() && (x + 1 == dimension - 2) && !cells[y][x-1])
+				return false;
+
 
 			if (y > 1) {
 
@@ -445,7 +484,7 @@ public class Maze {
 	public void PlaceCharacters(ArrayList<Position> freePos){
 		Random rand = new Random();
 		int numElem = freePos.size();
-		
+
 		int pos = rand.nextInt(numElem);
 		hero = new Hero(freePos.get(pos));
 		setMazeContent(hero.getPosition(), heroSymbol);
@@ -456,14 +495,14 @@ public class Maze {
 		setMazeContent(sword.getPosition(), swordSymbol);
 		freePos.set(pos, freePos.get(--numElem));
 
-		
+
 		do {
-			
+
 			pos = rand.nextInt(numElem);
 			dragon = new Dragon(freePos.get(pos));
 			freePos.set(pos, freePos.get(--numElem));
 		} while(fightAvailable());
-		
+
 		setMazeContent(dragon.getPosition(), dragonSymbol);
 	}
 
