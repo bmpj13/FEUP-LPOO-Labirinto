@@ -16,6 +16,10 @@ public class Maze {
 	public enum DIRECTION {UP, LEFT, DOWN, RIGHT};
 	public enum DRAGON_MODE {FROZEN, RANDOM, CAN_SLEEP};
 
+	
+	private static char wallSymbol = 'X';
+	private static char pathSymbol = '.';
+	
 	private static char heroSymbol = 'H';
 	private static char dragonSymbol = 'D';
 	private static char swordSymbol = 'E';
@@ -117,7 +121,7 @@ public class Maze {
 			dragonMode = DRAGON_MODE.CAN_SLEEP;
 
 
-		ArrayList<Position> freePos = generateMaze(100);
+		ArrayList<Position> freePos = generateMaze(103);
 		PlaceCharacters(freePos);
 
 		//		loadDefaultMaze();
@@ -198,12 +202,11 @@ public class Maze {
 
 		ArrayList<Position> freePos = new ArrayList<Position>();		// Position that are free
 		maze = new char[dimension][dimension];
-		boolean[][] cells = new boolean[dimension][dimension];  		// Visited flags
 		ArrayDeque<Position> stack = new ArrayDeque<Position>();		// Store visited flag's position
 
 
 
-		startMazeGen(dimension, stack, cells, freePos);
+		startMazeGen(dimension, stack, freePos);
 
 
 		// Position exit on the maze and step to adjacent position
@@ -239,8 +242,7 @@ public class Maze {
 		}
 
 
-		setMazeContent(currPos, '.');
-		cells[currPos.y][currPos.x] = true;
+		setMazeContent(currPos, pathSymbol);
 		stack.addFirst(currPos);
 		freePos.add(new Position(currPos));
 
@@ -257,22 +259,26 @@ public class Maze {
 
 
 			// up neighbour
-			if (currPos.y > 1 && !cells[currPos.y-1][currPos.x] && canCarve(dimension, DIRECTION.UP, currPos, cells))	
+			if (currPos.y > 1 && maze[currPos.y-1][currPos.x] == wallSymbol 
+					&& canCarve(dimension, DIRECTION.UP, currPos))	
 				availableNeighbours[freeNeighbours++] = DIRECTION.UP;
 
 
 			// left neighbour
-			if (currPos.x > 1 && !cells[currPos.y][currPos.x-1] && canCarve(dimension, DIRECTION.LEFT, currPos, cells))
+			if (currPos.x > 1 && maze[currPos.y][currPos.x-1] == wallSymbol 
+					&& canCarve(dimension, DIRECTION.LEFT, currPos))
 				availableNeighbours[freeNeighbours++] = DIRECTION.LEFT;
 
 
 			// down neighbour
-			if (currPos.y < dimension - 2 && !cells[currPos.y+1][currPos.x] && canCarve(dimension, DIRECTION.DOWN, currPos, cells))
+			if (currPos.y < dimension - 2 && maze[currPos.y+1][currPos.x] == wallSymbol
+					&& canCarve(dimension, DIRECTION.DOWN, currPos))
 				availableNeighbours[freeNeighbours++] = DIRECTION.DOWN;
 
 
 			// right neighbour
-			if (currPos.x < dimension - 2 && !cells[currPos.y][currPos.x+1] && canCarve(dimension, DIRECTION.RIGHT, currPos, cells))
+			if (currPos.x < dimension - 2 && maze[currPos.y][currPos.x+1] == wallSymbol 
+					&& canCarve(dimension, DIRECTION.RIGHT, currPos))
 				availableNeighbours[freeNeighbours++] = DIRECTION.RIGHT;
 
 
@@ -298,8 +304,7 @@ public class Maze {
 				}
 
 
-				setMazeContent(currPos, '.');
-				cells[currPos.y][currPos.x] = true;
+				setMazeContent(currPos, pathSymbol);
 				stack.addFirst(new Position(currPos));
 				freePos.add(new Position (currPos));
 			}
@@ -321,56 +326,28 @@ public class Maze {
 
 
 
-	public void startMazeGen(int dimension, ArrayDeque<Position> stack, 
-			boolean cells[][], ArrayList<Position> freePos) {
+	public void startMazeGen(int dimension, ArrayDeque<Position> stack, ArrayList<Position> freePos) {
 
 		for (int i = 0; i < dimension; i++)
 			for (int j = 0; j < dimension; j++) {
 
-				if ( (i % 3 == 1) && (j % 3 == 1)
+				if ( (i % 2 != 0) && (j % 2 != 0)
 						&& (i < dimension - 1) && (j < dimension - 1) ) {
 
-					maze[i][j] = '.';
-					cells[i][j] = true;
+					maze[i][j] = pathSymbol;
 					stack.addFirst(new Position(i,j));
 					freePos.add(new Position(i,j));
 				}
 				else 
-					maze[i][j] = 'X';
+					maze[i][j] = wallSymbol;
 			}
-
-
-
-
-		if ((dimension - 1) % 3 == 1) {
-
-			for (int i = 1; i < dimension - 1; i+=3) {
-
-				maze[i][dimension - 2] = '.';
-				cells[i][dimension - 2] = true;
-				stack.addFirst(new Position(i, dimension - 2));
-				freePos.add(new Position(i, dimension - 2));
-
-
-				maze[dimension - 2][i] = '.';
-				cells[dimension - 2][i] = true;
-				stack.addFirst(new Position (dimension - 2, i));
-				freePos.add(new Position(dimension - 2, i));
-			}
-
-
-			maze[dimension - 2][dimension - 2] = '.';
-			cells[dimension - 2][dimension - 2] = true;
-			stack.addFirst(new Position (dimension - 2, dimension - 2));
-			freePos.add(new Position(dimension - 2, dimension - 2));
-		}
 	}
 
 
 
 
 
-	public boolean canCarve(int dimension, DIRECTION dir, Position currPos, boolean[][] cells) {
+	public boolean canCarve(int dimension, DIRECTION dir, Position currPos) {
 
 		int x = currPos.x;
 		int y = currPos.y;
@@ -380,21 +357,21 @@ public class Maze {
 		case UP:
 
 			if (x > 1) {
-				if (cells[y][x-1] && cells[y-1][x-1])
+				if (maze[y][x-1] == pathSymbol && maze[y-1][x-1] == pathSymbol)
 					return false;
-				else if (cells[y-2][x] && cells[y-2][x-1] && cells[y-1][x-1])
+				else if (maze[y-2][x] == pathSymbol && maze[y-2][x-1] == pathSymbol && maze[y-1][x-1] == pathSymbol)
 					return false;
-				else if (!cells[y-1][x-1] && cells[y-2][x-1] && !cells[y-2][x])
+				else if (maze[y-1][x-1] == wallSymbol && maze[y-2][x-1] == pathSymbol && maze[y-2][x] == wallSymbol)
 					return false;
 			}
 
 			if (x < dimension - 1) {
 
-				if (cells[y][x+1] && cells[y-1][x+1])
+				if (maze[y][x+1] == pathSymbol && maze[y-1][x+1] == pathSymbol)
 					return false;
-				if (cells[y-2][x] && cells[y-2][x+1] && cells[y-1][x+1])
+				if (maze[y-2][x] == pathSymbol && maze[y-2][x+1] == pathSymbol && maze[y-1][x+1] == pathSymbol)
 					return false;
-				else if (!cells[y-1][x+1] && cells[y-2][x+1] && !cells[y-2][x])
+				else if (maze[y-1][x+1] == wallSymbol && maze[y-2][x+1] == pathSymbol && maze[y-2][x] == wallSymbol)
 					return false;
 			}
 			break;
@@ -403,46 +380,47 @@ public class Maze {
 
 			if (y > 1) {
 
-				if (cells[y-1][x] && cells[y-1][x-1])
+				if (maze[y-1][x] == pathSymbol && maze[y-1][x-1] == pathSymbol)
 					return false;
-				else if (cells[y][x-2] && cells[y-1][x-2] && cells[y-1][x-1])
+				else if (maze[y][x-2] == pathSymbol && maze[y-1][x-2] == pathSymbol && maze[y-1][x-1] == pathSymbol)
 					return false;
-				else if (!cells[y-1][x-1] && cells[y-1][x-2] && !cells[y][x-2])
+				else if (maze[y-1][x-1] == wallSymbol && maze[y-1][x-2] == pathSymbol && maze[y][x-2] == wallSymbol)
 					return false;
 			}
 
 			if (y < dimension - 1) {
 
-				if (cells[y+1][x] && cells[y+1][x-1])
+				if (maze[y+1][x] == pathSymbol && maze[y+1][x-1] == pathSymbol)
 					return false;
-				else if (cells[y][x-2] && cells[y+1][x-2] && cells[y+1][x-1])
+				else if (maze[y][x-2] == pathSymbol && maze[y+1][x-2] == pathSymbol && maze[y+1][x-1] == pathSymbol)
 					return false;
-				else if (!cells[y+1][x-1] && cells[y+1][x-2] && !cells[y][x-2])
+				else if (maze[y+1][x-1] == wallSymbol && maze[y+1][x-2] == pathSymbol && maze[y][x-2] == wallSymbol)
 					return false;
 			}
 			break;
 
 		case DOWN:
 
-			if ((dimension % 2 == 0) && currPos.hasOddCoords() && (y + 1 == dimension - 2) && !cells[y-1][x])
+			if ((dimension % 2 == 0) && currPos.hasOddCoords() && (y + 1 == dimension - 2) && maze[y-1][x] == wallSymbol)
 				return false;
 
+
 			if (x > 1) {
-				if (cells[y][x-1] && cells[y+1][x-1])
+				if (maze[y][x-1] == pathSymbol && maze[y+1][x-1] == pathSymbol)
 					return false;
-				else if (cells[y+2][x] && cells[y+2][x-1] && cells[y+1][x-1])
+				else if (maze[y+2][x] == pathSymbol && maze[y+2][x-1] == pathSymbol && maze[y+1][x-1] == pathSymbol)
 					return false;
-				else if (!cells[y+1][x-1] && cells[y+2][x-1] && !cells[y+2][x])
+				else if (maze[y+1][x-1] == wallSymbol && maze[y+2][x-1] == pathSymbol && maze[y+2][x] == wallSymbol)
 					return false;
 			}
 
 			if (x < dimension - 1) {
 
-				if (cells[y][x+1] && cells[y+1][x+1])
+				if (maze[y][x+1] == pathSymbol && maze[y+1][x+1] == pathSymbol)
 					return false;
-				if (cells[y+2][x] && cells[y+2][x+1] && cells[y+1][x+1])
+				if (maze[y+2][x] == pathSymbol && maze[y+2][x+1] == pathSymbol && maze[y+1][x+1] == pathSymbol)
 					return false;
-				else if (!cells[y+1][x+1] && cells[y+2][x+1] && !cells[y+2][x])
+				else if (maze[y+1][x+1] == wallSymbol && maze[y+2][x+1] == pathSymbol && maze[y+2][x] == wallSymbol)
 					return false;
 			}
 			break;
@@ -450,27 +428,27 @@ public class Maze {
 
 		case RIGHT:
 
-			if ((dimension % 2 == 0) && currPos.hasOddCoords() && (x + 1 == dimension - 2) && !cells[y][x-1])
+			if ((dimension % 2 == 0) && currPos.hasOddCoords() && (x + 1 == dimension - 2) && maze[y][x-1] == wallSymbol)
 				return false;
 
 
 			if (y > 1) {
 
-				if (cells[y-1][x] && cells[y-1][x+1])
+				if (maze[y-1][x] == pathSymbol && maze[y-1][x+1] == pathSymbol)
 					return false;
-				else if (cells[y][x+2] && cells[y-1][x+2] && cells[y-1][x+1])
+				else if (maze[y][x+2] == pathSymbol && maze[y-1][x+2] == pathSymbol && maze[y-1][x+1] == pathSymbol)
 					return false;
-				else if (!cells[y-1][x+1] && cells[y-1][x+2] && !cells[y][x+2])
+				else if (maze[y-1][x+1] == wallSymbol && maze[y-1][x+2] == pathSymbol && maze[y][x+2] == wallSymbol)
 					return false;
 			}
 
 			if (y < dimension - 1) {
 
-				if (cells[y+1][x] && cells[y+1][x+1])
+				if (maze[y+1][x] == pathSymbol && maze[y+1][x+1] == pathSymbol)
 					return false;
-				else if (cells[y][x+2] && cells[y+1][x+2] && cells[y+1][x+1])
+				else if (maze[y][x+2] == pathSymbol && maze[y+1][x+2] == pathSymbol && maze[y+1][x+1] == pathSymbol)
 					return false;
-				else if (!cells[y+1][x+1] && cells[y+1][x+2] && !cells[y][x+2])
+				else if (maze[y+1][x+1] == wallSymbol && maze[y+1][x+2] == pathSymbol && maze[y][x+2] == wallSymbol)
 					return false;
 			}
 			break;
@@ -579,25 +557,25 @@ public class Maze {
 		boolean checkMove = false;
 		switch (direction) {
 		case UP:
-			if (maze[currHeroPos.y-1][currHeroPos.x]  != 'X' && maze[currHeroPos.y-1][currHeroPos.x] != 'd') {
+			if (maze[currHeroPos.y-1][currHeroPos.x]  != wallSymbol && maze[currHeroPos.y-1][currHeroPos.x] != 'd') {
 				checkMove = true;
 				newHeroPos.y--;
 			}
 			break;
 		case DOWN:
-			if (maze[currHeroPos.y+1][currHeroPos.x] != 'X' && maze[currHeroPos.y+1][currHeroPos.x] != 'd') {
+			if (maze[currHeroPos.y+1][currHeroPos.x] != wallSymbol && maze[currHeroPos.y+1][currHeroPos.x] != 'd') {
 				checkMove = true;
 				newHeroPos.y++;
 			}
 			break;
 		case LEFT:
-			if (maze[currHeroPos.y][currHeroPos.x-1] != 'X' && maze[currHeroPos.y][currHeroPos.x-1] != 'd') {
+			if (maze[currHeroPos.y][currHeroPos.x-1] != wallSymbol && maze[currHeroPos.y][currHeroPos.x-1] != 'd') {
 				checkMove = true;
 				newHeroPos.x--;		
 			}
 			break;
 		case RIGHT:
-			if (maze[currHeroPos.y][currHeroPos.x+1] != 'X' && maze[currHeroPos.y][currHeroPos.x+1] != 'd') {
+			if (maze[currHeroPos.y][currHeroPos.x+1] != wallSymbol && maze[currHeroPos.y][currHeroPos.x+1] != 'd') {
 				checkMove = true;
 				newHeroPos.x++;
 			}
@@ -607,9 +585,9 @@ public class Maze {
 
 
 		if (checkMove) {
-			if (getMazeContent(newHeroPos) == '.') {
+			if (getMazeContent(newHeroPos) == pathSymbol) {
 
-				setMazeContent(currHeroPos, '.');
+				setMazeContent(currHeroPos, pathSymbol);
 
 				if(hero.hasSword())
 					setMazeContent(newHeroPos, heroSymbol);
@@ -620,7 +598,7 @@ public class Maze {
 			}
 			else if ( newHeroPos.equals(sword.getPosition()) ) {
 
-				setMazeContent(currHeroPos, '.'); 
+				setMazeContent(currHeroPos, pathSymbol); 
 
 				hero.pickedSword();
 				heroSymbol = 'A';
@@ -630,7 +608,7 @@ public class Maze {
 			}
 			else if (newHeroPos.equals(exit.getPosition()) && dragon.getState() == DRAGON_STATE.DEAD) {
 
-				setMazeContent(currHeroPos, '.'); 
+				setMazeContent(currHeroPos, pathSymbol); 
 				setMazeContent(newHeroPos, heroSymbol);
 
 				hero.move(newHeroPos);
@@ -660,37 +638,37 @@ public class Maze {
 
 				if (posRand == 0) {
 
-					if (maze[dragonPos.y+1][dragonPos.x] != 'X' && maze[dragonPos.y+1][dragonPos.x] != exitSymbol) {
+					if (maze[dragonPos.y+1][dragonPos.x] != wallSymbol && maze[dragonPos.y+1][dragonPos.x] != exitSymbol) {
 
 						dragonMove = true;
-						setMazeContent(dragonPos, '.');
+						setMazeContent(dragonPos, pathSymbol);
 						dragonPos.y++;
 					}
 				}
 				else if (posRand == 1) {
 
-					if (maze[dragonPos.y-1][dragonPos.x] != 'X' && maze[dragonPos.y-1][dragonPos.x] != exitSymbol) {
+					if (maze[dragonPos.y-1][dragonPos.x] != wallSymbol && maze[dragonPos.y-1][dragonPos.x] != exitSymbol) {
 
 						dragonMove = true;
-						setMazeContent(dragonPos, '.');
+						setMazeContent(dragonPos, pathSymbol);
 						dragonPos.y--;
 					}
 				}
 				else if (posRand == 2) {
 
-					if (maze[dragonPos.y][dragonPos.x+1] != 'X' && maze[dragonPos.y][dragonPos.x+1] != exitSymbol) {
+					if (maze[dragonPos.y][dragonPos.x+1] != wallSymbol && maze[dragonPos.y][dragonPos.x+1] != exitSymbol) {
 
 						dragonMove = true;
-						setMazeContent(dragonPos, '.');
+						setMazeContent(dragonPos, pathSymbol);
 						dragonPos.x++;
 					}
 				}
 				else if (posRand == 3) {
 
-					if (maze[dragonPos.y][dragonPos.x-1] != 'X' && maze[dragonPos.y+1][dragonPos.x-1] != exitSymbol) {
+					if (maze[dragonPos.y][dragonPos.x-1] != wallSymbol && maze[dragonPos.y+1][dragonPos.x-1] != exitSymbol) {
 
 						dragonMove = true;
-						setMazeContent(dragonPos, '.');
+						setMazeContent(dragonPos, pathSymbol);
 						dragonPos.x--;
 					}
 				}				
@@ -733,7 +711,7 @@ public class Maze {
 
 			if (hero.hasSword()) {
 
-				maze[dragon.getPosition().y][dragon.getPosition().x] = '.';
+				maze[dragon.getPosition().y][dragon.getPosition().x] = pathSymbol;
 				maze[hero.getPosition().y][hero.getPosition().x] = heroSymbol;
 				dragon.dies();
 			}
