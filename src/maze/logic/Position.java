@@ -6,13 +6,6 @@ public class Position {
 	public int y;
 	public int x;
 
-
-	public Position() {
-
-		y = 0;
-		x = 0;
-	}
-
 	public Position(int y, int x) {
 
 		this.y = y;
@@ -48,16 +41,6 @@ public class Position {
 	public String toString() {
 
 		return y + "  " + x;
-	}
-
-
-	@Override
-	public int hashCode()
-	{
-		int hash = 38;
-		hash = ((hash + x) << 5) - (hash + x);
-		hash += ((hash + y) << 5) - (hash + y);
-		return hash;
 	}
 
 }

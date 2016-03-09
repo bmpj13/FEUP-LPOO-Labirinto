@@ -7,12 +7,9 @@ public class Exit extends Element {
 		position = new Position(5,9);
 	}
 
-
 	public Exit(int line, int column){
 
 		position = new Position(line, column);
 	}
-	public Exit(Position pos){
-		position = pos;
-	}
+
 }

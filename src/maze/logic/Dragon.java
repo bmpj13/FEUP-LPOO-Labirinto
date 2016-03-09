@@ -28,12 +28,6 @@ public class Dragon extends Element {
 		dragonState = DRAGON_STATE.AWAKE;
 	}
 
-	public void move(int y, int x) {
-		position.y = y;
-		position.x = x;
-	}
-
-
 	public void move(Position pos) {
 
 		position.y = pos.y;
