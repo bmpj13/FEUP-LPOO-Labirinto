@@ -13,14 +13,11 @@ public class Position {
 		x = 0;
 	}
 
-
 	public Position(int y, int x) {
 
 		this.y = y;
 		this.x = x;
 	}
-
-
 
 	public Position(Position pos) {
 
@@ -29,12 +26,11 @@ public class Position {
 	}
 
 
-	
 	boolean hasOddCoords() {
-		
+
 		return ((x % 2 != 0) && (y % 2 != 0));
 	}
-	
+
 
 	@Override
 	public boolean equals(Object obj) {
@@ -47,20 +43,21 @@ public class Position {
 		return (this.x == other.x && this.y == other.y);
 	}
 
-	
-	
+
+
 	public String toString() {
 
 		return y + "  " + x;
 	}
 
-	
-	
-	
-	@Override
-	public int hashCode() {
 
-		return y + x;
+	@Override
+	public int hashCode()
+	{
+		int hash = 38;
+		hash = ((hash + x) << 5) - (hash + x);
+		hash += ((hash + y) << 5) - (hash + y);
+		return hash;
 	}
 
 }
