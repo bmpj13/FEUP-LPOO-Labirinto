@@ -20,7 +20,7 @@ public class Maze {
 
 
 	private static final char wallSymbol = 'X';
-	private static final char pathSymbol = '.';
+	private static final char pathSymbol = ' ';
 
 	private char heroSymbol = 'H';
 	private char dragonSymbol = 'D';
@@ -40,7 +40,7 @@ public class Maze {
 	public static void main(String[] args) {
 
 		Interface interf = new Interface();
-		int mode = interf.askDragonMode(); 
+	/*	int mode = interf.askDragonMode(); 
 
 
 		DRAGON_MODE dm;
@@ -51,11 +51,12 @@ public class Maze {
 			dm = DRAGON_MODE.RANDOM;
 		else
 			dm = DRAGON_MODE.CAN_SLEEP;
-
-		//DRAGON_MODE dm= DRAGON_MODE.RANDOM;
-		Maze maze = new Maze(dm);
+*/
+		
+		DRAGON_MODE dm= DRAGON_MODE.RANDOM;
+		//Maze maze = new Maze(dm);
 		//interf.display(maze);
-		maze.play(interf, maze);
+		//maze.play(interf, maze);
 	}
 
 	//TODO play
@@ -103,7 +104,7 @@ public class Maze {
 	}
 
 	//TODO constructor
-	public Maze(DRAGON_MODE dm) {
+	public Maze(int dimension, int dragonNum, DRAGON_MODE dm) {
 
 
 		if (dm == DRAGON_MODE.FROZEN) {
@@ -116,8 +117,8 @@ public class Maze {
 			dragonMode = dm;
 
 
-		ArrayList<Position> freePos = generateMaze(8);
-		PlaceCharacters(freePos);
+		ArrayList<Position> freePos = generateMaze(dimension);
+		PlaceCharacters(freePos, dragonNum);
 
 	}
 
@@ -445,7 +446,7 @@ public class Maze {
 
 
 	//TODO Place characters
-	public void PlaceCharacters(ArrayList<Position> freePos){
+	public void PlaceCharacters(ArrayList<Position> freePos, int dragonNum){
 		Random rand = new Random();
 		int numElem = freePos.size();
 		dragonList = new LinkedList<Dragon>();
@@ -460,7 +461,6 @@ public class Maze {
 		setMazeContent(sword.getPosition(), swordSymbol);
 		freePos.set(pos, freePos.get(--numElem));
 
-		int dragonNum = maze.length;
 		for(int i = 0; i < dragonNum; i++){
 			Dragon dragon;
 			do {
@@ -491,11 +491,15 @@ public class Maze {
 
 
 	//TODO update
-	public void update(DIRECTION direction) {
+	public HERO_STATE update(DIRECTION direction) {
 
 		moveHero(direction);
+		
+		if (hero.getState() == HERO_STATE.WIN)
+			return HERO_STATE.WIN;
+		
+		
 		boolean dragonOnSword = false;
-
 		for (Iterator<Dragon> iterator = dragonList.iterator(); iterator.hasNext();){
 
 			Dragon dragon = iterator.next();
@@ -503,7 +507,7 @@ public class Maze {
 			HeroVsDragon(dragon);
 
 			if (hero.getState() == HERO_STATE.DEAD)
-				return;
+				return HERO_STATE.DEAD;
 			else if (dragon.getState() != DRAGON_STATE.DEAD) {
 
 				if (dragonMode != DRAGON_MODE.FROZEN)
@@ -527,6 +531,8 @@ public class Maze {
 			}
 			else iterator.remove();
 		}
+		
+		return HERO_STATE.ALIVE;
 	}
 
 	private boolean fightAvailable(Dragon dragon) {
@@ -574,6 +580,8 @@ public class Maze {
 				checkMove = true;
 				newHeroPos.x++;
 			}
+			break;
+		default:
 			break;
 		}
 
