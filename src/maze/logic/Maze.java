@@ -10,6 +10,7 @@ import java.util.Iterator;
 import maze.cli.Interface;
 import maze.exceptions.EndGame;
 import maze.exceptions.InvalidKey;
+import maze.gui.GUI;
 import maze.logic.Dragon.DRAGON_STATE;
 import maze.logic.Hero.HERO_STATE;
 
@@ -42,56 +43,97 @@ public class Maze {
 	public static void main(String[] args) {
 
 		Interface interf = new Interface();
-		/*	int mode = interf.askDragonMode(); 
 
+		int option = interf.askGameMode();
 
-		DRAGON_MODE dm;
-		if (mode == 1) {
-			dm = DRAGON_MODE.FROZEN;
+		if (option == 1) {
+
+			GUI gui = new GUI();
+			gui.setVisible(true);
 		}
-		else if (mode == 2)
-			dm = DRAGON_MODE.RANDOM;
-		else
-			dm = DRAGON_MODE.CAN_SLEEP;
-		 */
+		else {
 
-		DRAGON_MODE dm= DRAGON_MODE.RANDOM;
-		Maze maze = new Maze(99, 3,dm);
-		interf.display(maze);
-		//maze.play(interf, maze);
+			int[] dimension = new int[1];
+			int[] numDragons = new int[1];
+			DRAGON_MODE dm = null;
+			Maze maze = null;
+
+			boolean valid = true;
+			do {
+				Maze.askSettings(interf, dimension, numDragons, dm);
+				valid = true;
+
+				try {
+					maze = new Maze(dimension[0], numDragons[0], dm);
+				} catch (IllegalArgumentException e) {
+					interf.display("Error ocurred: " + e.getMessage() + "\n");
+					valid = false;
+				}
+
+			} while (!valid);
+
+			maze.consolePlay(interf, maze);
+		}
 	}
 
-	//TODO play
-	public void play(Interface interf, Maze maze) throws EndGame {
 
-		while (hero.getState() == HERO_STATE.ALIVE) {
+
+	public static void askSettings(Interface interf, int[] dimension, int[] numDragons, DRAGON_MODE dragonMode) {
+
+		dimension[0] = interf.askMazeDimension();
+		interf.display("\n");
+		
+		numDragons[0] = interf.askNumberDragons();
+		interf.display("\n");
+
+		int dm = interf.askDragonMode();
+		if (dm == 1)
+			dragonMode = DRAGON_MODE.FROZEN;
+		else if (dm == 2)
+			dragonMode = DRAGON_MODE.CAN_SLEEP;
+		else
+			dragonMode = DRAGON_MODE.RANDOM;
+		interf.display("\n");
+	}
+
+
+	//TODO play
+	public void consolePlay(Interface interf, Maze maze) {
+
+		while (true) {
 
 			interf.display(maze);
 
 			boolean validKey = true;
 			do {
 				char key = interf.askDirection();
-				try {	
+				try {
+
 					DIRECTION dir = key2direction(key);
-					maze.update(dir);
 					validKey = true;
+					maze.update(dir);
+
 				} catch (InvalidKey e) { 
 					validKey = false;
 					interf.display(e);
+				} catch (EndGame e) {
+
+					interf.display(maze);
+					if (hero.getState() == HERO_STATE.WIN)
+						interf.WinMsg();
+					else
+						interf.LoseMsg();
+					return;
 				}
 
 			} while (!validKey);
 		}
-
-
-		interf.display(maze);
-		if (hero.getState() == HERO_STATE.WIN)
-			interf.WinMsg();
-		else
-			interf.LoseMsg();
 	}
 
+
 	private DIRECTION key2direction(char key) throws InvalidKey {
+
+		key = Character.toLowerCase(key);
 
 		if (key == 'w')
 			return DIRECTION.UP;
@@ -105,28 +147,24 @@ public class Maze {
 		throw new InvalidKey(key);
 	}
 
+
+
 	//TODO constructor
 	public Maze(int dimension, int dragonNum, DRAGON_MODE dm){
-		
-		if(dimension < 5 || dimension %2 ==0)
-			throw new IllegalArgumentException();
-		if(dragonNum > (dimension-1)*(dimension-1)/3 )//arranjar uma formula melhor
-			throw new IllegalArgumentException();
-		
-		if (dm == DRAGON_MODE.FROZEN) {
-			dragonSymbol = 'd';
-			dragonMode = dm;
-		}
-		else if (dm == DRAGON_MODE.RANDOM)
-			dragonMode = dm;
-		else 
-			dragonMode = dm;
+
+		if (dimension < 5 || dimension % 2 == 0)
+			throw new IllegalArgumentException("Dimension cannot be even or inferior to 5.");
+		if (dragonNum > 7*dimension - 28)
+			throw new IllegalArgumentException("Can't place that many dragons! Choose another amount.");
+
+		dragonMode = dm;
 
 		maze = new char[dimension][dimension];
 		ArrayList<Position> freePos = generateMaze(dimension);
 		PlaceCharacters(freePos, dragonNum);
 
 	}
+
 
 	public Maze(char[][] m) {
 
@@ -314,6 +352,8 @@ public class Maze {
 		return freePositions;
 	}
 
+
+
 	private void openWalls(ArrayList<Position> freePositions,
 			HashSet<Position> walls) {
 
@@ -339,6 +379,9 @@ public class Maze {
 		}
 	}
 
+
+
+
 	private boolean destroyable(Position pos) {
 
 		int y = pos.y;
@@ -363,12 +406,18 @@ public class Maze {
 		return false;
 	}
 
+
+
+
 	private void updateAvailables(Position position,
 			ArrayList<Position> freePositions, HashSet<Position> walls) {
 
-			freePositions.add(position);
-			walls.remove(position);
+		freePositions.add(position);
+		walls.remove(position);
 	}
+
+
+
 
 	private void initMaze(ArrayList<Position> freePositions, HashSet<Position> walls) {
 
@@ -390,6 +439,7 @@ public class Maze {
 			}
 		}
 	}
+
 
 
 
@@ -426,6 +476,8 @@ public class Maze {
 
 	}
 
+
+
 	public String toString() {
 
 		String str = "";
@@ -442,7 +494,7 @@ public class Maze {
 	//TODO update
 	public void update(DIRECTION direction) throws EndGame {
 
-		moveHero(direction);
+		updateHero(direction);
 
 		if (hero.getState() == HERO_STATE.WIN)
 			throw new EndGame(true);
@@ -460,7 +512,7 @@ public class Maze {
 			else if (dragon.getState() != DRAGON_STATE.DEAD) {
 
 				if (dragonMode != DRAGON_MODE.FROZEN)
-					moveDragon(dragon);
+					updateDragon(dragon);
 
 				Position dragonPos = dragon.getPosition();
 				Position swordPos = sword.getPosition();
@@ -499,7 +551,7 @@ public class Maze {
 
 
 	//TODO move
-	public void moveHero(DIRECTION direction){
+	public void updateHero(DIRECTION direction){
 
 		Position currHeroPos = hero.getPosition();
 		Position newHeroPos = hero.getPosition();
@@ -569,7 +621,8 @@ public class Maze {
 		}
 	}
 
-	public void moveDragon(Dragon dragon) {
+
+	public void updateDragon(Dragon dragon) {
 
 		Random rand = new Random();
 
