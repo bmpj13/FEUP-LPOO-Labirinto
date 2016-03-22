@@ -2,11 +2,13 @@ package maze.logic;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Iterator;
 
 import maze.cli.Interface;
+import maze.exceptions.EndGame;
 import maze.exceptions.InvalidKey;
 import maze.logic.Dragon.DRAGON_STATE;
 import maze.logic.Hero.HERO_STATE;
@@ -40,7 +42,7 @@ public class Maze {
 	public static void main(String[] args) {
 
 		Interface interf = new Interface();
-	/*	int mode = interf.askDragonMode(); 
+		/*	int mode = interf.askDragonMode(); 
 
 
 		DRAGON_MODE dm;
@@ -51,16 +53,16 @@ public class Maze {
 			dm = DRAGON_MODE.RANDOM;
 		else
 			dm = DRAGON_MODE.CAN_SLEEP;
-*/
-		
+		 */
+
 		DRAGON_MODE dm= DRAGON_MODE.RANDOM;
-		//Maze maze = new Maze(dm);
-		//interf.display(maze);
+		Maze maze = new Maze(99, 3,dm);
+		interf.display(maze);
 		//maze.play(interf, maze);
 	}
 
 	//TODO play
-	public void play(Interface interf, Maze maze) {
+	public void play(Interface interf, Maze maze) throws EndGame {
 
 		while (hero.getState() == HERO_STATE.ALIVE) {
 
@@ -104,9 +106,13 @@ public class Maze {
 	}
 
 	//TODO constructor
-	public Maze(int dimension, int dragonNum, DRAGON_MODE dm) {
-
-
+	public Maze(int dimension, int dragonNum, DRAGON_MODE dm){
+		
+		if(dimension < 5 || dimension %2 ==0)
+			throw new IllegalArgumentException();
+		if(dragonNum > (dimension-1)*(dimension-1)/3 )//arranjar uma formula melhor
+			throw new IllegalArgumentException();
+		
 		if (dm == DRAGON_MODE.FROZEN) {
 			dragonSymbol = 'd';
 			dragonMode = dm;
@@ -116,7 +122,7 @@ public class Maze {
 		else 
 			dragonMode = dm;
 
-
+		maze = new char[dimension][dimension];
 		ArrayList<Position> freePos = generateMaze(dimension);
 		PlaceCharacters(freePos, dragonNum);
 
@@ -186,120 +192,115 @@ public class Maze {
 
 
 	//TODO generate
-	public ArrayList<Position> generateMaze(int dimension) {
+	private ArrayList<Position> generateMaze(int dimension) {
 
-		ArrayList<Position> freePos = new ArrayList<Position>();		// Position that are free
-		maze = new char[dimension][dimension];
-		ArrayDeque<Position> stack = new ArrayDeque<Position>();		// Store visited flag's position
-
-
-
-		startMazeGen(dimension, stack, freePos);
-
-
-		// Position exit on the maze and step to adjacent position
 
 		Random rand = new Random();
-		int randomPos = rand.nextInt(dimension - 2) + 1;
+		ArrayDeque<Position> stack = new ArrayDeque<Position>();
+		boolean[][] visitedCells = new boolean[(dimension-1)/2][(dimension-1)/2];
+		ArrayList<Position> freePositions = new ArrayList<Position>();
+		HashSet<Position> walls = new HashSet<Position>();
+
+
+
+		initMaze(freePositions, walls);
+
+
+		int randomPos = rand.nextInt(visitedCells.length);
 		Position currPos = null;
 
 		switch (rand.nextInt(4)) {
 		case 0:
-			maze[0][randomPos] = exitSymbol;						// set content on maze	
-			exit = new Exit(0,randomPos);
-			currPos = new Position(1, randomPos);			// save starting position
+			maze[0][randomPos*2 + 1] = exitSymbol;	
+			exit = new Exit(0, randomPos*2 + 1);// set content on maze	
+			currPos = new Position(0, randomPos);							// save starting position
 			break;
 
 		case 1:
-			maze[dimension-1][randomPos] = exitSymbol;
-			exit = new Exit(dimension-1,randomPos);
-			currPos = new Position(dimension-2, randomPos);
+			maze[dimension-1][randomPos*2 + 1] = exitSymbol;
+			exit = new Exit(dimension-1, randomPos*2 + 1);
+			currPos = new Position(visitedCells.length - 1, randomPos);
 			break;
 
 		case 2:
-			maze[randomPos][0] = exitSymbol;
-			exit = new Exit(randomPos, 0);
-			currPos = new Position(randomPos, 1);
+			maze[randomPos*2 + 1][0] = exitSymbol;
+			exit = new Exit(randomPos*2 + 1, 0);
+			currPos = new Position(randomPos, 0);
 			break;
 
 		case 3:
-			maze[randomPos][dimension-1] = exitSymbol;
-			exit = new Exit(randomPos, dimension-1);
-			currPos = new Position(randomPos, dimension-2);
+			maze[randomPos*2 + 1][dimension-1] = exitSymbol;
+			exit = new Exit(randomPos*2 + 1, dimension-1);
+			currPos = new Position(randomPos, visitedCells.length - 1);
 			break;
 		}
 
 
-		setMazeContent(currPos, pathSymbol);
-		stack.addFirst(currPos);
-		freePos.add(new Position(currPos));
-
-
-
-		// Pick a neighbour and stack it
+		visitedCells[currPos.y][currPos.x] = true;
+		stack.addFirst(new Position(currPos));
 
 		do {
-
-			// Examine current cell's neighbours
 
 			DIRECTION availableNeighbours[] = new DIRECTION[4];
 			int freeNeighbours = 0;
 
-
-			// up neighbour
-			if (currPos.y > 1 && maze[currPos.y-1][currPos.x] == wallSymbol 
-					&& canCarve(dimension, DIRECTION.UP, currPos))	
+			if (currPos.y > 0 && !visitedCells[currPos.y-1][currPos.x]) {
 				availableNeighbours[freeNeighbours++] = DIRECTION.UP;
+			}
 
-
-			// left neighbour
-			if (currPos.x > 1 && maze[currPos.y][currPos.x-1] == wallSymbol 
-					&& canCarve(dimension, DIRECTION.LEFT, currPos))
+			if (currPos.x > 0 && !visitedCells[currPos.y][currPos.x-1]) {
 				availableNeighbours[freeNeighbours++] = DIRECTION.LEFT;
+			}
 
-
-			// down neighbour
-			if (currPos.y < dimension - 2 && maze[currPos.y+1][currPos.x] == wallSymbol
-					&& canCarve(dimension, DIRECTION.DOWN, currPos))
+			if (currPos.y < visitedCells.length - 1 && !visitedCells[currPos.y+1][currPos.x]) {
 				availableNeighbours[freeNeighbours++] = DIRECTION.DOWN;
+			}
 
-
-			// right neighbour
-			if (currPos.x < dimension - 2 && maze[currPos.y][currPos.x+1] == wallSymbol 
-					&& canCarve(dimension, DIRECTION.RIGHT, currPos))
+			if (currPos.x < visitedCells.length - 1 && !visitedCells[currPos.y][currPos.x+1]) {
 				availableNeighbours[freeNeighbours++] = DIRECTION.RIGHT;
+			}
 
 
 			if (freeNeighbours > 0) {
 
+				int y = currPos.y * 2 + 1;
+				int x = currPos.x * 2 + 1;
+
 				switch (availableNeighbours[rand.nextInt(freeNeighbours)]) {
 
 				case UP:
+					maze[y-1][x] = pathSymbol;
+					updateAvailables(new Position(y-1, x), freePositions, walls);
 					currPos.y--;
 					break;
 
 				case LEFT:
+					maze[y][x-1] = pathSymbol;
+					updateAvailables(new Position(y, x-1), freePositions, walls);
 					currPos.x--;
 					break;
 
 				case DOWN:
+					maze[y+1][x] = pathSymbol;
+					updateAvailables(new Position(y+1, x), freePositions, walls);
 					currPos.y++;
 					break;
 
 				case RIGHT:
+					maze[y][x+1] = pathSymbol;
+					updateAvailables(new Position(y, x+1), freePositions, walls);
 					currPos.x++;
 					break;
-				
+
 				default:
 					break;
 				}
 
-
-				setMazeContent(currPos, pathSymbol);
 				stack.addFirst(new Position(currPos));
-				freePos.add(new Position (currPos));
-			}
+				visitedCells[currPos.y][currPos.x] = true; 
+			}		
 			else {
+
 				stack.removeFirst();
 
 				if (!stack.isEmpty())
@@ -309,139 +310,87 @@ public class Maze {
 		} while (!stack.isEmpty());
 
 
-		return freePos;
+		openWalls(freePositions, walls);
+		return freePositions;
 	}
 
-	public void startMazeGen(int dimension, ArrayDeque<Position> stack, ArrayList<Position> freePos) {
+	private void openWalls(ArrayList<Position> freePositions,
+			HashSet<Position> walls) {
 
-		for (int i = 0; i < dimension; i++)
-			for (int j = 0; j < dimension; j++) {
+		int walls2destroy = walls.size() / 3;
 
-				if ( (i % 2 != 0) && (j % 2 != 0)
-						&& (i < dimension - 1) && (j < dimension - 1) ) {
+		Position[] wallsArray = walls.toArray(new Position[walls.size()]);
+		int numWalls = wallsArray.length;
 
-					maze[i][j] = pathSymbol;
-					stack.addFirst(new Position(i,j));
-					freePos.add(new Position(i,j));
-				}
-				else 
-					maze[i][j] = wallSymbol;
+		Random rand = new Random();
+
+		while (walls2destroy != 0 && numWalls > 0) {
+
+			int posIndex = rand.nextInt(numWalls);
+			Position pos = wallsArray[posIndex];
+			wallsArray[posIndex] = wallsArray[--numWalls];
+
+			if (destroyable(pos)) {
+
+				maze[pos.y][pos.x] = pathSymbol;
+				freePositions.add(new Position(pos));
+				walls2destroy--;
 			}
+		}
 	}
 
-	public boolean canCarve(int dimension, DIRECTION dir, Position currPos) {
+	private boolean destroyable(Position pos) {
 
-		int x = currPos.x;
-		int y = currPos.y;
+		int y = pos.y;
+		int x = pos.x;
 
-		switch (dir) {
+		if ( (y > 0 && maze[y-1][x] == wallSymbol) && 
+				(y < maze.length - 1 && maze[y+1][x] == wallSymbol) ) {
 
-		case UP:
+			if ( (x > 0 && maze[y][x-1] == pathSymbol) && 
+					(x < maze.length - 1 && maze[y][x+1] == pathSymbol) )
+				return true;
+		}
+		else if ( (x > 0 && maze[y][x-1] == wallSymbol) && 
+				(x < maze.length - 1 && maze[y][x+1] == wallSymbol) ) {
 
-			if (x > 1) {
-				if (maze[y][x-1] == pathSymbol && maze[y-1][x-1] == pathSymbol)
-					return false;
-				else if (maze[y-2][x] == pathSymbol && maze[y-2][x-1] == pathSymbol && maze[y-1][x-1] == pathSymbol)
-					return false;
-				else if (maze[y-1][x-1] == wallSymbol && maze[y-2][x-1] == pathSymbol && maze[y-2][x] == wallSymbol)
-					return false;
+			if ( (y > 0 && maze[y-1][x] == pathSymbol) && 
+					(y < maze.length - 1 && maze[y+1][x] == pathSymbol) ) {
+				return true;
 			}
-
-			if (x < dimension - 1) {
-
-				if (maze[y][x+1] == pathSymbol && maze[y-1][x+1] == pathSymbol)
-					return false;
-				if (maze[y-2][x] == pathSymbol && maze[y-2][x+1] == pathSymbol && maze[y-1][x+1] == pathSymbol)
-					return false;
-				else if (maze[y-1][x+1] == wallSymbol && maze[y-2][x+1] == pathSymbol && maze[y-2][x] == wallSymbol)
-					return false;
-			}
-			break;
-
-		case LEFT:
-
-			if (y > 1) {
-
-				if (maze[y-1][x] == pathSymbol && maze[y-1][x-1] == pathSymbol)
-					return false;
-				else if (maze[y][x-2] == pathSymbol && maze[y-1][x-2] == pathSymbol && maze[y-1][x-1] == pathSymbol)
-					return false;
-				else if (maze[y-1][x-1] == wallSymbol && maze[y-1][x-2] == pathSymbol && maze[y][x-2] == wallSymbol)
-					return false;
-			}
-
-			if (y < dimension - 1) {
-
-				if (maze[y+1][x] == pathSymbol && maze[y+1][x-1] == pathSymbol)
-					return false;
-				else if (maze[y][x-2] == pathSymbol && maze[y+1][x-2] == pathSymbol && maze[y+1][x-1] == pathSymbol)
-					return false;
-				else if (maze[y+1][x-1] == wallSymbol && maze[y+1][x-2] == pathSymbol && maze[y][x-2] == wallSymbol)
-					return false;
-			}
-			break;
-
-		case DOWN:
-
-			if ((dimension % 2 == 0) && currPos.hasOddCoords() && (y + 1 == dimension - 2) && maze[y-1][x] == wallSymbol)
-				return false;
-
-
-			if (x > 1) {
-				if (maze[y][x-1] == pathSymbol && maze[y+1][x-1] == pathSymbol)
-					return false;
-				else if (maze[y+2][x] == pathSymbol && maze[y+2][x-1] == pathSymbol && maze[y+1][x-1] == pathSymbol)
-					return false;
-				else if (maze[y+1][x-1] == wallSymbol && maze[y+2][x-1] == pathSymbol && maze[y+2][x] == wallSymbol)
-					return false;
-			}
-
-			if (x < dimension - 1) {
-
-				if (maze[y][x+1] == pathSymbol && maze[y+1][x+1] == pathSymbol)
-					return false;
-				if (maze[y+2][x] == pathSymbol && maze[y+2][x+1] == pathSymbol && maze[y+1][x+1] == pathSymbol)
-					return false;
-				else if (maze[y+1][x+1] == wallSymbol && maze[y+2][x+1] == pathSymbol && maze[y+2][x] == wallSymbol)
-					return false;
-			}
-			break;
-
-
-		case RIGHT:
-
-			if ((dimension % 2 == 0) && currPos.hasOddCoords() && (x + 1 == dimension - 2) && maze[y][x-1] == wallSymbol)
-				return false;
-
-
-			if (y > 1) {
-
-				if (maze[y-1][x] == pathSymbol && maze[y-1][x+1] == pathSymbol)
-					return false;
-				else if (maze[y][x+2] == pathSymbol && maze[y-1][x+2] == pathSymbol && maze[y-1][x+1] == pathSymbol)
-					return false;
-				else if (maze[y-1][x+1] == wallSymbol && maze[y-1][x+2] == pathSymbol && maze[y][x+2] == wallSymbol)
-					return false;
-			}
-
-			if (y < dimension - 1) {
-
-				if (maze[y+1][x] == pathSymbol && maze[y+1][x+1] == pathSymbol)
-					return false;
-				else if (maze[y][x+2] == pathSymbol && maze[y+1][x+2] == pathSymbol && maze[y+1][x+1] == pathSymbol)
-					return false;
-				else if (maze[y+1][x+1] == wallSymbol && maze[y+1][x+2] == pathSymbol && maze[y][x+2] == wallSymbol)
-					return false;
-			}
-			break;
-			
-		case STAY:
-			break;
 		}
 
-
-		return true;
+		return false;
 	}
+
+	private void updateAvailables(Position position,
+			ArrayList<Position> freePositions, HashSet<Position> walls) {
+
+			freePositions.add(position);
+			walls.remove(position);
+	}
+
+	private void initMaze(ArrayList<Position> freePositions, HashSet<Position> walls) {
+
+		for (int i = 0; i < maze.length; i++) {
+
+			for (int j = 0; j < maze[i].length; j++) {
+
+				if ((i % 2  != 0) && (j % 2 != 0)) {
+					maze[i][j] = pathSymbol;
+					freePositions.add(new Position(i, j));
+				}
+				else {
+
+					maze[i][j] = wallSymbol;
+
+					if (i > 0 && j > 0 && i < maze.length - 1 && j < maze.length - 1)
+						walls.add(new Position(i, j));
+				}
+			}
+		}
+	}
+
 
 
 
@@ -491,14 +440,14 @@ public class Maze {
 
 
 	//TODO update
-	public HERO_STATE update(DIRECTION direction) {
+	public void update(DIRECTION direction) throws EndGame {
 
 		moveHero(direction);
-		
+
 		if (hero.getState() == HERO_STATE.WIN)
-			return HERO_STATE.WIN;
-		
-		
+			throw new EndGame(true);
+
+
 		boolean dragonOnSword = false;
 		for (Iterator<Dragon> iterator = dragonList.iterator(); iterator.hasNext();){
 
@@ -507,7 +456,7 @@ public class Maze {
 			HeroVsDragon(dragon);
 
 			if (hero.getState() == HERO_STATE.DEAD)
-				return HERO_STATE.DEAD;
+				throw new EndGame(false);
 			else if (dragon.getState() != DRAGON_STATE.DEAD) {
 
 				if (dragonMode != DRAGON_MODE.FROZEN)
@@ -531,8 +480,8 @@ public class Maze {
 			}
 			else iterator.remove();
 		}
-		
-		return HERO_STATE.ALIVE;
+
+		return;
 	}
 
 	private boolean fightAvailable(Dragon dragon) {
@@ -671,126 +620,126 @@ public class Maze {
 				setMazeContent(dragonPos, pathSymbol);
 				dragonPos.x++;
 				break;
-				
+
 			case LEFT:
 				setMazeContent(dragonPos, pathSymbol);
 				dragonPos.x--;
 				break;
-			
+
 			case STAY:
 				break;
 			}
 
-	}					
+		}					
 
-	dragon.move(dragonPos);
+		dragon.move(dragonPos);
 
-	if (dragonMode == DRAGON_MODE.CAN_SLEEP){
+		if (dragonMode == DRAGON_MODE.CAN_SLEEP){
 
-		int stateRand = rand.nextInt() % 3;
-		if (stateRand == 0) {
-			dragon.sleep();
-			dragonState = DRAGON_STATE.SLEEPING;
+			int stateRand = rand.nextInt() % 3;
+			if (stateRand == 0) {
+				dragon.sleep();
+				dragonState = DRAGON_STATE.SLEEPING;
+			}
+			else {
+				dragon.wakeUp();
+				dragonState = DRAGON_STATE.AWAKE;
+			}
 		}
-		else {
-			dragon.wakeUp();
-			dragonState = DRAGON_STATE.AWAKE;
+
+		if (dragonState == DRAGON_STATE.AWAKE)
+			dragonSymbol = 'D';
+		else if (dragonState == DRAGON_STATE.SLEEPING)
+			dragonSymbol = 'd';
+
+
+		setMazeContent(dragonPos, dragonSymbol);
+	}
+
+
+	//TODO HeroVsDragon
+	public void HeroVsDragon(Dragon dragon) {
+
+		if (fightAvailable(dragon)) {
+			if (hero.hasSword()) {
+
+				maze[dragon.getPosition().y][dragon.getPosition().x] = pathSymbol;
+				maze[hero.getPosition().y][hero.getPosition().x] = heroSymbol;
+				dragon.dies();
+				//dragonList.remove(dragon);
+			}
+			else if (dragon.getState() == DRAGON_STATE.AWAKE) 
+				hero.dies();
 		}
 	}
 
-	if (dragonState == DRAGON_STATE.AWAKE)
-		dragonSymbol = 'D';
-	else if (dragonState == DRAGON_STATE.SLEEPING)
-		dragonSymbol = 'd';
 
 
-	setMazeContent(dragonPos, dragonSymbol);
-}
-
-
-//TODO HeroVsDragon
-public void HeroVsDragon(Dragon dragon) {
-
-	if (fightAvailable(dragon)) {
-		if (hero.hasSword()) {
-
-			maze[dragon.getPosition().y][dragon.getPosition().x] = pathSymbol;
-			maze[hero.getPosition().y][hero.getPosition().x] = heroSymbol;
-			dragon.dies();
-			//dragonList.remove(dragon);
-		}
-		else if (dragon.getState() == DRAGON_STATE.AWAKE) 
-			hero.dies();
+	//TODO get and set
+	public DRAGON_MODE getDragonMode() {
+		return dragonMode;
 	}
-}
 
+	public void setDragonMode(DRAGON_MODE dragonMode) {
+		this.dragonMode = dragonMode;
+	}
 
+	public char getMazeContent(Position pos) {
 
-//TODO get and set
-public DRAGON_MODE getDragonMode() {
-	return dragonMode;
-}
+		return maze[pos.y][pos.x];
+	}
 
-public void setDragonMode(DRAGON_MODE dragonMode) {
-	this.dragonMode = dragonMode;
-}
+	public void setMazeContent(Position pos, char content) {
 
-public char getMazeContent(Position pos) {
+		maze[pos.y][pos.x] = content;
+	}
 
-	return maze[pos.y][pos.x];
-}
+	public Position getHeroPosition() {
 
-public void setMazeContent(Position pos, char content) {
+		return hero.getPosition();
+	}
 
-	maze[pos.y][pos.x] = content;
-}
+	public HERO_STATE getHeroState() {
 
-public Position getHeroPosition() {
+		return hero.getState();
+	}
 
-	return hero.getPosition();
-}
+	public Position getSwordPosition() {
 
-public HERO_STATE getHeroState() {
+		return sword.getPosition();
+	}
 
-	return hero.getState();
-}
+	public boolean heroHasSword() {
 
-public Position getSwordPosition() {
+		return hero.hasSword();
+	}
 
-	return sword.getPosition();
-}
+	public void heroFastSwordPick() {
 
-public boolean heroHasSword() {
+		hero.pickedSword();
+	}
 
-	return hero.hasSword();
-}
+	public DRAGON_STATE getDragonState(Dragon dragon) {
 
-public void heroFastSwordPick() {
+		return dragon.getState();
+	}
 
-	hero.pickedSword();
-}
+	public Position getExitPosition() {
 
-public DRAGON_STATE getDragonState(Dragon dragon) {
+		return exit.getPosition();
+	}
 
-	return dragon.getState();
-}
+	public void setDragonAsleep(Dragon dragon) {
 
-public Position getExitPosition() {
+		dragon.sleep();
+	}
 
-	return exit.getPosition();
-}
+	public LinkedList<Dragon> getDragonListCopy(){
+		return (LinkedList<Dragon>) dragonList.clone();
+	}
 
-public void setDragonAsleep(Dragon dragon) {
-
-	dragon.sleep();
-}
-
-public LinkedList<Dragon> getDragonListCopy(){
-	return (LinkedList<Dragon>) dragonList.clone();
-}
-
-public LinkedList<Dragon> getDragonList(){
-	return dragonList;
-}
+	public LinkedList<Dragon> getDragonList(){
+		return dragonList;
+	}
 
 }

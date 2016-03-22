@@ -10,6 +10,7 @@ import javax.swing.JComboBox;
 import java.awt.Font;
 import javax.swing.DefaultComboBoxModel;
 
+import maze.exceptions.EndGame;
 import maze.logic.Hero.HERO_STATE;
 import maze.logic.Maze;
 import maze.logic.Maze.DIRECTION;
@@ -20,6 +21,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.MouseWheelEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 public class application {
 
@@ -32,6 +35,7 @@ public class application {
 	private JButton btnLeft;
 	private JButton btnDown;
 	private JButton btnRight;
+	private JLabel gameInfo;
 	
 	private Maze maze;
 
@@ -108,14 +112,27 @@ public class application {
 		JButton btnNewGame = new JButton("New Game");
 		btnNewGame.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				try{
 				maze = new Maze(Integer.parseInt(dimensionField.getText()), Integer.parseInt(dragonNum.getText()), (DRAGON_MODE)dragonMode.getSelectedItem());
+				}
+				catch (NumberFormatException n){
+					gameInfo.setText("Invalid arguments");
+					return;
+				}
+				catch (IllegalArgumentException i){
+					gameInfo.setText("Dimension cannot be even or inferior to 5");
+					return;
+				}
 				mazePrint.setText(maze.toString());
 				btnUp.setEnabled(true);
 				btnLeft.setEnabled(true);
 				btnDown.setEnabled(true);
 				btnRight.setEnabled(true);
+				gameInfo.setText("Go pick up the sword or you will die");
 			}
 		});
+	
 		btnNewGame.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnNewGame.setBounds(543, 51, 116, 38);
 		frame.getContentPane().add(btnNewGame);
@@ -124,6 +141,7 @@ public class application {
 		btnNewButton.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
 			}
 		});
 		btnNewButton.setBounds(540, 104, 119, 32);
@@ -184,9 +202,9 @@ public class application {
 		btnDown.setBounds(586, 372, 97, 25);
 		frame.getContentPane().add(btnDown);
 		
-		JLabel gameInfo = new JLabel("Can start a new game");
+		gameInfo = new JLabel("Can start a new game");
 		gameInfo.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		gameInfo.setBounds(58, 170, 414, 30);
+		gameInfo.setBounds(58, 149, 414, 66);
 		frame.getContentPane().add(gameInfo);
 	}
 	
@@ -194,15 +212,25 @@ public class application {
 	
 	public void moveBtnAction(DIRECTION dir) {
 		
-		HERO_STATE hS = maze.update(dir);
-		mazePrint.setText(maze.toString());
 		
-		if (hS == HERO_STATE.WIN || hS == HERO_STATE.DEAD) {
-			
+		try{
+			maze.update(dir);
+			if(maze.getDragonList().size()!=0 && maze.heroHasSword())
+				gameInfo.setText("Go slay the dragons");
+			else gameInfo.setText("Proceed to the exit");
+		}
+		catch (EndGame e){
 			btnUp.setEnabled(false);
 			btnLeft.setEnabled(false);
 			btnDown.setEnabled(false);
-			btnRight.setEnabled(false);
+			btnRight.setEnabled(false);	
+			if(e.Won())
+				gameInfo.setText("Congratulations you won!");
+			else gameInfo.setText("Game over. Try again");
+			
 		}
+
+			
+		mazePrint.setText(maze.toString());
 	}
 }

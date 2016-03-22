@@ -1,7 +1,7 @@
 package maze.logic;
 
 
-public class Position {
+public class Position implements Comparable<Position> {
 
 	public int y;
 	public int x;
@@ -26,14 +26,28 @@ public class Position {
 
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + x;
+		result = prime * result + y;
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
-
-		if (this.getClass() != obj.getClass())
+		if (this == obj)
+			return true;
+		if (obj == null)
 			return false;
-
-
+		if (getClass() != obj.getClass())
+			return false;
 		Position other = (Position) obj;
-		return (this.x == other.x && this.y == other.y);
+		if (x != other.x)
+			return false;
+		if (y != other.y)
+			return false;
+		return true;
 	}
 
 
@@ -42,5 +56,17 @@ public class Position {
 
 		return y + "  " + x;
 	}
+
+	@Override
+	public int compareTo(Position o) {
+		if(y < o.y)
+			return -1;
+		else if(y> o.y)
+			return 1;
+		return 0;
+		
+	}
+
+
 
 }
