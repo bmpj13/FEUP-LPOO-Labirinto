@@ -17,10 +17,10 @@ public class MazeTest {
 
 
 	char [][] m1 = {{'X', 'X', 'X', 'X', 'X'},
-			{'X', '.', '.', 'H', 'S'},
-			{'X', '.', 'X', '.', 'X'},
-			{'X', 'E', '.', 'D', 'X'},
-			{'X', 'X', 'X', 'X', 'X'}};
+					{'X', '.', '.', 'H', 'S'},
+					{'X', '.', 'X', '.', 'X'},
+					{'X', 'E', '.', 'D', 'X'},
+					{'X', 'X', 'X', 'X', 'X'}};
 
 	char [][] m2 = {
 			{ 'X', 'X', 'X',},
@@ -36,12 +36,12 @@ public class MazeTest {
 		assertEquals(new Position(1, 3), maze.getHeroPosition());
 
 		// Move to free cell
-		maze.moveHero(DIRECTION.LEFT);
+		maze.updateHero(DIRECTION.LEFT);
 		assertEquals(new Position(1, 2), maze.getHeroPosition());
 
 
 		// Move unsuccessfully against wall
-		maze.moveHero(DIRECTION.UP);
+		maze.updateHero(DIRECTION.UP);
 		assertEquals(new Position(1,2), maze.getHeroPosition());
 
 	}
@@ -50,7 +50,7 @@ public class MazeTest {
 	public void testDragonMove() {
 		Maze maze = new Maze (m2);
 		Dragon dragon = maze.getDragonList().getFirst();
-		maze.moveDragon(dragon);
+		maze.updateDragon(dragon);
 		
 		assertEquals(dragon.getPosition(), new Position(1,1));
 
@@ -77,15 +77,15 @@ public class MazeTest {
 		assertEquals(new Position(3,1), maze.getSwordPosition());
 
 		while (maze.getHeroPosition().x != 1)
-			maze.moveHero(DIRECTION.LEFT);
+			maze.updateHero(DIRECTION.LEFT);
 
 		while (maze.getHeroPosition().y != 3)
-			maze.moveHero(DIRECTION.DOWN);
+			maze.updateHero(DIRECTION.DOWN);
 
 		assertEquals(maze.getSwordPosition(), maze.getHeroPosition());
 		assertEquals(true, maze.heroHasSword());
 
-		maze.moveHero(DIRECTION.UP);
+		maze.updateHero(DIRECTION.UP);
 		assertEquals('.', maze.getMazeContent(maze.getSwordPosition()));
 		assertEquals('A', maze.getMazeContent(maze.getHeroPosition()));
 	}
@@ -99,7 +99,7 @@ public class MazeTest {
 		assertEquals(HERO_STATE.ALIVE, maze.getHeroState());
 
 		LinkedList<Dragon> dragonList = maze.getDragonList();
-		maze.moveHero(DIRECTION.DOWN);
+		maze.updateHero(DIRECTION.DOWN);
 		maze.HeroVsDragon(dragonList.getFirst());
 
 		assertEquals(HERO_STATE.DEAD, maze.getHeroState());
@@ -117,6 +117,7 @@ public class MazeTest {
 		//		maze.HeroVsDragon(dragonList.getFirst());
 
 		//		assertEquals(DRAGON_STATE.DEAD, maze.getDragonState(dragonList.getFirst()));
+		System.out.println(dragonList.size());
 		assertEquals(0, dragonList.size());
 		assertEquals(HERO_STATE.ALIVE, maze.getHeroState());
 	}
@@ -128,15 +129,15 @@ public class MazeTest {
 		Maze maze = new Maze(m1);
 
 		maze.heroFastSwordPick();
-		maze.moveHero(DIRECTION.DOWN);
+		maze.updateHero(DIRECTION.DOWN);
 
 		LinkedList<Dragon> dragonList = maze.getDragonList();
 		maze.HeroVsDragon(dragonList.getFirst());
 		assertEquals(DRAGON_STATE.DEAD, dragonList.getFirst().getState());
 		dragonList.removeFirst();
 
-		maze.moveHero(DIRECTION.UP);
-		maze.moveHero(DIRECTION.RIGHT);
+		maze.updateHero(DIRECTION.UP);
+		maze.updateHero(DIRECTION.RIGHT);
 
 
 		assertEquals(maze.getHeroPosition(), maze.getExitPosition());
@@ -151,13 +152,13 @@ public class MazeTest {
 		// Dragon isn't killed in this test
 
 		// Without sword
-		maze.moveHero(DIRECTION.RIGHT);
+		maze.updateHero(DIRECTION.RIGHT);
 		assertEquals(new Position(1,3), maze.getHeroPosition());
 
 
 		// With sword
 		maze.heroFastSwordPick();
-		maze.moveHero(DIRECTION.RIGHT);
+		maze.updateHero(DIRECTION.RIGHT);
 		assertEquals(new Position(1,3), maze.getHeroPosition());
 	}
 
@@ -165,12 +166,12 @@ public class MazeTest {
 	@Test
 	public void testHeroUnharmed() {
 
-		Maze maze = new Maze(DRAGON_MODE.CAN_SLEEP);
+		Maze maze = new Maze(11, 3, DRAGON_MODE.CAN_SLEEP);
 
 		LinkedList<Dragon> dragonList = maze.getDragonList();
 		maze.setDragonAsleep(dragonList.getFirst());
 
-		maze.moveHero(DIRECTION.DOWN);
+		maze.updateHero(DIRECTION.DOWN);
 		maze.HeroVsDragon(dragonList.getFirst());
 
 		assertEquals(DRAGON_STATE.SLEEPING, maze.getDragonState(dragonList.getFirst()));
@@ -194,14 +195,14 @@ public class MazeTest {
 
 	}
 	
-	@Test
+	/*@Test
 	public void generateMaze(){
-		Maze m0 = new Maze(DRAGON_MODE.FROZEN);
-		Maze m1 = new Maze(DRAGON_MODE.CAN_SLEEP);
-		Maze m2 = new Maze(DRAGON_MODE.RANDOM);
+		Maze m0 = new Maze(11, 3, DRAGON_MODE.FROZEN);
+		Maze m1 = new Maze(11, 3, DRAGON_MODE.CAN_SLEEP);
+		Maze m2 = new Maze(11, 3, DRAGON_MODE.RANDOM);
 
 		
 		
 		
-	}
+	}*/
 }

@@ -23,7 +23,7 @@ public class Maze {
 
 
 	private static final char wallSymbol = 'X';
-	private static final char pathSymbol = ' ';
+	private static final char pathSymbol = '.';
 
 	private char heroSymbol = 'H';
 	private char dragonSymbol = 'D';
@@ -165,6 +165,19 @@ public class Maze {
 
 	}
 
+	public Maze(int dimension){
+		
+		int dragonNum = 1;
+		if (dimension < 5 || dimension % 2 == 0)
+			throw new IllegalArgumentException("Dimension cannot be even or inferior to 5.");
+		
+		dragonMode = DRAGON_MODE.RANDOM;
+
+		maze = new char[dimension][dimension];
+		ArrayList<Position> freePos = generateMaze(dimension);
+		PlaceCharacters(freePos, dragonNum);
+
+	}
 
 	public Maze(char[][] m) {
 
@@ -379,9 +392,6 @@ public class Maze {
 		}
 	}
 
-
-
-
 	private boolean destroyable(Position pos) {
 
 		int y = pos.y;
@@ -406,18 +416,12 @@ public class Maze {
 		return false;
 	}
 
-
-
-
 	private void updateAvailables(Position position,
 			ArrayList<Position> freePositions, HashSet<Position> walls) {
 
 		freePositions.add(position);
 		walls.remove(position);
 	}
-
-
-
 
 	private void initMaze(ArrayList<Position> freePositions, HashSet<Position> walls) {
 
@@ -439,9 +443,6 @@ public class Maze {
 			}
 		}
 	}
-
-
-
 
 
 	//TODO Place characters
@@ -477,7 +478,6 @@ public class Maze {
 	}
 
 
-
 	public String toString() {
 
 		String str = "";
@@ -488,7 +488,6 @@ public class Maze {
 		}
 		return str;
 	}
-
 
 
 	//TODO update
@@ -795,4 +794,8 @@ public class Maze {
 		return dragonList;
 	}
 
+	public char[][]getMaze(){
+		return maze;
+	}
+	
 }
