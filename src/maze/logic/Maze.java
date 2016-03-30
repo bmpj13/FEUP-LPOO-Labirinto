@@ -44,8 +44,8 @@ public class Maze {
 
 		Interface interf = new Interface();
 
-		int option = interf.askGameMode();
-
+		//int option = interf.askGameMode();
+		int option = 1;
 		if (option == 1) {
 
 			GUI gui = new GUI();
