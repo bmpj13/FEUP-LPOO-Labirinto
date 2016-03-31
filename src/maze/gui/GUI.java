@@ -4,12 +4,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
-
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import javax.swing.DefaultComboBoxModel;
-
 import maze.exceptions.EndGame;
 import maze.logic.Maze;
 import maze.logic.Maze.DIRECTION;
@@ -17,33 +14,21 @@ import maze.logic.Maze.DRAGON_MODE;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import javax.swing.JTextArea;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.MouseWheelEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import javax.swing.BoxLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import net.miginfocom.swing.MigLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import java.awt.GridLayout;
-import java.awt.CardLayout;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.FormSpecs;
-import com.jgoodies.forms.layout.RowSpec;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 
 public class GUI {
 
-	private JFrame frame;
+	private JFrame mainFrame;
+	private JFrame mazeBuilderFrame;
+	private MazeBuilderPanel mazeBuilderPanel;
 	private JTextField dimensionField;
 	private JLabel lblDragons;
 	private JTextField dragonNum;
@@ -58,6 +43,7 @@ public class GUI {
 	private JPanel panel_directions;
 	private JPanel panel_menu;
 	private JPanel main_panel;
+	private JPanel cards;
 
 
 	/**
@@ -69,27 +55,27 @@ public class GUI {
 
 
 	public void setVisible(boolean visible) {
-		frame.setVisible(visible);
+		mainFrame.setVisible(visible);
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 961, 756);
-		frame.setPreferredSize(new Dimension(803, 706));
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setBackground(Color.GREEN);
 
 		mazePrint = new JTextArea();
 		mazePrint.setFont(new Font("Courier New", Font.PLAIN, 22));
 		mazePrint.setEditable(false);
 		mazePrint.setBounds(58, 213, 414, 414);
-		frame.getContentPane().setLayout(new BorderLayout(0, 0));
+		
+
+		mainFrame = new JFrame();
+		mainFrame.setBounds(200, 200, 850, 700);
+		mainFrame.setMinimumSize(new Dimension(850, 700));
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.getContentPane().setLayout(new BorderLayout(0, 0));
 
 		main_panel = new JPanel();
-		frame.getContentPane().add(main_panel);
 
 		JPanel panel_settings = new JPanel();
 		panel_settings.setLayout(null);
@@ -127,7 +113,7 @@ public class GUI {
 		lblDragonMode.setFont(new Font("Tahoma", Font.PLAIN, 15));
 
 		//Set Dragon Mode
-		JComboBox<DRAGON_MODE> dragonMode = new JComboBox();
+		JComboBox<DRAGON_MODE> dragonMode = new JComboBox<DRAGON_MODE>();
 		dragonMode.setBounds(224, 146, 93, 22);
 		panel_settings.add(dragonMode);
 		dragonMode.setModel(new DefaultComboBoxModel<DRAGON_MODE>(DRAGON_MODE.values()));
@@ -219,41 +205,92 @@ public class GUI {
 
 		panel_maze = new MazeGraphics();
 		panel_maze.setPreferredSize(new Dimension(255,255));
+		panel_maze.addKeyListener(new KeyListener(){
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent k) {
+
+				DIRECTION dir = null;
+
+				switch(k.getKeyCode()){
+				case KeyEvent.VK_LEFT: 
+					dir = DIRECTION.LEFT; 
+					break;
+
+				case KeyEvent.VK_RIGHT: 
+					dir = DIRECTION.RIGHT; 
+					break;
+
+				case KeyEvent.VK_UP: 
+					dir = DIRECTION.UP; 
+					break;
+
+				case KeyEvent.VK_DOWN: 
+					dir = DIRECTION.DOWN; 
+					break;
+				}
+
+				try {
+					maze.update(dir);
+				}
+				catch (EndGame e) {	
+					finishGame(e);
+					return;
+				}
+				finally {
+					panel_maze.repaint();
+				}
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
 		gameInfo.setLabelFor(panel_maze);
 		GroupLayout gl_main_panel = new GroupLayout(main_panel);
 		gl_main_panel.setHorizontalGroup(
-			gl_main_panel.createParallelGroup(Alignment.TRAILING)
+				gl_main_panel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_main_panel.createSequentialGroup()
-					.addComponent(panel_settings, GroupLayout.PREFERRED_SIZE, 471, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED, 184, Short.MAX_VALUE)
-					.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
-					.addGap(147))
-				.addGroup(Alignment.LEADING, gl_main_panel.createSequentialGroup()
-					.addGap(23)
-					.addGroup(gl_main_panel.createParallelGroup(Alignment.LEADING)
-						.addComponent(gameInfo, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
-						.addComponent(panel_maze, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE))
-					.addGap(63)
-					.addComponent(panel_directions, GroupLayout.PREFERRED_SIZE, 283, GroupLayout.PREFERRED_SIZE)
-					.addGap(94))
-		);
+						.addComponent(panel_settings, GroupLayout.PREFERRED_SIZE, 471, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED, 184, Short.MAX_VALUE)
+						.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
+						.addGap(147))
+						.addGroup(Alignment.LEADING, gl_main_panel.createSequentialGroup()
+								.addGap(23)
+								.addGroup(gl_main_panel.createParallelGroup(Alignment.LEADING)
+										.addComponent(gameInfo, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
+										.addComponent(panel_maze, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE))
+										.addGap(63)
+										.addComponent(panel_directions, GroupLayout.PREFERRED_SIZE, 283, GroupLayout.PREFERRED_SIZE)
+										.addGap(94))
+				);
 		gl_main_panel.setVerticalGroup(
-			gl_main_panel.createParallelGroup(Alignment.LEADING)
+				gl_main_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_main_panel.createSequentialGroup()
-					.addGroup(gl_main_panel.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_main_panel.createSequentialGroup()
-							.addGap(35)
-							.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE)
-							.addGap(159)
-							.addComponent(panel_directions, GroupLayout.PREFERRED_SIZE, 166, GroupLayout.PREFERRED_SIZE))
-						.addGroup(gl_main_panel.createSequentialGroup()
-							.addComponent(panel_settings, GroupLayout.PREFERRED_SIZE, 214, GroupLayout.PREFERRED_SIZE)
-							.addGap(24)
-							.addComponent(gameInfo)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(panel_maze, GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)))
-					.addContainerGap())
-		);
+						.addGroup(gl_main_panel.createParallelGroup(Alignment.LEADING)
+								.addGroup(gl_main_panel.createSequentialGroup()
+										.addGap(35)
+										.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE)
+										.addGap(159)
+										.addComponent(panel_directions, GroupLayout.PREFERRED_SIZE, 166, GroupLayout.PREFERRED_SIZE))
+										.addGroup(gl_main_panel.createSequentialGroup()
+												.addComponent(panel_settings, GroupLayout.PREFERRED_SIZE, 214, GroupLayout.PREFERRED_SIZE)
+												.addGap(24)
+												.addComponent(gameInfo)
+												.addPreferredGap(ComponentPlacement.RELATED)
+												.addComponent(panel_maze, GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)))
+												.addContainerGap())
+				);
 		panel_directions.setLayout(null);
 		panel_directions.add(btnUp);
 		panel_directions.add(btnLeft);
@@ -262,24 +299,43 @@ public class GUI {
 		main_panel.setLayout(gl_main_panel);
 
 
+
+
+
+		//		CardLayout cl = new CardLayout();
+		//		cards = new JPanel(cl);
+		//		cards.setBorder(null);
+		//		mainFrame.getContentPane().add(cards, BorderLayout.CENTER);
+		//		cards.add(main_panel, "main");
+		//		cards.add(mazeBuilderPanel, "builder");
+		//		mazeBuilderPanel.setLayout(null);
+		//		
+		//		cl.show(cards, "builder");
+
+		mainFrame.getContentPane().add(main_panel);
+
+
+
+		mazeBuilderFrame = new JFrame();
+		mazeBuilderFrame.setBounds(200, 200, 90*Integer.parseInt(dimensionField.getText()), 75*Integer.parseInt(dimensionField.getText()));
+		mazeBuilderFrame.setMinimumSize(new Dimension(55*Integer.parseInt(dimensionField.getText()), 55*Integer.parseInt(dimensionField.getText())));
+		mazeBuilderFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mazeBuilderFrame.setLayout(new BorderLayout());
+		mazeBuilderFrame.setVisible(true);
+		
+		mazeBuilderPanel = new MazeBuilderPanel(90*Integer.parseInt(dimensionField.getText()), 75*Integer.parseInt(dimensionField.getText()), Integer.parseInt(dimensionField.getText()));
+		mazeBuilderFrame.getContentPane().add(mazeBuilderPanel, BorderLayout.CENTER);
 	}
 
 
 
 	public void moveBtnAction(DIRECTION dir) {
 
-
 		try{
 			maze.update(dir);
 		}
 		catch (EndGame e){
-			btnUp.setEnabled(false);
-			btnLeft.setEnabled(false);
-			btnDown.setEnabled(false);
-			btnRight.setEnabled(false);	
-			if(e.Won())
-				gameInfo.setText("Congratulations, you won!");
-			else gameInfo.setText("Game over. Try again.");
+			finishGame(e);
 			return;
 		}
 		finally {
@@ -294,5 +350,20 @@ public class GUI {
 				gameInfo.setText("Go slay the dragons.");
 			else gameInfo.setText("Go pick up the sword or you will die!");		
 		}	
+	}
+
+
+
+	void finishGame(EndGame e) {
+
+		btnUp.setEnabled(false);
+		btnLeft.setEnabled(false);
+		btnDown.setEnabled(false);
+		btnRight.setEnabled(false);	
+		main_panel.requestFocus();
+
+		if(e.Won())
+			gameInfo.setText("Congratulations, you won!");
+		else gameInfo.setText("Game over. Try again.");
 	}
 }
