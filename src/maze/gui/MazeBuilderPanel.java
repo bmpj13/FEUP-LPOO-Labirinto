@@ -1,14 +1,11 @@
 package maze.gui;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
-import java.io.IOException;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
-
-import javax.imageio.ImageIO;
+import java.util.Random;
 
 import utilities.Position;
 import maze.logic.Maze;
@@ -16,6 +13,9 @@ import maze.logic.Maze;
 
 public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 	private static final long serialVersionUID = 1L;
+	
+	private BufferedImage closedDoor;
+	private BufferedImage openDoor;
 
 	public static final int sidebarWidth = 100;
 	private static final int optionLength = sidebarWidth - 20;
@@ -62,6 +62,33 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 		board = new char[mazeDimension][mazeDimension];
 		for (int i = 0; i < mazeDimension; i++)
 			Arrays.fill(board[i], Maze.Symbol_Wall);
+
+
+		Random rand = new Random();
+		int randomPos = rand.nextInt(mazeDimension - 2) + 1;
+
+		switch (rand.nextInt(4)) {
+		case 0:
+			board[0][randomPos] = Maze.Symbol_Exit;
+			this.closedDoor = super.closedDoor;
+			break;
+
+		case 1:
+			board[mazeDimension-1][randomPos] = Maze.Symbol_Exit;
+			this.closedDoor = rotate(super.closedDoor, Math.PI);
+			break;
+
+		case 2:
+			board[randomPos][0] = Maze.Symbol_Exit;
+			this.closedDoor = rotate(super.closedDoor, -Math.PI/2);
+			break;
+
+		case 3:
+			board[randomPos][mazeDimension-1] = Maze.Symbol_Exit;
+			this.closedDoor = rotate(super.closedDoor, Math.PI/2);
+			break;
+		}
+		
 
 		addMouseListener(this);
 	}
@@ -163,19 +190,19 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 			case DRAGON:
 				if (board[y][x] == Maze.Symbol_DragonActive)	
 					board[y][x] = Maze.Symbol_Wall;
-				else	
+				else if (!adjacentTo(y, x, Maze.Symbol_HeroUnarmed))
 					board[y][x] = Maze.Symbol_DragonActive;
 				break;
 
 			case HERO:
 				if (board[y][x] == Maze.Symbol_HeroUnarmed)		
 					board[y][x] = Maze.Symbol_Wall;
-				else if (!hasHero) {
+				else if (!hasHero && !adjacentTo(y, x, Maze.Symbol_DragonActive)) {
 					board[y][x] = Maze.Symbol_HeroUnarmed;
 					lastHeroPos = new Position(y, x);
 					hasHero = true;
 				}
-				else {
+				else if (hasHero && !adjacentTo(y, x, Maze.Symbol_DragonActive)) {
 					board[lastHeroPos.y][lastHeroPos.x] = Maze.Symbol_Wall;
 					board[y][x] = Maze.Symbol_HeroUnarmed;
 					lastHeroPos = new Position(y, x);
@@ -229,11 +256,24 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 
 		return (x >= xi && x <= xf);
 	}
+	
+	
+	private boolean adjacentTo(int y, int x, char symbol) {
+		
+		return (board[y-1][x] == symbol || board[y+1][x] == symbol
+				|| board[y][x-1] == symbol || board[y][x+1] == symbol);
+	}
 
 
 	public char[][] getBoard() {
 
 		return board;
+	}
+
+
+	public void resetBoard() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

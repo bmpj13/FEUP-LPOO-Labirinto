@@ -19,8 +19,8 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 	MazeGraphicPlay() {		
 		super();
-		this.setBackground(Color.WHITE);
 	}
+	
 
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -78,44 +78,18 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 		this.maze = maze;
 
-//		Position exitPos = maze.getExitPosition();
-//
-//		if (exitPos.x == 0) {
-//			this.closedDoor = rotate(super.closedDoor, Math.PI/2);
-//		}
-//		else if (exitPos.x == maze.getDimension() - 1) {
-//			this.closedDoor = rotate(super.closedDoor, -Math.PI/2);
-//		}
-//		else if (exitPos.y == maze.getDimension() - 1) {
-//			this.closedDoor = rotate(super.closedDoor, Math.PI);
-//		}
-//		else
+		Position exitPos = maze.getExitPosition();
+
+		if (exitPos.x == 0) {
+			this.closedDoor = rotate(super.closedDoor, Math.PI/2);
+		}
+		else if (exitPos.x == maze.getDimension() - 1) {
+			this.closedDoor = rotate(super.closedDoor, -Math.PI/2);
+		}
+		else if (exitPos.y == maze.getDimension() - 1) {
+			this.closedDoor = rotate(super.closedDoor, Math.PI);
+		}
+		else
 			this.closedDoor = super.closedDoor;
 	}
-
-
-
-
-	private static BufferedImage rotate(BufferedImage image, double angle) {
-
-		AffineTransform at = AffineTransform.getRotateInstance(
-				angle, image.getWidth()/2, image.getHeight()/2.0);
-		return createTransformed(image, at);
-	}
-
-
-
-	private static BufferedImage createTransformed(
-			BufferedImage image, AffineTransform at)
-	{
-		BufferedImage newImage = new BufferedImage(
-				image.getWidth(), image.getHeight(),
-				BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = newImage.createGraphics();
-		g.transform(at);
-		g.drawImage(image, 0, 0, null);
-		g.dispose();
-		return newImage;
-	}
-
 }

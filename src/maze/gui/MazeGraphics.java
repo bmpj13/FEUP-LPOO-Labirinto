@@ -1,5 +1,7 @@
 package maze.gui;
 
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -38,5 +40,29 @@ public class MazeGraphics extends JPanel {
 
 	MazeGraphics() {
 		super();
+	}
+
+
+
+	protected static BufferedImage rotate(BufferedImage image, double angle) {
+
+		AffineTransform at = AffineTransform.getRotateInstance(
+				angle, image.getWidth()/2, image.getHeight()/2.0);
+		return createTransformed(image, at);
+	}
+
+
+
+	protected static BufferedImage createTransformed(
+			BufferedImage image, AffineTransform at)
+	{
+		BufferedImage newImage = new BufferedImage(
+				image.getWidth(), image.getHeight(),
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = newImage.createGraphics();
+		g.transform(at);
+		g.drawImage(image, 0, 0, null);
+		g.dispose();
+		return newImage;
 	}
 }
