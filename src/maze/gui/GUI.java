@@ -4,21 +4,30 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
+
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
+
 import javax.swing.DefaultComboBoxModel;
+
 import maze.exceptions.EndGame;
 import maze.logic.Maze;
 import maze.logic.Maze.DIRECTION;
 import maze.logic.Maze.DRAGON_MODE;
+
 import javax.swing.JButton;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
 import javax.swing.JTextArea;
 import javax.swing.JPanel;
+
 import java.awt.BorderLayout;
+
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -27,23 +36,20 @@ import javax.swing.SwingConstants;
 public class GUI {
 
 	private JFrame mainFrame;
-	private JFrame mazeBuilderFrame;
-	private MazeBuilderPanel mazeBuilderPanel;
 	private JTextField dimensionField;
 	private JLabel lblDragons;
 	private JTextField dragonNum;
-	private JTextArea mazePrint;
 	private JButton btnUp;
 	private JButton btnLeft;
 	private JButton btnDown;
 	private JButton btnRight;
 	private JLabel gameInfo;
-	private Maze maze;
-	private MazeGraphics panel_maze;
+	private MazeGraphicPlay panel_maze;
 	private JPanel panel_directions;
 	private JPanel panel_menu;
 	private JPanel main_panel;
-	private JPanel cards;
+	private JFrame MBFrame;
+	private Maze maze;
 
 
 	/**
@@ -62,12 +68,6 @@ public class GUI {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-
-		mazePrint = new JTextArea();
-		mazePrint.setFont(new Font("Courier New", Font.PLAIN, 22));
-		mazePrint.setEditable(false);
-		mazePrint.setBounds(58, 213, 414, 414);
-		
 
 		mainFrame = new JFrame();
 		mainFrame.setBounds(200, 200, 850, 700);
@@ -127,8 +127,8 @@ public class GUI {
 			public void actionPerformed(ActionEvent e) {
 
 				try{
-					maze = new Maze(Integer.parseInt(dimensionField.getText()), Integer.parseInt(dragonNum.getText()), (DRAGON_MODE)dragonMode.getSelectedItem());
-
+					maze = new Maze(Integer.parseInt(dimensionField.getText()), 
+							Integer.parseInt(dragonNum.getText()), (DRAGON_MODE)dragonMode.getSelectedItem());
 					panel_maze.setMaze(maze);
 					panel_maze.repaint();
 					panel_maze.requestFocus();
@@ -141,7 +141,7 @@ public class GUI {
 					gameInfo.setText(i.getMessage());
 					return;
 				}
-				mazePrint.setText(maze.toString());
+
 				btnUp.setEnabled(true);
 				btnLeft.setEnabled(true);
 				btnDown.setEnabled(true);
@@ -203,7 +203,7 @@ public class GUI {
 		gameInfo.setHorizontalAlignment(SwingConstants.CENTER);
 		gameInfo.setFont(new Font("Tahoma", Font.PLAIN, 15));
 
-		panel_maze = new MazeGraphics();
+		panel_maze = new MazeGraphicPlay();
 		panel_maze.setPreferredSize(new Dimension(255,255));
 		panel_maze.addKeyListener(new KeyListener(){
 
@@ -234,6 +234,9 @@ public class GUI {
 				case KeyEvent.VK_DOWN: 
 					dir = DIRECTION.DOWN; 
 					break;
+
+				default:
+					return;
 				}
 
 				try {
@@ -291,40 +294,45 @@ public class GUI {
 												.addComponent(panel_maze, GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)))
 												.addContainerGap())
 				);
+
 		panel_directions.setLayout(null);
 		panel_directions.add(btnUp);
 		panel_directions.add(btnLeft);
 		panel_directions.add(btnRight);
 		panel_directions.add(btnDown);
 		main_panel.setLayout(gl_main_panel);
-
-
-
-
-
-		//		CardLayout cl = new CardLayout();
-		//		cards = new JPanel(cl);
-		//		cards.setBorder(null);
-		//		mainFrame.getContentPane().add(cards, BorderLayout.CENTER);
-		//		cards.add(main_panel, "main");
-		//		cards.add(mazeBuilderPanel, "builder");
-		//		mazeBuilderPanel.setLayout(null);
-		//		
-		//		cl.show(cards, "builder");
-
 		mainFrame.getContentPane().add(main_panel);
 
 
 
-		mazeBuilderFrame = new JFrame();
-		mazeBuilderFrame.setBounds(200, 200, 90*Integer.parseInt(dimensionField.getText()), 75*Integer.parseInt(dimensionField.getText()));
-		mazeBuilderFrame.setMinimumSize(new Dimension(55*Integer.parseInt(dimensionField.getText()), 55*Integer.parseInt(dimensionField.getText())));
-		mazeBuilderFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mazeBuilderFrame.setLayout(new BorderLayout());
-		mazeBuilderFrame.setVisible(true);
-		
-		mazeBuilderPanel = new MazeBuilderPanel(90*Integer.parseInt(dimensionField.getText()), 75*Integer.parseInt(dimensionField.getText()), Integer.parseInt(dimensionField.getText()));
-		mazeBuilderFrame.getContentPane().add(mazeBuilderPanel, BorderLayout.CENTER);
+		MBFrame = new JFrame();
+		MBFrame.getContentPane().setLayout(new BorderLayout());
+		MBFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		MBFrame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+		MBFrame.setResizable(false);
+
+		JPanel adjustPanel = new JPanel();
+		adjustPanel.setLayout(new BorderLayout());
+		MBFrame.getContentPane().add(adjustPanel, BorderLayout.CENTER);
+
+		MazeBuilderPanel MBPanel = new MazeBuilderPanel(11);
+		MBPanel.setLayout(null);
+		JButton MBFinish = new JButton("Finish");
+		MBFinish.setBounds(10, (int) (MBFrame.getHeight() * 0.7), MazeBuilderPanel.sidebarWidth - 20, 50);
+		MBFinish.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				maze = new Maze(MBPanel.getBoard());
+				panel_maze.setMaze(maze);
+				panel_maze.repaint();
+				panel_maze.requestFocus();
+			}
+		});
+
+
+		MBPanel.add(MBFinish);		
+		adjustPanel.add(MBPanel, BorderLayout.CENTER);
+		MBFrame.setVisible(true);
 	}
 
 
@@ -339,7 +347,7 @@ public class GUI {
 			return;
 		}
 		finally {
-			mazePrint.setText(maze.toString());
+			panel_maze.repaint();
 		}
 
 

@@ -1,5 +1,7 @@
 package maze.logic;
 
+import utilities.Position;
+
 public abstract class Element {
 	
 	protected Position position;

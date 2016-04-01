@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import org.junit.Test;
 
+import utilities.Position;
 import maze.exceptions.EndGame;
 import maze.logic.*;
 import maze.logic.Dragon.DRAGON_STATE;

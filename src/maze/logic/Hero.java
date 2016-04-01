@@ -1,5 +1,7 @@
 package maze.logic;
 
+import utilities.Position;
+
 public class Hero extends Element {
 
 	public enum HERO_STATE {ALIVE, DEAD, WIN};

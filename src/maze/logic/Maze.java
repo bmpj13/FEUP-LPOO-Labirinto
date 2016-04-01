@@ -2,11 +2,13 @@ package maze.logic;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Iterator;
 
+import utilities.Position;
 import maze.cli.Interface;
 import maze.exceptions.EndGame;
 import maze.exceptions.InvalidKey;
@@ -172,24 +174,20 @@ public class Maze {
 
 	public Maze(int dimension){
 		
-		int dragonNum = 1;
-		if (dimension < 5 || dimension % 2 == 0)
-			throw new IllegalArgumentException("Dimension cannot be even or inferior to 5.");
-		
-		dragonMode = DRAGON_MODE.RANDOM;
-
 		maze = new char[dimension][dimension];
-		ArrayList<Position> freePos = generateMaze(dimension);
-		PlaceCharacters(freePos, dragonNum);
-
+		for (int i = 0; i < dimension; i++)
+			Arrays.fill(maze[i], Symbol_Wall);
+		
+		dragonMode = DRAGON_MODE.CAN_SLEEP;
 	}
 
+	
 	public Maze(char[][] m) {
 
 		maze = m;
 		dragonMode = DRAGON_MODE.CAN_SLEEP;
 		dragonList = new LinkedList<Dragon>();
-
+		
 		for(int i = 0; i < maze.length; i++) {
 			for(int j = 0; j < maze[i].length; j++) {
 				if (maze[i][j] == Symbol_DragonActive) {
@@ -469,6 +467,9 @@ public class Maze {
 		for(int i = 0; i < dragonNum; i++){
 			Dragon dragon;
 			do {
+				
+				if (numElem <= 0)
+					return;
 
 				pos = rand.nextInt(numElem);
 				dragon = new Dragon(freePos.get(pos));
