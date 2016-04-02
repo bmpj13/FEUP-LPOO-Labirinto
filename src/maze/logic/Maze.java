@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.Iterator;
 
-import utilities.Position;
+//import utilities.Position;
 import maze.cli.Interface;
 import maze.exceptions.EndGame;
 import maze.exceptions.InvalidKey;
@@ -34,7 +34,7 @@ public class Maze {
 	public static final char Symbol_Sword = 'E';
 	public static final char Symbol_Exit = 'S';
 	public static final char Symbol_DragonOnSword = 'F';
-	
+
 	private char heroSymbol = Symbol_HeroUnarmed;
 	private char dragonSymbol = Symbol_DragonActive;
 
@@ -51,14 +51,14 @@ public class Maze {
 
 		Interface interf = new Interface();
 
-		//int option = interf.askGameMode();
-		int option = 1;
+		int option = interf.askGameMode();
+		
 		if (option == 1) {
 
 			GUI gui = new GUI();
 			gui.setVisible(true);
 		}
-		else {
+		else if (option == 2) {
 
 			int[] dimension = new int[1];
 			int[] numDragons = new int[1];
@@ -81,27 +81,24 @@ public class Maze {
 
 			maze.consolePlay(interf, maze);
 		}
+		else
+			throw new IllegalArgumentException();
 	}
-
-
 
 	public static void askSettings(Interface interf, int[] dimension, int[] numDragons, DRAGON_MODE[] dragonMode) {
 
 		dimension[0] = interf.askMazeDimension();
-		interf.display("\n");
-		
+
 		numDragons[0] = interf.askNumberDragons();
-		interf.display("\n");
 
 		int dm = interf.askDragonMode();
 		if (dm == 1)
 			dragonMode[0] = DRAGON_MODE.FROZEN;
 		else if (dm == 2)
 			dragonMode[0] = DRAGON_MODE.RANDOM;
-		else
+		else if (dm == 3)
 			dragonMode[0] = DRAGON_MODE.CAN_SLEEP;
-			
-		interf.display("\n");
+		else throw new IllegalArgumentException();
 	}
 
 
@@ -129,17 +126,17 @@ public class Maze {
 					interf.display(maze);
 					if (hero.getState() == HERO_STATE.WIN)
 						interf.WinMsg();
-					else
+					else if(hero.getState() == HERO_STATE.DEAD)
 						interf.LoseMsg();
+					else throw new IllegalArgumentException();
 					return;
 				}
-
 			} while (!validKey);
 		}
 	}
 
 
-	private DIRECTION key2direction(char key) throws InvalidKey {
+	public DIRECTION key2direction(char key) throws InvalidKey {
 
 		key = Character.toLowerCase(key);
 
@@ -162,7 +159,7 @@ public class Maze {
 
 		if (dimension < 5 || dimension % 2 == 0)
 			throw new IllegalArgumentException("Dimension cannot be even or inferior to 5.");
-		if (dragonNum > 7*dimension - 28)
+		if (dragonNum >= 7*dimension - 28)
 			throw new IllegalArgumentException("Can't place that many dragons! Choose another amount.");
 
 		dragonMode = dm;
@@ -174,21 +171,21 @@ public class Maze {
 	}
 
 	public Maze(int dimension){
-		
+
 		maze = new char[dimension][dimension];
 		for (int i = 0; i < dimension; i++)
 			Arrays.fill(maze[i], Symbol_Wall);
-		
+
 		dragonMode = DRAGON_MODE.CAN_SLEEP;
 	}
 
-	
+
 	public Maze(char[][] m) {
 
 		maze = m;
 		dragonMode = DRAGON_MODE.CAN_SLEEP;
 		dragonList = new LinkedList<Dragon>();
-		
+
 		for(int i = 0; i < maze.length; i++) {
 			for(int j = 0; j < maze[i].length; j++) {
 				if (maze[i][j] == Symbol_DragonActive) {
@@ -217,14 +214,14 @@ public class Maze {
 
 		char[][] m = { 
 				{'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'},
-				{'X', ' ', '.', '.', '.', '.', '.', '.', '.', 'X'},
-				{'X', '.', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
-				{'X', ' ', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
-				{'X', '.', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
-				{'X', '.', '.', '.', '.', '.', '.', 'X', '.', ' '},
+				{'X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'},
 				{'X', '.', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
 				{'X', '.', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
-				{'X', ' ', 'X', 'X', '.', '.', '.', '.', '.', 'X'},
+				{'X', '.', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
+				{'X', '.', '.', '.', '.', '.', '.', 'X', '.', 'X'},
+				{'X', '.', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
+				{'X', '.', 'X', 'X', '.', 'X', '.', 'X', '.', 'X'},
+				{'X', '.', 'X', 'X', '.', '.', '.', '.', '.', 'X'},
 				{'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'}
 		};
 
@@ -235,13 +232,13 @@ public class Maze {
 		maze[8][1] = Symbol_Sword;
 		maze[5][9] = Symbol_Exit;
 
-		hero = new Hero();
-		Dragon dragon = new Dragon();
+		hero = new Hero(1,1);
+		Dragon dragon = new Dragon(1,1);
 		dragonList = new LinkedList<Dragon>();
 		dragonList.add(dragon);
 
-		sword = new Sword();
-		exit = new Exit();
+		sword = new Sword(1,1);
+		exit = new Exit(1,1);
 	}
 
 
@@ -468,9 +465,10 @@ public class Maze {
 		for(int i = 0; i < dragonNum; i++){
 			Dragon dragon;
 			do {
-				
+
 				if (numElem <= 0)
-					return;
+					//TODO mudar a excecao
+					throw new IllegalArgumentException();
 
 				pos = rand.nextInt(numElem);
 				dragon = new Dragon(freePos.get(pos));
@@ -499,22 +497,21 @@ public class Maze {
 
 	//TODO update
 	public HashMap<Position, DIRECTION> update(DIRECTION direction) throws EndGame {
-		
+
 		HashMap<Position, DIRECTION> movementInfo = new HashMap<Position, DIRECTION>();
 
-		
 		updateHero(direction);
+
 		if (hero.getState() == HERO_STATE.WIN)
 			throw new EndGame(true);
 
-
-		boolean dragonOnSword = false;
 		Position swordPos = sword.getPosition();
-		
+		boolean dragonOnSword = false;
 		for (Iterator<Dragon> iterator = dragonList.iterator(); iterator.hasNext();){
 
 			Dragon dragon = iterator.next();
-
+			DIRECTION lastDirection;
+			
 			HeroVsDragon(dragon);
 
 			if (hero.getState() == HERO_STATE.DEAD)
@@ -522,32 +519,36 @@ public class Maze {
 			else if (dragon.getState() != DRAGON_STATE.DEAD) {
 
 				if (dragonMode != DRAGON_MODE.FROZEN) {
-					DIRECTION lastDirection = updateDragon(dragon);
-					movementInfo.put(new Position(dragon.getPosition()), lastDirection);
+					lastDirection = updateDragon(dragon);
+					
+					
+					HeroVsDragon(dragon);
+					if (hero.getState() == HERO_STATE.DEAD)
+						throw new EndGame(false);
+					
+					if(dragon.getState() == DRAGON_STATE.DEAD)
+						iterator.remove();
+					else movementInfo.put(new Position(dragon.getPosition()), lastDirection);
+
 				}
 
-				Position dragonPos = dragon.getPosition();
-
-				if (!hero.hasSword() && !dragonOnSword) {
-
-					if (getMazeContent(dragonPos) == getMazeContent(swordPos)){
-						maze[dragonPos.y][dragonPos.x] = Symbol_DragonOnSword;
+				if (!hero.hasSword() && !dragonOnSword)
+					if(dragon.getPosition().equals(swordPos))
 						dragonOnSword = true;
-					}
-					else
-						maze[swordPos.y][swordPos.x] = Symbol_Sword;
-				}
-
-				HeroVsDragon(dragon);
 			}
 			else iterator.remove();
+
 		}
+
+		if (!hero.hasSword() && !dragonOnSword)
+			setMazeContent(swordPos, Symbol_Sword);
+
 
 		return movementInfo;
 	}
 
-	
-	
+
+
 	private boolean fightAvailable(Dragon dragon) {
 
 		Position heroPos = hero.getPosition();
@@ -633,15 +634,18 @@ public class Maze {
 		}
 	}
 
-
 	public DIRECTION updateDragon(Dragon dragon) {
-		
+
 		Random rand = new Random();
 		Position dragonPos = dragon.getPosition();
-		
-		DIRECTION moveDirection = null;
-
 		DRAGON_STATE dragonState = dragon.getState();
+
+		if (dragonMode == DRAGON_MODE.CAN_SLEEP) {
+			int stateRand = rand.nextInt() % 3;
+			if (stateRand == 0)
+				dragon.sleep();
+			else dragon.wakeUp();
+		}
 
 		if (dragonState == DRAGON_STATE.AWAKE) {
 
@@ -669,64 +673,54 @@ public class Maze {
 			}
 
 			direction[counter++] = DIRECTION.STAY;
-			
 
-			switch(direction[rand.nextInt(counter)]){
-
-			case DOWN:
-				setMazeContent(dragonPos, Symbol_Path);
-				dragonPos.y++;
-				moveDirection = DIRECTION.DOWN;
-				break;
-
-			case UP: 	
-				setMazeContent(dragonPos, Symbol_Path);
-				dragonPos.y--;
-				moveDirection = DIRECTION.UP;
-				break;
-
-			case RIGHT:
-				setMazeContent(dragonPos, Symbol_Path);
-				dragonPos.x++;
-				moveDirection = DIRECTION.RIGHT;
-				break;
-
-			case LEFT:
-				setMazeContent(dragonPos, Symbol_Path);
-				dragonPos.x--;
-				moveDirection = DIRECTION.LEFT;
-				break;
-
-			default:
-				moveDirection = DIRECTION.STAY;
-				break;
-			}
-
+			return moveDragon(direction[rand.nextInt(counter)], dragon);
 		}
-		else
-			moveDirection = DIRECTION.STAY;
+		dragonSymbol = Symbol_DragonAsleep;
+		setMazeContent(dragonPos, dragonSymbol);
+
+		return DIRECTION.STAY;
+	}
+
+
+	public DIRECTION moveDragon(DIRECTION direction, Dragon dragon){
+
+		Position dragonPos = dragon.getPosition();
+
+		switch(direction){
+
+		case DOWN:
+			setMazeContent(dragonPos, Symbol_Path);
+			dragonPos.y++;
+			break;
+
+		case UP: 	
+			setMazeContent(dragonPos, Symbol_Path);
+			dragonPos.y--;
+			break;
+
+		case RIGHT:
+			setMazeContent(dragonPos, Symbol_Path);
+			dragonPos.x++;
+			break;
+
+		case LEFT:
+			setMazeContent(dragonPos, Symbol_Path);
+			dragonPos.x--;
+			break;
+
+		default:
+			break;
+		}
 
 		dragon.move(dragonPos);
 
-		if (dragonMode == DRAGON_MODE.CAN_SLEEP) {
-
-			int stateRand = rand.nextInt() % 3;
-			if (stateRand == 0)
-				dragon.sleep();
-			else
-				dragon.wakeUp();
-		}
-
-		if (dragon.getState() == DRAGON_STATE.AWAKE)
-			dragonSymbol = Symbol_DragonActive;
-		else if (dragonState == DRAGON_STATE.SLEEPING)
-			dragonSymbol = Symbol_DragonAsleep;
-
+		if(!hero.hasSword() && sword.getPosition().equals(dragonPos))
+			dragonSymbol = Symbol_DragonOnSword;
+		else dragonSymbol = Symbol_DragonActive;
 		setMazeContent(dragonPos, dragonSymbol);
-		
-		return moveDirection;
+		return direction;
 	}
-
 
 	//TODO HeroVsDragon
 	public void HeroVsDragon(Dragon dragon) {
@@ -737,7 +731,6 @@ public class Maze {
 				maze[dragon.getPosition().y][dragon.getPosition().x] = Symbol_Path;
 				maze[hero.getPosition().y][hero.getPosition().x] = heroSymbol;
 				dragon.dies();
-				//dragonList.remove(dragon);
 			}
 			else if (dragon.getState() == DRAGON_STATE.AWAKE) 
 				hero.dies();
@@ -763,6 +756,10 @@ public class Maze {
 	public void setMazeContent(Position pos, char content) {
 
 		maze[pos.y][pos.x] = content;
+	}
+
+	public Hero getHero(){
+		return hero;
 	}
 
 	public Position getHeroPosition() {
@@ -800,10 +797,9 @@ public class Maze {
 		return exit.getPosition();
 	}
 
-	public void setDragonAsleep(Dragon dragon) {
-
+	/*public void setDragonAsleep(Dragon dragon) {
 		dragon.sleep();
-	}
+	}*/
 
 	public LinkedList<Dragon> getDragonListCopy(){
 		return (LinkedList<Dragon>) dragonList.clone();
@@ -817,33 +813,25 @@ public class Maze {
 		return maze;
 	}
 
-
-
 	public int getDimension() {
 		return maze.length;
 	}
 
+	/*public char getMazeContent(int y, int x) {
 
-
-	public char getMazeContent(int y, int x) {
-		
 		if (y < 0 || x < 0 || y >= maze.length || x >= maze.length)
 			throw new IllegalArgumentException();
-		
+
 		return maze[y][x];
-	}
-
-
+	}*/
 
 	public int getNumberDragons() {
 		return dragonList.size();
 	}
 
-
-
 	public Position getDragonPosition(int i) {
-		
+
 		return dragonList.get(i).getPosition();
 	}
-	
+
 }

@@ -19,7 +19,7 @@ public class Position implements Comparable<Position> {
 	}
 
 
-	boolean hasOddCoords() {
+	public boolean hasOddCoords() {
 
 		return ((x % 2 != 0) && (y % 2 != 0));
 	}

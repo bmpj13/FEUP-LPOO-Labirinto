@@ -1,13 +1,8 @@
 package maze.logic;
 
-import utilities.Position;
+//import utilities.Position;
 
 public class Exit extends Element {
-
-	public Exit() {
-
-		position = new Position(5,9);
-	}
 
 	public Exit(int line, int column){
 

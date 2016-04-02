@@ -10,7 +10,7 @@ import java.util.Map;
 
 import javax.swing.Timer;
 
-import utilities.Position;
+import maze.logic.Position;
 import maze.logic.Maze;
 import maze.logic.Maze.DIRECTION;
 
@@ -74,7 +74,7 @@ public class MazeGraphicPlay extends MazeGraphics {
 					int x = j*blockWidth;
 					int width = x + blockWidth;
 
-					char symbol = maze.getMazeContent(i, j);
+					char symbol = maze.getMazeContent(new Position(i, j));
 
 					if (symbol == Maze.Symbol_Wall) {
 						g.drawImage(wall, x, y, width, height, 0, 0, wall.getWidth(), wall.getHeight(), null);
@@ -98,7 +98,15 @@ public class MazeGraphicPlay extends MazeGraphics {
 						g.drawImage(wall, x, y, width, height, 0, 0, wall.getWidth(), wall.getHeight(), null);
 						g.drawImage(this.closedDoor, width, y, x, height, 0, 0, closedDoor.getWidth(), closedDoor.getHeight(), null);
 					}
-					else if (symbol == Maze.Symbol_DragonOnSword);
+					else if (symbol == Maze.Symbol_DragonOnSword){
+						g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
+						
+					}
+					else if (symbol == Maze.Symbol_HeroArmed){
+						g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
+						g.drawImage(armed_hero, x, y, width, height, 0, 0, hero.getWidth(), hero.getHeight(), null);
+					}
+					
 					else {
 						// Dragons and Hero
 						g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);

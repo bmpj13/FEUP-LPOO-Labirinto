@@ -13,6 +13,7 @@ public class MazeGraphics extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	protected static BufferedImage hero;
+	protected static BufferedImage armed_hero;
 	protected static BufferedImage[][] dragon;
 	protected static BufferedImage wall;
 	protected static BufferedImage path;
@@ -24,7 +25,8 @@ public class MazeGraphics extends JPanel {
 	static {
 
 		try {
-			hero =  ImageIO.read(new File("res\\hero.png"));
+			hero =  ImageIO.read(new File("res\\188.png"));
+			armed_hero =  ImageIO.read(new File("res\\ya.png"));
 			wall = ImageIO.read(new File("res\\wall.jpg"));
 			path = ImageIO.read(new File("res\\path.jpg"));
 			sword = ImageIO.read(new File("res\\sword.png"));

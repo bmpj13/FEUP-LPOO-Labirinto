@@ -40,7 +40,7 @@ import java.util.HashMap;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.UIManager;
 
-import utilities.Position;
+import maze.logic.Position;
 
 public class GUI {
 

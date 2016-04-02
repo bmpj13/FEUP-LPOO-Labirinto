@@ -1,20 +1,12 @@
 package maze.logic;
 
-import utilities.Position;
+//import utilities.Position;
 
 public class Hero extends Element {
 
 	public enum HERO_STATE {ALIVE, DEAD, WIN};
 	private boolean hasSword;
 	private HERO_STATE heroState;
-	
-	public Hero() {
-		
-		position = new Position(1,1);
-		hasSword = false;
-		heroState = HERO_STATE.ALIVE;
-	}
-	
 	
 	public Hero(int line, int column){
 		

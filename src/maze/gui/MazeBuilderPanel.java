@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Random;
 
-import utilities.Position;
+import maze.logic.Position;
 import maze.logic.Maze;
 
 

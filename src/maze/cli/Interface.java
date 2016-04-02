@@ -46,29 +46,30 @@ public class Interface {
 	public int askMazeDimension() {
 
 		System.out.print("Insert desired maze dimension: ");
-		return readInt();
+		int i = readInt();
+		System.out.println();
+		return i;
 	}
-
-
 
 	public int askNumberDragons() {
 
 		System.out.print("Insert desired number of dragons: ");
-		return readInt();
+		int i = readInt();
+		System.out.println();
+		return i;
 	}
-
 
 
 	public int askDragonMode() {
 
 		int option = 0;
 
-		System.out.println("Dragon mode:");
-		System.out.println("1 - Dragon doesn't move");
-		System.out.println("2 - Dragon can move");
-		System.out.println("3 - Dragon moves and falls asleep");
-		System.out.println("0 - Default");
-		System.out.print("Choose option: ");
+		System.out.println("Dragon mode:\n" + 
+							"1 - Dragon doesn't move\n" + 
+							"2 - Dragon can move\n" + 
+							"3 - Dragon moves and falls asleep\n" + 
+							"0 - Default\n" + 
+							"Choose option: ");
 
 		boolean valid = true;
 		do {
@@ -79,7 +80,7 @@ public class Interface {
 			option = readInt();
 			valid = false;
 		} while (option < 0 || option > 3);
-
+		System.out.println();
 		return option;
 	}
 
@@ -87,28 +88,19 @@ public class Interface {
 
 	public char askDirection() {
 
-		System.out.println();
-		System.out.print("Desired direction (WASD): ");
+		System.out.print("\nDesired direction (WASD): ");
 
 		return scan.next().charAt(0);
 	}
 
-
-
-
 	public void WinMsg() {
 
-		System.out.println();
-		System.out.println("Congratulations, you won!");
+		System.out.println("\nCongratulations, you won!");
 	}
-
-
-
 
 	public void LoseMsg() {
 
-		System.out.println();
-		System.out.println("You lost. Try again?");
+		System.out.println("\nYou lost. Try again?");
 	}
 
 
@@ -123,10 +115,10 @@ public class Interface {
 
 		int option = 0;
 
-		System.out.println("Game mode:");
-		System.out.println("1 - Graphics");
-		System.out.println("2 - Console");
-		System.out.print("Choose option: ");
+		System.out.println("Game mode:\n" + 
+							"1 - Graphics\n" + 
+							"2 - Console\n" + 
+							"Choose option: ");
 
 		boolean valid = true;
 		do {

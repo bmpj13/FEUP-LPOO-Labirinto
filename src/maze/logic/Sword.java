@@ -1,6 +1,6 @@
 package maze.logic;
 
-import utilities.Position;
+//import utilities.Position;
 
 public class Sword extends Element {
 

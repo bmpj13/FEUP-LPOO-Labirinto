@@ -1,6 +1,6 @@
 package maze.logic;
 
-import utilities.Position;
+//import utilities.Position;
 
 
 public class Dragon extends Element {
@@ -8,15 +8,6 @@ public class Dragon extends Element {
 	public enum DRAGON_STATE {AWAKE, SLEEPING, DEAD};
 
 	private DRAGON_STATE dragonState;
-
-
-	public Dragon() {
-
-		position = new Position(3,1);
-		dragonState = DRAGON_STATE.AWAKE;
-	}
-
-	
 	
 	public Dragon(int line, int column) {
 
