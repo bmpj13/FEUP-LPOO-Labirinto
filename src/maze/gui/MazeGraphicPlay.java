@@ -1,11 +1,8 @@
 package maze.gui;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import utilities.Position;
 import maze.logic.Maze;
 
@@ -20,7 +17,7 @@ public class MazeGraphicPlay extends MazeGraphics {
 	MazeGraphicPlay() {		
 		super();
 	}
-	
+
 
 	@Override
 	protected void paintComponent(Graphics g) {

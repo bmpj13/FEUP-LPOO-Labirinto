@@ -154,30 +154,30 @@ public class GUI {
 		gameInfo.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		GroupLayout gl_main_panel = new GroupLayout(main_panel);
 		gl_main_panel.setHorizontalGroup(
-			gl_main_panel.createParallelGroup(Alignment.LEADING)
+				gl_main_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_main_panel.createSequentialGroup()
-					.addGap(196)
-					.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
-					.addGap(223))
-				.addGroup(gl_main_panel.createSequentialGroup()
-					.addGap(333)
-					.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 145, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(354, Short.MAX_VALUE))
-				.addGroup(gl_main_panel.createSequentialGroup()
-					.addComponent(gameInfo, GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
-					.addGap(24))
-		);
+						.addGap(196)
+						.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
+						.addGap(223))
+						.addGroup(gl_main_panel.createSequentialGroup()
+								.addGap(333)
+								.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 145, GroupLayout.PREFERRED_SIZE)
+								.addContainerGap(354, Short.MAX_VALUE))
+								.addGroup(gl_main_panel.createSequentialGroup()
+										.addComponent(gameInfo, GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
+										.addGap(24))
+				);
 		gl_main_panel.setVerticalGroup(
-			gl_main_panel.createParallelGroup(Alignment.TRAILING)
+				gl_main_panel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_main_panel.createSequentialGroup()
-					.addGap(47)
-					.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-					.addGap(29)
-					.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
-					.addGap(38)
-					.addComponent(gameInfo)
-					.addGap(79))
-		);
+						.addGap(47)
+						.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+						.addGap(29)
+						.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
+						.addGap(38)
+						.addComponent(gameInfo)
+						.addGap(79))
+				);
 
 		JButton btnQuit = new JButton("Quit");
 		btnQuit.setBackground(UIManager.getColor("CheckBoxMenuItem.selectionBackground"));
@@ -285,18 +285,22 @@ public class GUI {
 
 		btnUP = new JButton("UP");
 		btnUP.setBounds(54, 13, 88, 31);
+		btnUP.setFocusable(false);
 		buttonPanel.add(btnUP);
 
 		btnLEFT = new JButton("LEFT");
 		btnLEFT.setBounds(0, 57, 80, 25);
+		btnLEFT.setFocusable(false);
 		buttonPanel.add(btnLEFT);
 
 		btnRIGHT = new JButton("RIGHT");
 		btnRIGHT.setBounds(100, 57, 80, 25);
+		btnRIGHT.setFocusable(false);
 		buttonPanel.add(btnRIGHT);
 
 		btnDOWN = new JButton("DOWN");
 		btnDOWN.setBounds(54, 95, 88, 31);
+		btnDOWN.setFocusable(false);
 		buttonPanel.add(btnDOWN);
 
 		JLabel gameInfoLabel = new JLabel("New label");
@@ -323,8 +327,8 @@ public class GUI {
 						.addComponent(ShowGamePanel, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
 				);
 		GamePanel.setLayout(gl_GamePanel);
-		
-		
+
+
 		main_panel.requestFocus();
 	}
 
@@ -361,7 +365,7 @@ public class GUI {
 		btnLEFT.setEnabled(false);
 		btnDOWN.setEnabled(false);
 		btnRIGHT.setEnabled(false);	
-		
+
 		ShowGamePanel.setFocusable(false);
 		main_panel.requestFocus();
 
@@ -413,31 +417,15 @@ public class GUI {
 
 
 
-
-	void showGameFrame() {
-
-		try {
-			maze = new Maze(Integer.parseInt(dimensionField.getText()), 
-					Integer.parseInt(dragonNum.getText()), (DRAGON_MODE)dragonMode.getSelectedItem());
-		}
-		catch (NumberFormatException n){
-			gameInfo.setText("Invalid arguments");
-			return;
-		}
-		catch (IllegalArgumentException i){
-			gameInfo.setText(i.getMessage());
-			return;
-		}
-
-
-		ShowGamePanel.setMaze(maze);
+	
+	
+	
+	void prepareGame() {
+		
 		ShowGamePanel.setFocusable(true);
 		ShowGamePanel.requestFocus();
 		GameFrame.setVisible(true);
-
-
-
-
+		
 		btnUP.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				moveBtnAction(DIRECTION.UP);
@@ -469,6 +457,29 @@ public class GUI {
 		});
 		btnDOWN.setEnabled(true);
 	}
+	
+	
+
+	void showGameFrame() {
+
+		prepareGame();
+		
+		try {
+			maze = new Maze(Integer.parseInt(dimensionField.getText()), 
+					Integer.parseInt(dragonNum.getText()), (DRAGON_MODE)dragonMode.getSelectedItem());
+		}
+		catch (NumberFormatException n){
+			gameInfo.setText("Invalid arguments");
+			return;
+		}
+		catch (IllegalArgumentException i){
+			gameInfo.setText(i.getMessage());
+			return;
+		}
+
+
+		ShowGamePanel.setMaze(maze);
+	}
 
 
 
@@ -477,9 +488,8 @@ public class GUI {
 
 	void showGameFrame(char[][] board) {
 
+		prepareGame();
 		maze = new Maze(board);
 		ShowGamePanel.setMaze(maze);
-		ShowGamePanel.requestFocus();
-		GameFrame.setVisible(true);
 	}
 }
