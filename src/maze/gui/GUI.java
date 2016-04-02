@@ -35,9 +35,12 @@ import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
 import java.awt.Color;
+import java.util.HashMap;
 
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.UIManager;
+
+import utilities.Position;
 
 public class GUI {
 
@@ -394,14 +397,15 @@ public class GUI {
 	public void moveAction(DIRECTION dir) {
 
 		try{
-			maze.update(dir);
+			HashMap<Position, DIRECTION> moveInfo =	maze.update(dir);
+			ShowGamePanel.setMovementInfo(moveInfo);
 		}
 		catch (EndGame e){
 			finishGame(e);
 			return;
 		}
 		finally {
-			ShowGamePanel.repaint();
+			ShowGamePanel.update();
 		}
 
 

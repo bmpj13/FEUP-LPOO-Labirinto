@@ -13,20 +13,18 @@ public class MazeGraphics extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	protected static BufferedImage hero;
-	protected static BufferedImage dragon;
+	protected static BufferedImage[][] dragon;
 	protected static BufferedImage wall;
 	protected static BufferedImage path;
 	protected static BufferedImage sword;
 	protected static BufferedImage background;
 	protected static BufferedImage closedDoor;
 	protected static BufferedImage openDoor;
-	protected static BufferedImage[][] test;
 
 	static {
 
 		try {
 			hero =  ImageIO.read(new File("res\\hero.png"));
-			dragon = ImageIO.read(new File("res\\dragon.png"));
 			wall = ImageIO.read(new File("res\\wall.jpg"));
 			path = ImageIO.read(new File("res\\path.jpg"));
 			sword = ImageIO.read(new File("res\\sword.png"));
@@ -34,16 +32,16 @@ public class MazeGraphics extends JPanel {
 			closedDoor = ImageIO.read(new File("res\\closedDoor.png"));
 			openDoor = ImageIO.read(new File("res\\openDoor.png"));
 			
-			BufferedImage temp = ImageIO.read(new File("res\\test.png"));
+			BufferedImage temp = ImageIO.read(new File("res\\dragonSheet.png"));
 			int tileWidth, tileHeight;
-			test = new BufferedImage[4][4];
+			dragon = new BufferedImage[4][4];
 			
-			tileWidth = temp.getWidth() / test.length;
-			tileHeight = temp.getHeight() / test[0].length;
+			tileWidth = temp.getWidth() / dragon.length;
+			tileHeight = temp.getHeight() / dragon[0].length;
 			
-			for (int i = 0; i < test.length; i++) {
-				for (int j = 0; j < test[i].length; j++) {
-					test[i][j] = temp.getSubimage(j*tileWidth, i*tileHeight, tileWidth, tileHeight);
+			for (int i = 0; i < dragon.length; i++) {
+				for (int j = 0; j < dragon[i].length; j++) {
+					dragon[i][j] = temp.getSubimage(j*tileWidth, i*tileHeight, tileWidth, tileHeight);
 				}
 			}
 			

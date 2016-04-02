@@ -2,9 +2,17 @@ package maze.gui;
 
 
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.Timer;
+
 import utilities.Position;
 import maze.logic.Maze;
+import maze.logic.Maze.DIRECTION;
 
 
 public class MazeGraphicPlay extends MazeGraphics {
@@ -14,8 +22,34 @@ public class MazeGraphicPlay extends MazeGraphics {
 	private BufferedImage closedDoor;
 	private BufferedImage openDoor;
 
+	private HashMap<Position, DIRECTION> movementInfo;
+	private Timer timer;
+	private int animateOffset;
+	private int animateIteration;
+	private static final int numAnimations = 8;
+
+	private int blockWidth;
+	private int blockHeight;
+
+
 	MazeGraphicPlay() {		
 		super();
+
+
+		animateOffset = 0;
+		animateIteration = 0;
+		timer = new Timer(100, new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+
+				animateIteration++;
+				if (animateIteration > numAnimations)
+					timer.stop();
+				
+				repaint();
+			}
+		});
 	}
 
 
@@ -27,8 +61,8 @@ public class MazeGraphicPlay extends MazeGraphics {
 		if (maze != null) {
 
 			int dimension = maze.getDimension();
-			int blockWidth =  this.getWidth() / dimension;
-			int blockHeight = this.getHeight() / dimension;
+			blockWidth =  this.getWidth() / dimension;
+			blockHeight = this.getHeight() / dimension;
 
 			for (int i = 0; i < dimension; i++) {
 
@@ -50,7 +84,7 @@ public class MazeGraphicPlay extends MazeGraphics {
 					}
 					else if (symbol == Maze.Symbol_DragonActive) {
 						g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
-						g.drawImage(dragon, x, y, width, height, 0, 0, dragon.getWidth(), dragon.getHeight(), null);
+						//g.drawImage(dragon, x, y, width, height, 0, 0, dragon.getWidth(), dragon.getHeight(), null);
 					}
 					else if (symbol == Maze.Symbol_HeroUnarmed) {
 						g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
@@ -65,11 +99,19 @@ public class MazeGraphicPlay extends MazeGraphics {
 						g.drawImage(this.closedDoor, width, y, x, height, 0, 0, closedDoor.getWidth(), closedDoor.getHeight(), null);
 					}
 					else if (symbol == Maze.Symbol_DragonOnSword);
+					else {
+						// Dragons and Hero
+						g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
+					}
+				}
+
+
+				if (movementInfo != null) {
+					for (Map.Entry<Position, DIRECTION> entry : movementInfo.entrySet()) {
+						animate(g, dragon, entry.getKey(), entry.getValue());
+					}
 				}
 			}
-			
-			
-			g.drawImage(test[3][0], 0, 0, blockWidth, blockHeight, 0, 0, test[0][0].getWidth(), test[0][0].getHeight(), null);
 		}
 	}
 
@@ -91,5 +133,70 @@ public class MazeGraphicPlay extends MazeGraphics {
 		}
 		else
 			this.closedDoor = super.closedDoor;
+	}
+
+
+	public void setMovementInfo(HashMap<Position, DIRECTION> moveInfo) {
+		movementInfo = moveInfo;
+	}
+
+
+	public void animate(Graphics g, BufferedImage[][] image, Position currentPos, DIRECTION lastMove) {
+
+		Position lastPosition;
+
+		int x = 0;
+		int y = 0;
+		
+		int dirIndex;
+		int animIndex = animateIteration % image[0].length;
+
+		switch (lastMove) {
+		case UP:
+			lastPosition = new Position(currentPos.y+1, currentPos.x);
+			animateOffset = -blockHeight / numAnimations;
+			y += animateIteration * animateOffset;
+			dirIndex = 3;
+			break;
+			
+		case LEFT:
+			lastPosition = new Position(currentPos.y, currentPos.x+1);
+			animateOffset = -blockWidth / numAnimations;
+			x += animateIteration * animateOffset;
+			dirIndex = 1;
+			break;
+			
+		case DOWN:
+			lastPosition = new Position(currentPos.y-1, currentPos.x);
+			animateOffset = blockHeight / numAnimations;
+			y +=  animateIteration * animateOffset;
+			dirIndex = 0;
+			break;
+			
+		case RIGHT:
+			lastPosition = new Position(currentPos.y, currentPos.x-1);
+			animateOffset = blockWidth / numAnimations;
+			x += animateIteration * animateOffset;
+			dirIndex = 2;
+			break;
+			
+		default:
+			lastPosition = new Position(currentPos);
+			dirIndex = 0;
+			break;
+		}
+
+		x += lastPosition.x * blockWidth;
+		y += lastPosition.y * blockHeight;
+
+		g.drawImage(image[dirIndex][animIndex], x, y, x + blockWidth, y + blockHeight, 0, 0,
+				image[dirIndex][animIndex].getWidth(), image[dirIndex][animIndex].getHeight(), null);
+	}
+
+
+	public void update() {
+
+		animateIteration = 0;
+		timer.start();
 	}
 }

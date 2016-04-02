@@ -119,7 +119,7 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 					g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
 				else if (board[i][j] == Maze.Symbol_DragonActive) {
 					g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
-					g.drawImage(dragon, x, y, width, height, 0, 0, dragon.getWidth(), dragon.getHeight(), null);
+					//g.drawImage(dragon, x, y, width, height, 0, 0, dragon.getWidth(), dragon.getHeight(), null);
 				}
 				else if (board[i][j] == Maze.Symbol_HeroUnarmed) {
 					g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
@@ -141,8 +141,8 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 		g.drawImage(path, pathOptPos.x, pathOptPos.y, pathOptPos.x + optionLength, pathOptPos.y + optionLength, 
 				0, 0, wall.getWidth(), wall.getHeight(), null);
 
-		g.drawImage(dragon, dragonOptPos.x, dragonOptPos.y, dragonOptPos.x + optionLength, dragonOptPos.y + optionLength, 
-				0, 0, dragon.getWidth(), dragon.getHeight(), null);
+//		g.drawImage(dragon, dragonOptPos.x, dragonOptPos.y, dragonOptPos.x + optionLength, dragonOptPos.y + optionLength, 
+//				0, 0, dragon.getWidth(), dragon.getHeight(), null);
 
 		g.drawImage(hero, heroOptPos.x, heroOptPos.y, heroOptPos.x + optionLength, heroOptPos.y + optionLength,
 				0, 0, hero.getWidth(), hero.getHeight(), null);
