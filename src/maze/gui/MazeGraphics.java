@@ -20,6 +20,7 @@ public class MazeGraphics extends JPanel {
 	protected static BufferedImage background;
 	protected static BufferedImage closedDoor;
 	protected static BufferedImage openDoor;
+	protected static BufferedImage[][] test;
 
 	static {
 
@@ -32,6 +33,21 @@ public class MazeGraphics extends JPanel {
 			background = ImageIO.read(new File("res\\background.jpg"));
 			closedDoor = ImageIO.read(new File("res\\closedDoor.png"));
 			openDoor = ImageIO.read(new File("res\\openDoor.png"));
+			
+			BufferedImage temp = ImageIO.read(new File("res\\test.png"));
+			int tileWidth, tileHeight;
+			test = new BufferedImage[4][4];
+			
+			tileWidth = temp.getWidth() / test.length;
+			tileHeight = temp.getHeight() / test[0].length;
+			
+			for (int i = 0; i < test.length; i++) {
+				for (int j = 0; j < test[i].length; j++) {
+					test[i][j] = temp.getSubimage(j*tileWidth, i*tileHeight, tileWidth, tileHeight);
+				}
+			}
+			
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		};

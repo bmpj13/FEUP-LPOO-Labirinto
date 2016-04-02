@@ -67,6 +67,9 @@ public class MazeGraphicPlay extends MazeGraphics {
 					else if (symbol == Maze.Symbol_DragonOnSword);
 				}
 			}
+			
+			
+			g.drawImage(test[3][0], 0, 0, blockWidth, blockHeight, 0, 0, test[0][0].getWidth(), test[0][0].getHeight(), null);
 		}
 	}
 
