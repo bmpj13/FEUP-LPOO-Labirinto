@@ -75,8 +75,8 @@ public class GUI {
 
 		MainFrame = new JFrame();
 		MainFrame.getContentPane().setBackground(Color.WHITE);
-		MainFrame.setMinimumSize(new Dimension(850, 570));
-		MainFrame.setSize(MainFrame.getMinimumSize());
+		MainFrame.setSize(new Dimension(850, 570));
+		MainFrame.setResizable(false);
 		MainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		MainFrame.getContentPane().setLayout(new BorderLayout(0, 0));
 		MainFrame.setLocationRelativeTo(null);
@@ -158,37 +158,35 @@ public class GUI {
 		});
 
 
-		btnNewGame.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnNewGame.setFont(new Font("Tahoma", Font.BOLD, 15));
 
 		MainInfo = new JLabel("Can start a new game");
 		MainInfo.setHorizontalAlignment(SwingConstants.CENTER);
 		MainInfo.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		GroupLayout gl_main_panel = new GroupLayout(main_panel);
 		gl_main_panel.setHorizontalGroup(
-				gl_main_panel.createParallelGroup(Alignment.LEADING)
+			gl_main_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_main_panel.createSequentialGroup()
-						.addGap(196)
-						.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
-						.addGap(223))
-						.addGroup(gl_main_panel.createSequentialGroup()
-								.addGap(333)
-								.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 145, GroupLayout.PREFERRED_SIZE)
-								.addContainerGap(354, Short.MAX_VALUE))
-								.addGroup(gl_main_panel.createSequentialGroup()
-										.addComponent(MainInfo, GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
-										.addGap(24))
-				);
+					.addGap(352)
+					.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 145, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(352, Short.MAX_VALUE))
+				.addGroup(gl_main_panel.createSequentialGroup()
+					.addGap(217)
+					.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE)
+					.addGap(217))
+				.addComponent(MainInfo, GroupLayout.DEFAULT_SIZE, 844, Short.MAX_VALUE)
+		);
 		gl_main_panel.setVerticalGroup(
-				gl_main_panel.createParallelGroup(Alignment.TRAILING)
+			gl_main_panel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_main_panel.createSequentialGroup()
-						.addGap(47)
-						.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-						.addGap(29)
-						.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
-						.addGap(38)
-						.addComponent(MainInfo)
-						.addGap(79))
-				);
+					.addContainerGap(47, Short.MAX_VALUE)
+					.addComponent(panel_settings, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+					.addGap(41)
+					.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
+					.addGap(38)
+					.addComponent(MainInfo)
+					.addGap(79))
+		);
 
 		JButton btnQuit = new JButton("Quit");
 		btnQuit.setBackground(UIManager.getColor("CheckBoxMenuItem.selectionBackground"));

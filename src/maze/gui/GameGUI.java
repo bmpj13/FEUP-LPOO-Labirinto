@@ -303,7 +303,7 @@ public class GameGUI {
 	void finishGame(EndGame e) {
 
 		gameFinished = true;
-		ShowGamePanel.setGameFinished(true);
+		ShowGamePanel.gameFinished();
 
 		btnUP.setEnabled(false);
 		btnLEFT.setEnabled(false);
@@ -312,10 +312,8 @@ public class GameGUI {
 
 		if(e.Won())
 			gameInfoLabel.setText("Congratulations, you won!");
-		else { 
+		else
 			gameInfoLabel.setText("Game over. Try again.");
-			ShowGamePanel.heroDyingAnimate();
-		}
 	}
 
 
@@ -327,7 +325,7 @@ public class GameGUI {
 		gameInfoLabel.setForeground(Color.RED);
 
 		gameFinished = false;
-		ShowGamePanel.setGameFinished(false);
+		ShowGamePanel.gameStarted();
 		ShowGamePanel.setFocusable(true);
 		ShowGamePanel.requestFocus();
 

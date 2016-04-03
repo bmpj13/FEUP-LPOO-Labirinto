@@ -81,18 +81,103 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 			if (!gameFinished) {
 
-				if (animateIteration > numAnimations)
-					onAnimation = false;
-
 				if (movementsInfo != null && onAnimation)
 					paintAnimatedCharacters(g);
 				else
 					paintStoppedCharacters(g);
 			}
-			else
-				animate(g, movementsInfo.get(0));
+			else {
+				heroEndAnimation(g, (MovementInfoHero) movementsInfo.get(0));
+				paintDragons(g);
+			}
 		}
 	}
+
+
+
+
+	private void heroEndAnimation(Graphics g, MovementInfoHero heroInfo) {
+		// Only called when game ends
+
+		BufferedImage[][] image = retrieveImageEnd(heroInfo);
+		Position drawPosition = retrieveDrawPositionEnd(heroInfo);
+		Position indexPosition = retrieveAnimationIndexEnd(image, heroInfo);
+
+		g.drawImage(image[indexPosition.y][indexPosition.x], drawPosition.x, drawPosition.y, drawPosition.x + blockWidth,
+				drawPosition.y + blockHeight, 0, 0, image[indexPosition.y][indexPosition.x].getWidth(),
+				image[indexPosition.y][indexPosition.x].getHeight(), null);
+	}
+
+
+
+	// TODO amizade
+	private Position retrieveAnimationIndexEnd(BufferedImage[][] image, MovementInfoHero heroInfo) {
+
+		if (heroInfo.moveDirection == DIRECTION.STAY) {
+			
+			if (heroInfo.heroState == HERO_STATE.DEAD) {
+				return new Position(DOWN, image[DOWN].length - 1);
+			}
+			else
+				return new Position(DOWN, animateIteration % image[DOWN].length);
+		}
+			
+
+		return retrieveAnimationIndex(image, heroInfo);
+	}
+
+
+
+	private Position retrieveDrawPositionEnd(MovementInfoHero heroInfo) {
+
+		if (!onAnimation) {
+			Position heroPos = maze.getHeroPosition();
+			heroInfo.moveDirection = DIRECTION.STAY;
+			return new Position(heroPos.y * blockHeight, heroPos.x * blockWidth);
+		}
+
+		return retrieveDrawPosition(heroInfo);
+	}
+
+
+
+	private ArrayList<Integer> retrieveDirectionIndexerEnd(MovementInfoHero heroInfo) {
+
+		if (heroInfo.heroState == HERO_STATE.DEAD) {
+
+			if (!onAnimation) {
+				return super.heroEndDirIndex;
+			}
+			else
+				return super.heroDirIndex;
+		}
+		else
+			return super.heroDirIndex;
+	}
+
+
+
+	private BufferedImage[][] retrieveImageEnd(MovementInfoHero heroInfo) {
+
+		if (heroInfo.heroState == HERO_STATE.DEAD) {
+
+			if (!onAnimation)
+				return super.heroDyingImg;
+			else
+				return super.heroUnarmedImg;
+		}
+		else {
+
+			if (!onAnimation)
+				return super.heroWinningImg;
+			else
+				return super.heroArmedImg;
+		}
+	}
+
+
+
+
 
 
 
@@ -100,21 +185,30 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 		Position heroPosition = maze.getHeroPosition();
 		if (maze.heroHasSword()) {
-			g.drawImage(heroArmedImg[DOWN][0], heroPosition.x * blockWidth, heroPosition.y * blockHeight, (heroPosition.x + 1) * blockWidth,
-					(heroPosition.y + 1) * blockHeight, 0, 0, heroArmedImg[DOWN][0].getWidth(), heroArmedImg[DOWN][0].getHeight(), null);
+			g.drawImage(heroArmedImg[DOWN][0], heroPosition.x * blockWidth, heroPosition.y * blockHeight, 
+					(heroPosition.x + 1) * blockWidth, (heroPosition.y + 1) * blockHeight,
+					0, 0, heroArmedImg[DOWN][0].getWidth(), heroArmedImg[DOWN][0].getHeight(), null);
 		}
 		else {
-			g.drawImage(heroUnarmedImg[DOWN][0], heroPosition.x * blockWidth, heroPosition.y * blockHeight, (heroPosition.x + 1) * blockWidth,
-					(heroPosition.y + 1) * blockHeight, 0, 0, heroUnarmedImg[DOWN][0].getWidth(), heroUnarmedImg[DOWN][0].getHeight(), null);
+			g.drawImage(heroUnarmedImg[DOWN][0], heroPosition.x * blockWidth, heroPosition.y * blockHeight,
+					(heroPosition.x + 1) * blockWidth, (heroPosition.y + 1) * blockHeight,
+					0, 0, heroUnarmedImg[DOWN][0].getWidth(), heroUnarmedImg[DOWN][0].getHeight(), null);
 		}
 
+
+		paintDragons(g);
+	}
+
+
+
+	private void paintDragons(Graphics g) {
 
 		LinkedList<Dragon> dragons = maze.getDragonList();
 		for (Dragon dragon : dragons) {
 			animate(g, new MovementInfoDragon(dragon.getPosition(), DIRECTION.STAY, dragon.getState()));
 		}
-
 	}
+
 
 
 	private void paintAnimatedCharacters(Graphics g) {
@@ -122,6 +216,7 @@ public class MazeGraphicPlay extends MazeGraphics {
 			animate(g, info);
 		}
 	}
+
 
 
 	private void paintStaticElements(Graphics g) {
@@ -167,54 +262,9 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 	public void animate(Graphics g, MovementInfo moveInfo) {
 
-		BufferedImage[][] image;
-		ArrayList<Integer> activeDirIndex;
-
-		if (moveInfo instanceof MovementInfoDragon) {
-			MovementInfoDragon infoDragon = (MovementInfoDragon) moveInfo;
-
-			if (infoDragon.dragonState == DRAGON_STATE.SLEEPING) {
-				image = super.dragonSleepingImg;
-				activeDirIndex = super.dragonSleepingDirIndex;
-			}
-			else {
-				image = super.dragonActiveImg;
-				activeDirIndex = super.dragonActiveDirIndex;
-			}
-		}
-		else {
-
-			MovementInfoHero infoHero = (MovementInfoHero) moveInfo;
-
-			if (infoHero.heroState == HERO_STATE.ALIVE) {
-
-				activeDirIndex = super.heroDirIndex;
-
-				if (infoHero.hasSword)
-					image = super.heroArmedImg;
-				else
-					image = super.heroUnarmedImg;
-			}
-			else if (infoHero.heroState == HERO_STATE.DEAD) {
-
-				if (animateIteration >= numAnimations) {
-					image = super.heroDyingImg;
-					activeDirIndex = super.heroDyingDirIndex;
-				}
-				else {
-					image = super.heroUnarmedImg;
-					activeDirIndex = super.heroDirIndex;
-				}
-			}
-			else {
-				image = super.heroArmedImg;
-				activeDirIndex = super.heroDirIndex;
-			}
-		}
-
-
-		Position drawPosition = getDrawPosition(moveInfo);
-		Position indexPosition = getAnimationIndex(image, moveInfo, activeDirIndex, moveInfo.moveDirection);
+		BufferedImage[][] image = retrieveImage(moveInfo);
+		Position drawPosition = retrieveDrawPosition(moveInfo);
+		Position indexPosition = retrieveAnimationIndex(image, moveInfo);
 
 
 		g.drawImage(image[indexPosition.y][indexPosition.x], drawPosition.x, drawPosition.y, drawPosition.x + blockWidth,
@@ -224,54 +274,90 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 
 
-	private Position getAnimationIndex(BufferedImage[][] image, MovementInfo moveInfo, 
-			ArrayList<Integer> imageDirIndex, DIRECTION moveDirection) {
+
+	private ArrayList<Integer> retrieveDirectionIndexer(MovementInfo moveInfo) {
+
+		if (moveInfo instanceof MovementInfoDragon) {
+			MovementInfoDragon infoDragon = (MovementInfoDragon) moveInfo;
+
+			if (infoDragon.dragonState == DRAGON_STATE.SLEEPING)
+				return super.dragonSleepingDirIndex;
+			else
+				return super.dragonActiveDirIndex;
+		}
+		else {
+			return super.heroDirIndex;
+		}
+	}
+
+
+
+
+	private BufferedImage[][] retrieveImage(MovementInfo moveInfo) {
+
+		if (moveInfo instanceof MovementInfoDragon) {
+			MovementInfoDragon infoDragon = (MovementInfoDragon) moveInfo;
+
+			if (infoDragon.dragonState == DRAGON_STATE.SLEEPING)
+				return super.dragonSleepingImg;
+			else
+				return super.dragonActiveImg;
+		}
+		else {
+
+			MovementInfoHero infoHero = (MovementInfoHero) moveInfo;
+
+			if (infoHero.hasSword)
+				return super.heroArmedImg;
+			else
+				return super.heroUnarmedImg;
+		}
+	}
+
+
+
+	private Position retrieveAnimationIndex(BufferedImage[][] image, MovementInfo moveInfo) {
 
 		int dirIndex;
 		int animIndex;
 
-		switch (moveDirection) {
+		switch (moveInfo.moveDirection) {
 		case UP:
-			dirIndex = imageDirIndex.get(UP);
+			dirIndex = UP;
 			animIndex = animateIteration % image[dirIndex].length;
 			break;
 
 		case LEFT:
-			dirIndex = imageDirIndex.get(LEFT);
+			dirIndex = LEFT;
 			animIndex = animateIteration % image[dirIndex].length;
 			break;
 
 		case DOWN:
-			dirIndex = imageDirIndex.get(DOWN);
+			dirIndex = DOWN;
 			animIndex = animateIteration % image[dirIndex].length;
 			break;
 
 		case RIGHT:
-			dirIndex = imageDirIndex.get(RIGHT);
+			dirIndex = RIGHT;
 			animIndex = animateIteration % image[dirIndex].length;
 			break;
 
 		default:
-			dirIndex = imageDirIndex.get(DOWN);
-			animIndex = animateIteration % image[dirIndex].length;
+			dirIndex = DOWN;
+			if (moveInfo instanceof MovementInfoDragon)
+				animIndex = animateIteration % image[dirIndex].length;
+			else
+				animIndex = 0;
 			break;
 		}
-
-
-
-		if (moveInfo instanceof MovementInfoHero && ((MovementInfoHero) moveInfo).heroState != HERO_STATE.ALIVE) {
-			if (animateIteration >= super.heroDyingDirIndex.size()) {
-				moveInfo.moveDirection = DIRECTION.STAY;
-				animIndex = image[dirIndex].length - 1;
-			}
-		}
-
 
 		return new Position(dirIndex, animIndex);
 	}
 
 
-	private Position getDrawPosition(MovementInfo moveInfo) {
+
+
+	private Position retrieveDrawPosition(MovementInfo moveInfo) {
 
 		int x = 0;
 		int y = 0;
@@ -335,14 +421,6 @@ public class MazeGraphicPlay extends MazeGraphics {
 			y += moveInfo.lastPosition.y * blockHeight;
 		}
 
-
-		if (moveInfo instanceof MovementInfoHero && ((MovementInfoHero) moveInfo).heroState != HERO_STATE.ALIVE) {
-			if (animateIteration >= super.heroDyingDirIndex.size()) {
-				moveInfo.lastPosition = new Position(y / blockHeight, x / blockWidth);
-			}
-		}
-
-
 		return new Position(y, x);
 	}
 
@@ -363,21 +441,15 @@ public class MazeGraphicPlay extends MazeGraphics {
 	public void setMaze(Maze maze) {
 
 		this.maze = maze;
-
 		Position exitPos = maze.getExitPosition();
 
-		if (exitPos.x == 0) {
+
+		if (exitPos.x == 0)
 			this.doorImg = rotate(super.closedDoorImg, Math.PI/2);
-			super.openDoorImg = rotate(super.openDoorImg, Math.PI/2);
-		}
-		else if (exitPos.x == maze.getDimension() - 1) {
+		else if (exitPos.x == maze.getDimension() - 1)
 			this.doorImg = rotate(super.closedDoorImg, -Math.PI/2);
-			super.openDoorImg = rotate(super.openDoorImg, -Math.PI/2);
-		}
-		else if (exitPos.y == maze.getDimension() - 1) {
+		else if (exitPos.y == maze.getDimension() - 1)
 			this.doorImg = rotate(super.closedDoorImg, Math.PI);
-			super.openDoorImg = rotate(super.openDoorImg, Math.PI);
-		}
 		else
 			this.doorImg = super.closedDoorImg;
 	}
@@ -390,13 +462,12 @@ public class MazeGraphicPlay extends MazeGraphics {
 	}
 
 
-	public void heroDyingAnimate() {
-		timer.setDelay(500);
-
+	public void gameFinished() {
+		gameFinished = true;
 	}
 
 
-	public void setGameFinished(boolean gm) {
-		gameFinished = gm;
+	public void gameStarted() {
+		gameFinished = false;
 	}
 }
