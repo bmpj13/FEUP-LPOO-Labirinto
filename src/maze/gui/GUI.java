@@ -55,25 +55,18 @@ public class GUI {
 	private JPanel main_panel;
 	private Maze maze;
 	private JComboBox<DRAGON_MODE> dragonMode;
-	private MazeGraphicPlay ShowGamePanel;
-	private JFrame GameFrame;
-	private JButton btnUP;
-	private JButton btnLEFT;
-	private JButton btnRIGHT;
-	private JButton btnDOWN;
-	private JLabel gameInfoLabel;
+
+	private GameGUI gameGUI;
+	private MazeBuilderGUI mazeBuilderGUI;
 
 	/**
 	 * Create the application.
 	 */
 	public GUI() {
 		initialize();
+		gameGUI = new GameGUI(this);
 	}
 
-
-	public void setVisible(boolean visible) {
-		MainFrame.setVisible(visible);
-	}
 
 	/**
 	 * Initialize the contents of the frame.
@@ -150,9 +143,20 @@ public class GUI {
 		btnNewGame.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				showGameFrame();
+				try {
+					gameGUI.startGame(dimensionField, dragonNum, dragonMode);
+				}
+				catch (NumberFormatException n){
+					MainInfo.setText("Invalid arguments");
+					return;
+				}
+				catch (IllegalArgumentException i){
+					MainInfo.setText(i.getMessage());
+					return;
+				}
 			}
 		});
+
 
 		btnNewGame.setFont(new Font("Tahoma", Font.PLAIN, 15));
 
@@ -192,13 +196,26 @@ public class GUI {
 		panel_menu.add(btnQuit);
 		btnQuit.setFont(new Font("Tahoma", Font.PLAIN, 15));
 
+
 		JButton btnMB = new JButton("Build Maze");
 		btnMB.setBackground(UIManager.getColor("CheckBoxMenuItem.selectionBackground"));
 		btnMB.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnMB.setBounds(0, 40, 145, 27);
+		GUI thisGUI = this;
 		btnMB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				createMBFrame();
+
+				try {
+					new MazeBuilderGUI(thisGUI, gameGUI, Integer.parseInt(dimensionField.getText()));
+				}
+				catch (NumberFormatException n){
+					MainInfo.setText("Invalid arguments");
+					return;
+				}
+				catch (IllegalArgumentException i){
+					MainInfo.setText(i.getMessage());
+					return;
+				}
 			}
 		});
 
@@ -210,328 +227,20 @@ public class GUI {
 			}
 		});
 		main_panel.setLayout(gl_main_panel);
-		MainFrame.getContentPane().add(main_panel, BorderLayout.CENTER);
-
-
-
-
-
-
-
-		/*
-		 * Frame for GAMEPLAY
-		 */
-		GameFrame = new JFrame();
-		GameFrame.getContentPane().setLayout(new BorderLayout());
-
-		int fWidth = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 0.95);
-		int fHeight = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.9);
-		GameFrame.setSize(new Dimension(fWidth, fHeight));
-		GameFrame.setMinimumSize(new Dimension(700, 500));
-		GameFrame.setLocationRelativeTo(null);
-
-		GameFrame.addWindowListener(new WindowAdapter() {
-
-			@Override
-			public void windowClosing(WindowEvent windowEvent) {
-				GameFrame.setVisible(false);
-				MainFrame.setVisible(true);
-			}
-		});
-
-
-		JPanel GamePanel = new JPanel();
-		GameFrame.getContentPane().add(GamePanel, BorderLayout.CENTER);
-
-		ShowGamePanel = new MazeGraphicPlay();
-		ShowGamePanel.setFocusable(true);
-		ShowGamePanel.setBackground(Color.WHITE);
-
-
-		JPanel sidePanel = new JPanel();
-		GroupLayout gl_GamePanel = new GroupLayout(GamePanel);
-		gl_GamePanel.setHorizontalGroup(
-				gl_GamePanel.createParallelGroup(Alignment.TRAILING)
-				.addGroup(gl_GamePanel.createSequentialGroup()
-						.addComponent(ShowGamePanel, GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
-						.addPreferredGap(ComponentPlacement.UNRELATED)
-						.addComponent(sidePanel, GroupLayout.PREFERRED_SIZE, 239, GroupLayout.PREFERRED_SIZE))
-				);
-		gl_GamePanel.setVerticalGroup(
-				gl_GamePanel.createParallelGroup(Alignment.LEADING)
-				.addComponent(ShowGamePanel, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
-				.addComponent(sidePanel, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
-				);
-
-		gameInfoLabel = new JLabel("");
-		gameInfoLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
-		gameInfoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(null);
-
-		btnUP = new JButton("UP");
-		btnUP.setEnabled(true);
-		btnUP.setFocusable(false);
-		btnUP.setBounds(54, 13, 88, 31);
-		buttonPanel.add(btnUP);
-
-		btnLEFT = new JButton("LEFT");
-		btnLEFT.setEnabled(true);
-		btnLEFT.setFocusable(false);
-		btnLEFT.setBounds(0, 57, 80, 25);
-		buttonPanel.add(btnLEFT);
-
-		btnRIGHT = new JButton("RIGHT");
-		btnRIGHT.setEnabled(true);
-		btnRIGHT.setFocusable(false);
-		btnRIGHT.setBounds(100, 57, 80, 25);
-		buttonPanel.add(btnRIGHT);
-
-		btnDOWN = new JButton("DOWN");
-		btnDOWN.setEnabled(true);
-		btnDOWN.setFocusable(false);
-		btnDOWN.setBounds(54, 95, 88, 31);
-		buttonPanel.add(btnDOWN);
-
-
-		GroupLayout gl_sidePanel = new GroupLayout(sidePanel);
-		gl_sidePanel.setHorizontalGroup(
-				gl_sidePanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_sidePanel.createSequentialGroup()
-						.addGap(30)
-						.addComponent(buttonPanel, GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
-						.addContainerGap())
-						.addComponent(gameInfoLabel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
-				);
-		gl_sidePanel.setVerticalGroup(
-				gl_sidePanel.createParallelGroup(Alignment.TRAILING)
-				.addGroup(gl_sidePanel.createSequentialGroup()
-						.addGap(85)
-						.addComponent(gameInfoLabel, GroupLayout.PREFERRED_SIZE, 16, Short.MAX_VALUE)
-						.addGap(107)
-						.addComponent(buttonPanel, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
-						.addGap(104))
-				);
-		sidePanel.setLayout(gl_sidePanel);
-		GamePanel.setLayout(gl_GamePanel);
-
-
-		ShowGamePanel.addKeyListener(new KeyListener(){
-
-			@Override
-			public void keyTyped(KeyEvent e) {}
-
-			@Override
-			public void keyPressed(KeyEvent k) {
-
-				DIRECTION dir = null;
-
-				switch(k.getKeyCode()){
-				case KeyEvent.VK_LEFT: 
-					dir = DIRECTION.LEFT; 
-					break;
-
-				case KeyEvent.VK_RIGHT: 
-					dir = DIRECTION.RIGHT; 
-					break;
-
-				case KeyEvent.VK_UP: 
-					dir = DIRECTION.UP; 
-					break;
-
-				case KeyEvent.VK_DOWN: 
-					dir = DIRECTION.DOWN; 
-					break;
-
-				case KeyEvent.VK_ESCAPE:
-					GameFrame.setVisible(false);
-					MainFrame.setVisible(true);
-					main_panel.requestFocus();
-					return;
-
-				default:
-					return;
-				}
-
-
-				moveAction(dir);
-			}
-
-			@Override
-			public void keyReleased(KeyEvent arg0) {}
-		});
-
-
-
-		btnUP.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				moveAction(DIRECTION.UP);
-			}
-		});
-
-		btnLEFT.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				moveAction(DIRECTION.LEFT);
-			}
-		});
-
-		btnRIGHT.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				moveAction(DIRECTION.RIGHT);
-			}
-		});
-
-		btnDOWN.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				moveAction(DIRECTION.DOWN);
-			}
-		});
+		MainFrame.getContentPane().add(main_panel, BorderLayout.CENTER);	
 
 
 		main_panel.requestFocus();
 	}
 
 
-
-	public void moveAction(DIRECTION dir) {
-
-		if (!ShowGamePanel.animationAllowed())
-			return;
-
-		try {
-			ArrayList<MovementInfo> moveInfo =	maze.update(dir);
-			ShowGamePanel.setMovementInfo(moveInfo);
-		}
-		catch (EndGame e){
-			finishGame(e);
-			return;
-		}
-		finally {
-			ShowGamePanel.updateImage();
-		}
-
-
-		if (maze.getDragonList().size() == 0) {
-			gameInfoLabel.setText("Proceed to the exit.");
-			gameInfoLabel.setForeground(new Color(0, 128, 0));
-		}
-		else if (maze.heroHasSword()) {
-			gameInfoLabel.setForeground(Color.BLUE);
-			gameInfoLabel.setText("Go slay the dragons.");
-		}	
+	public void setVisible(boolean visible) {
+		MainFrame.setVisible(visible);
 	}
 
 
-
-	void finishGame(EndGame e) {
-
-		btnUP.setEnabled(false);
-		btnLEFT.setEnabled(false);
-		btnDOWN.setEnabled(false);
-		btnRIGHT.setEnabled(false);	
-
-		ShowGamePanel.setFocusable(false);
+	public void goTo() {
+		MainFrame.setVisible(true);
 		main_panel.requestFocus();
-
-		if(e.Won())
-			gameInfoLabel.setText("Congratulations, you won!");
-		else gameInfoLabel.setText("Game over. Try again.");
-	}
-
-
-
-	void createMBFrame() {
-
-		JFrame MBFrame = new JFrame();
-		MBFrame.getContentPane().setLayout(new BorderLayout());
-
-		int fWidth = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 0.95);
-		int fHeight = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.9);
-		MBFrame.setSize(new Dimension(fWidth, fHeight));
-		MBFrame.setMinimumSize(new Dimension(700, MBFrame.getHeight()));
-		MBFrame.setLocationRelativeTo(null);
-
-		MBFrame.addWindowListener(new WindowAdapter() {
-
-			@Override
-			public void windowClosing(WindowEvent windowEvent) {
-				MBFrame.setVisible(false);
-				MainFrame.setVisible(true);
-			}
-		});
-
-
-		MazeBuilderPanel MBPanel = new MazeBuilderPanel(Integer.parseInt(dimensionField.getText()));
-		MBPanel.setLayout(null);
-		JButton MBFinish = new JButton("Finish");
-		MBFinish.setBounds(10, (int) (MBFrame.getHeight() * 0.7), MazeBuilderPanel.sidebarWidth - 20, 50);
-		MBFinish.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				showGameFrame(MBPanel.getBoard());
-				GameFrame.setVisible(true);
-				MBFrame.setVisible(false);
-			}
-		});
-		MBPanel.add(MBFinish);	
-
-		MBFrame.getContentPane().add(MBPanel, BorderLayout.CENTER);
-		MBFrame.setVisible(true);
-	}
-
-
-
-
-
-
-	void prepareGame() {
-
-		gameInfoLabel.setText("Go pick up the sword!");
-		gameInfoLabel.setForeground(Color.RED);
-
-		ShowGamePanel.setFocusable(true);
-		ShowGamePanel.requestFocus();
-
-		MainFrame.setVisible(false);
-		GameFrame.setVisible(true);
-
-		btnUP.setEnabled(true);
-		btnLEFT.setEnabled(true);
-		btnRIGHT.setEnabled(true);
-		btnDOWN.setEnabled(true);
-	}
-
-
-
-	void showGameFrame() {
-
-		prepareGame();
-
-		try {
-			maze = new Maze(Integer.parseInt(dimensionField.getText()), 
-					Integer.parseInt(dragonNum.getText()), (DRAGON_MODE)dragonMode.getSelectedItem());
-		}
-		catch (NumberFormatException n){
-			MainInfo.setText("Invalid arguments");
-			return;
-		}
-		catch (IllegalArgumentException i){
-			MainInfo.setText(i.getMessage());
-			return;
-		}
-
-
-		ShowGamePanel.setMaze(maze);
-	}
-
-
-
-
-	void showGameFrame(char[][] board) {
-
-		prepareGame();
-		maze = new Maze(board);
-		ShowGamePanel.setMaze(maze);
 	}
 }

@@ -17,6 +17,7 @@ import maze.logic.MovementInfoHero;
 import maze.logic.Position;
 import maze.logic.Maze;
 import maze.logic.Dragon.DRAGON_STATE;
+import maze.logic.Hero.HERO_STATE;
 import maze.logic.Maze.DIRECTION;
 
 
@@ -24,10 +25,10 @@ public class MazeGraphicPlay extends MazeGraphics {
 	private static final long serialVersionUID = 1L;
 
 	private Maze maze;
-	private BufferedImage closedDoorImg;
-	private BufferedImage openDoorImg;
+	private BufferedImage doorImg;
 
 	private ArrayList<MovementInfo> movementsInfo;
+
 	private Timer timer;
 	private int animateIteration;
 	private static final int numAnimations = 8;
@@ -37,12 +38,17 @@ public class MazeGraphicPlay extends MazeGraphics {
 	private int blockHeight;
 
 
+	private boolean gameFinished;
+
+
 	MazeGraphicPlay() {		
 		super();
 
+		gameFinished = false;
+
 		onAnimation = false;
 		animateIteration = 0;
-		timer = new Timer(100, new ActionListener() {
+		timer = new Timer(120, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent ae) {
@@ -73,14 +79,18 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 			paintStaticElements(g);
 
-			if (animateIteration > numAnimations) {
-				onAnimation = false;
-			}
+			if (!gameFinished) {
 
-			if (movementsInfo != null && onAnimation)
-				paintAnimatedCharacters(g);
+				if (animateIteration > numAnimations)
+					onAnimation = false;
+
+				if (movementsInfo != null && onAnimation)
+					paintAnimatedCharacters(g);
+				else
+					paintStoppedCharacters(g);
+			}
 			else
-				paintStoppedCharacters(g);
+				animate(g, movementsInfo.get(0));
 		}
 	}
 
@@ -99,7 +109,6 @@ public class MazeGraphicPlay extends MazeGraphics {
 		}
 
 
-		
 		LinkedList<Dragon> dragons = maze.getDragonList();
 		for (Dragon dragon : dragons) {
 			animate(g, new MovementInfoDragon(dragon.getPosition(), DIRECTION.STAY, dragon.getState()));
@@ -145,7 +154,7 @@ public class MazeGraphicPlay extends MazeGraphics {
 				}
 				else if (symbol == Maze.Symbol_Exit) {
 					g.drawImage(wallImg, x, y, width, height, 0, 0, wallImg.getWidth(), wallImg.getHeight(), null);
-					g.drawImage(closedDoorImg, width, y, x, height, 0, 0, closedDoorImg.getWidth(), closedDoorImg.getHeight(), null);
+					g.drawImage(doorImg, width, y, x, height, 0, 0, doorImg.getWidth(), doorImg.getHeight(), null);
 				}
 				else {
 					// Dragons and Hero
@@ -174,19 +183,38 @@ public class MazeGraphicPlay extends MazeGraphics {
 			}
 		}
 		else {
-			activeDirIndex = super.heroDirIndex;
 
 			MovementInfoHero infoHero = (MovementInfoHero) moveInfo;
 
-			if (infoHero.hasSword)
+			if (infoHero.heroState == HERO_STATE.ALIVE) {
+
+				activeDirIndex = super.heroDirIndex;
+
+				if (infoHero.hasSword)
+					image = super.heroArmedImg;
+				else
+					image = super.heroUnarmedImg;
+			}
+			else if (infoHero.heroState == HERO_STATE.DEAD) {
+
+				if (animateIteration >= numAnimations) {
+					image = super.heroDyingImg;
+					activeDirIndex = super.heroDyingDirIndex;
+				}
+				else {
+					image = super.heroUnarmedImg;
+					activeDirIndex = super.heroDirIndex;
+				}
+			}
+			else {
 				image = super.heroArmedImg;
-			else
-				image = super.heroUnarmedImg;
+				activeDirIndex = super.heroDirIndex;
+			}
 		}
 
 
 		Position drawPosition = getDrawPosition(moveInfo);
-		Position indexPosition = getAnimationIndex(image, activeDirIndex, moveInfo.moveDirection);
+		Position indexPosition = getAnimationIndex(image, moveInfo, activeDirIndex, moveInfo.moveDirection);
 
 
 		g.drawImage(image[indexPosition.y][indexPosition.x], drawPosition.x, drawPosition.y, drawPosition.x + blockWidth,
@@ -196,7 +224,9 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 
 
-	private Position getAnimationIndex(BufferedImage[][] image, ArrayList<Integer> imageDirIndex, DIRECTION moveDirection) {
+	private Position getAnimationIndex(BufferedImage[][] image, MovementInfo moveInfo, 
+			ArrayList<Integer> imageDirIndex, DIRECTION moveDirection) {
+
 		int dirIndex;
 		int animIndex;
 
@@ -223,8 +253,17 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 		default:
 			dirIndex = imageDirIndex.get(DOWN);
-			animIndex = animateIteration % image[dirIndex].length;;
+			animIndex = animateIteration % image[dirIndex].length;
 			break;
+		}
+
+
+
+		if (moveInfo instanceof MovementInfoHero && ((MovementInfoHero) moveInfo).heroState != HERO_STATE.ALIVE) {
+			if (animateIteration >= super.heroDyingDirIndex.size()) {
+				moveInfo.moveDirection = DIRECTION.STAY;
+				animIndex = image[dirIndex].length - 1;
+			}
 		}
 
 
@@ -297,14 +336,26 @@ public class MazeGraphicPlay extends MazeGraphics {
 		}
 
 
+		if (moveInfo instanceof MovementInfoHero && ((MovementInfoHero) moveInfo).heroState != HERO_STATE.ALIVE) {
+			if (animateIteration >= super.heroDyingDirIndex.size()) {
+				moveInfo.lastPosition = new Position(y / blockHeight, x / blockWidth);
+			}
+		}
+
+
 		return new Position(y, x);
 	}
 
 
-	public void updateImage() {
+	public void updateImage(ArrayList<MovementInfo> moveInfo) {
 
+		movementsInfo = moveInfo;
 		onAnimation = true;
 		animateIteration = 0;
+		repaint();
+
+		if (maze.getDragonList().size() == 0)
+			this.doorImg = super.openDoorImg;
 	}
 
 
@@ -316,21 +367,19 @@ public class MazeGraphicPlay extends MazeGraphics {
 		Position exitPos = maze.getExitPosition();
 
 		if (exitPos.x == 0) {
-			this.closedDoorImg = rotate(super.closedDoorImg, Math.PI/2);
+			this.doorImg = rotate(super.closedDoorImg, Math.PI/2);
+			super.openDoorImg = rotate(super.openDoorImg, Math.PI/2);
 		}
 		else if (exitPos.x == maze.getDimension() - 1) {
-			this.closedDoorImg = rotate(super.closedDoorImg, -Math.PI/2);
+			this.doorImg = rotate(super.closedDoorImg, -Math.PI/2);
+			super.openDoorImg = rotate(super.openDoorImg, -Math.PI/2);
 		}
 		else if (exitPos.y == maze.getDimension() - 1) {
-			this.closedDoorImg = rotate(super.closedDoorImg, Math.PI);
+			this.doorImg = rotate(super.closedDoorImg, Math.PI);
+			super.openDoorImg = rotate(super.openDoorImg, Math.PI);
 		}
 		else
-			this.closedDoorImg = super.closedDoorImg;
-	}
-
-
-	public void setMovementInfo(ArrayList<MovementInfo> moveInfo) {
-		movementsInfo = moveInfo;
+			this.doorImg = super.closedDoorImg;
 	}
 
 
@@ -338,5 +387,16 @@ public class MazeGraphicPlay extends MazeGraphics {
 	public boolean animationAllowed() {
 
 		return !onAnimation;
+	}
+
+
+	public void heroDyingAnimate() {
+		timer.setDelay(500);
+
+	}
+
+
+	public void setGameFinished(boolean gm) {
+		gameFinished = gm;
 	}
 }
