@@ -13,9 +13,9 @@ import maze.logic.Maze;
 
 public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 	private static final long serialVersionUID = 1L;
-	
-	private BufferedImage closedDoor;
-	private BufferedImage openDoor;
+
+	private BufferedImage closedDoorImg;
+	private BufferedImage openDoorImg;
 
 	public static final int sidebarWidth = 100;
 	private static final int optionLength = sidebarWidth - 20;
@@ -70,25 +70,25 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 		switch (rand.nextInt(4)) {
 		case 0:
 			board[0][randomPos] = Maze.Symbol_Exit;
-			this.closedDoor = super.closedDoor;
+			this.closedDoorImg = super.closedDoorImg;
 			break;
 
 		case 1:
 			board[mazeDimension-1][randomPos] = Maze.Symbol_Exit;
-			this.closedDoor = rotate(super.closedDoor, Math.PI);
+			this.closedDoorImg = rotate(super.closedDoorImg, Math.PI);
 			break;
 
 		case 2:
 			board[randomPos][0] = Maze.Symbol_Exit;
-			this.closedDoor = rotate(super.closedDoor, -Math.PI/2);
+			this.closedDoorImg = rotate(super.closedDoorImg, -Math.PI/2);
 			break;
 
 		case 3:
 			board[randomPos][mazeDimension-1] = Maze.Symbol_Exit;
-			this.closedDoor = rotate(super.closedDoor, Math.PI/2);
+			this.closedDoorImg = rotate(super.closedDoorImg, Math.PI/2);
 			break;
 		}
-		
+
 
 		addMouseListener(this);
 	}
@@ -98,7 +98,7 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
-		g.drawImage(background, 0, 0, this.getWidth(), this.getHeight(), 0, 0, background.getWidth(), background.getHeight(), null);
+		g.drawImage(backgroundImg, 0, 0, this.getWidth(), this.getHeight(), 0, 0, backgroundImg.getWidth(), backgroundImg.getHeight(), null);
 
 		blockWidth =  (this.getWidth() - sidebarWidth) / mazeDimension;
 		blockHeight = this.getHeight() / mazeDimension;
@@ -114,41 +114,41 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 				int width = x + blockWidth - 1;
 
 				if (board[i][j] == Maze.Symbol_Wall)
-					g.drawImage(wall, x, y, width, height, 0, 0, wall.getWidth(), wall.getHeight(), null);
+					g.drawImage(wallImg, x, y, width, height, 0, 0, wallImg.getWidth(), wallImg.getHeight(), null);
 				else if (board[i][j] == Maze.Symbol_Path)
-					g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
+					g.drawImage(pathImg, x, y, width, height, 0, 0, pathImg.getWidth(), pathImg.getHeight(), null);
 				else if (board[i][j] == Maze.Symbol_DragonActive) {
-					g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
-					//g.drawImage(dragon, x, y, width, height, 0, 0, dragon.getWidth(), dragon.getHeight(), null);
+					g.drawImage(pathImg, x, y, width, height, 0, 0, pathImg.getWidth(), pathImg.getHeight(), null);
+					g.drawImage(dragonActiveImg[0][0], x, y, width, height, 0, 0, dragonActiveImg[0][0].getWidth(), dragonActiveImg[0][0].getHeight(), null);
 				}
 				else if (board[i][j] == Maze.Symbol_HeroUnarmed) {
-					g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
-					g.drawImage(hero, x, y, width, height, 0, 0, hero.getWidth(), hero.getHeight(), null);
+					g.drawImage(pathImg, x, y, width, height, 0, 0, pathImg.getWidth(), pathImg.getHeight(), null);
+					g.drawImage(heroUnarmedImg[0][0], x, y, width, height, 0, 0, heroUnarmedImg[0][0].getWidth(), heroUnarmedImg[0][0].getHeight(), null);
 				}
 				else if (board[i][j] == Maze.Symbol_Sword) {
-					g.drawImage(path, x, y, width, height, 0, 0, path.getWidth(), path.getHeight(), null);
-					g.drawImage(sword, x, y, width, height, 0, 0, sword.getWidth(), sword.getHeight(), null);
+					g.drawImage(pathImg, x, y, width, height, 0, 0, pathImg.getWidth(), pathImg.getHeight(), null);
+					g.drawImage(swordImg, x, y, width, height, 0, 0, swordImg.getWidth(), swordImg.getHeight(), null);
 				}
 				else if (board[i][j] == Maze.Symbol_Exit) {
-					g.drawImage(wall, x, y, width, height, 0, 0, wall.getWidth(), wall.getHeight(), null);
-					g.drawImage(closedDoor, x, y, width, height, 0, 0, closedDoor.getWidth(), closedDoor.getHeight(), null);
+					g.drawImage(wallImg, x, y, width, height, 0, 0, wallImg.getWidth(), wallImg.getHeight(), null);
+					g.drawImage(closedDoorImg, x, y, width, height, 0, 0, closedDoorImg.getWidth(), closedDoorImg.getHeight(), null);
 				}
 				else if (board[i][j] == Maze.Symbol_DragonOnSword);
 			}
 		}
 
 
-		g.drawImage(path, pathOptPos.x, pathOptPos.y, pathOptPos.x + optionLength, pathOptPos.y + optionLength, 
-				0, 0, wall.getWidth(), wall.getHeight(), null);
+		g.drawImage(pathImg, pathOptPos.x, pathOptPos.y, pathOptPos.x + optionLength, pathOptPos.y + optionLength, 
+				0, 0, wallImg.getWidth(), wallImg.getHeight(), null);
 
-//		g.drawImage(dragon, dragonOptPos.x, dragonOptPos.y, dragonOptPos.x + optionLength, dragonOptPos.y + optionLength, 
-//				0, 0, dragon.getWidth(), dragon.getHeight(), null);
+		g.drawImage(dragonActiveImg[0][0], dragonOptPos.x, dragonOptPos.y, dragonOptPos.x + optionLength, dragonOptPos.y + optionLength, 
+				0, 0, dragonActiveImg[0][0].getWidth(), dragonActiveImg[0][0].getHeight(), null);
 
-		g.drawImage(hero, heroOptPos.x, heroOptPos.y, heroOptPos.x + optionLength, heroOptPos.y + optionLength,
-				0, 0, hero.getWidth(), hero.getHeight(), null);
+		g.drawImage(heroUnarmedImg[0][0], heroOptPos.x, heroOptPos.y, heroOptPos.x + optionLength, heroOptPos.y + optionLength,
+				0, 0, heroUnarmedImg[0][0].getWidth(), heroUnarmedImg[0][0].getHeight(), null);
 
-		g.drawImage(sword, swordOptPos.x, swordOptPos.y, swordOptPos.x + optionLength, swordOptPos.y + optionLength,
-				0, 0, sword.getWidth(), sword.getHeight(), null);
+		g.drawImage(swordImg, swordOptPos.x, swordOptPos.y, swordOptPos.x + optionLength, swordOptPos.y + optionLength,
+				0, 0, swordImg.getWidth(), swordImg.getHeight(), null);
 	}
 
 
@@ -170,61 +170,7 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 
 		if (mouseX >= sidebarWidth) {
 
-			int y = mouseY / blockHeight;
-			int x = (mouseX - sidebarWidth) / blockWidth;
-
-
-			if (x == 0 || x == mazeDimension - 1 || y == 0 || y == mazeDimension - 1)
-				return;
-
-
-			switch (activeOpt) {
-
-			case PATH:
-				if (board[y][x] == Maze.Symbol_Path)	
-					board[y][x] = Maze.Symbol_Wall;
-				else	
-					board[y][x] = Maze.Symbol_Path;
-				break;
-
-			case DRAGON:
-				if (board[y][x] == Maze.Symbol_DragonActive)	
-					board[y][x] = Maze.Symbol_Wall;
-				else if (!adjacentTo(y, x, Maze.Symbol_HeroUnarmed))
-					board[y][x] = Maze.Symbol_DragonActive;
-				break;
-
-			case HERO:
-				if (board[y][x] == Maze.Symbol_HeroUnarmed)		
-					board[y][x] = Maze.Symbol_Wall;
-				else if (!hasHero && !adjacentTo(y, x, Maze.Symbol_DragonActive)) {
-					board[y][x] = Maze.Symbol_HeroUnarmed;
-					lastHeroPos = new Position(y, x);
-					hasHero = true;
-				}
-				else if (hasHero && !adjacentTo(y, x, Maze.Symbol_DragonActive)) {
-					board[lastHeroPos.y][lastHeroPos.x] = Maze.Symbol_Wall;
-					board[y][x] = Maze.Symbol_HeroUnarmed;
-					lastHeroPos = new Position(y, x);
-				}
-				break;
-
-			case SWORD:
-				if (board[y][x] == Maze.Symbol_Sword)		
-					board[y][x] = Maze.Symbol_Wall;
-				else if (!hasSword) {
-					board[y][x] = Maze.Symbol_Sword;
-					lastSwordPos = new Position(y, x);
-					hasSword = true;
-				}
-				else {
-					board[lastSwordPos.y][lastSwordPos.x] = Maze.Symbol_Wall;
-					board[y][x] = Maze.Symbol_Sword;
-					lastSwordPos = new Position(y, x);
-				}
-				break;
-			}
-
+			updateBoard(mouseX, mouseY, activeOpt);
 			repaint();
 		}
 		else {
@@ -248,6 +194,65 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 	}
 
 
+	private void updateBoard(int mouseX, int mouseY, ACTIVE_OPTION activeOption) {
+		
+		int y = mouseY / blockHeight;
+		int x = (mouseX - sidebarWidth) / blockWidth;
+
+
+		if (x == 0 || x == mazeDimension - 1 || y == 0 || y == mazeDimension - 1)
+			return;
+
+
+		switch (activeOption) {
+
+		case PATH:
+			if (board[y][x] == Maze.Symbol_Path)	
+				board[y][x] = Maze.Symbol_Wall;
+			else	
+				board[y][x] = Maze.Symbol_Path;
+			break;
+
+		case DRAGON:
+			if (board[y][x] == Maze.Symbol_DragonActive)	
+				board[y][x] = Maze.Symbol_Wall;
+			else if (!adjacentTo(y, x, Maze.Symbol_HeroUnarmed))
+				board[y][x] = Maze.Symbol_DragonActive;
+			break;
+
+		case HERO:
+			if (board[y][x] == Maze.Symbol_HeroUnarmed)		
+				board[y][x] = Maze.Symbol_Wall;
+			else if (!hasHero && !adjacentTo(y, x, Maze.Symbol_DragonActive)) {
+				board[y][x] = Maze.Symbol_HeroUnarmed;
+				lastHeroPos = new Position(y, x);
+				hasHero = true;
+			}
+			else if (hasHero && !adjacentTo(y, x, Maze.Symbol_DragonActive)) {
+				board[lastHeroPos.y][lastHeroPos.x] = Maze.Symbol_Wall;
+				board[y][x] = Maze.Symbol_HeroUnarmed;
+				lastHeroPos = new Position(y, x);
+			}
+			break;
+
+		case SWORD:
+			if (board[y][x] == Maze.Symbol_Sword)		
+				board[y][x] = Maze.Symbol_Wall;
+			else if (!hasSword) {
+				board[y][x] = Maze.Symbol_Sword;
+				lastSwordPos = new Position(y, x);
+				hasSword = true;
+			}
+			else {
+				board[lastSwordPos.y][lastSwordPos.x] = Maze.Symbol_Wall;
+				board[y][x] = Maze.Symbol_Sword;
+				lastSwordPos = new Position(y, x);
+			}
+			break;
+		}
+	}
+
+
 	@Override
 	public void mouseReleased(MouseEvent me) {}
 
@@ -256,10 +261,10 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 
 		return (x >= xi && x <= xf);
 	}
-	
-	
+
+
 	private boolean adjacentTo(int y, int x, char symbol) {
-		
+
 		return (board[y-1][x] == symbol || board[y+1][x] == symbol
 				|| board[y][x-1] == symbol || board[y][x+1] == symbol);
 	}
@@ -273,7 +278,7 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 
 	public void resetBoard() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

@@ -6,7 +6,6 @@ import java.util.LinkedList;
 
 import org.junit.Test;
 
-import junit.framework.Assert;
 import maze.exceptions.EndGame;
 import maze.exceptions.InvalidKey;
 import maze.logic.*;
@@ -203,9 +202,9 @@ public class MazeTest {
 		Maze m = new Maze(m1);
 		Dragon dragon = m.getDragonList().getFirst();
 		Position pos = new Position(dragon.getPosition());
-		m.moveDragon(DIRECTION.LEFT,dragon);
+		m.moveDragon(dragon, DIRECTION.LEFT);
 		assertEquals('.', m.getMazeContent(pos));
-		m.moveDragon(DIRECTION.LEFT,dragon);
+		m.moveDragon(dragon, DIRECTION.LEFT);
 		assertSame('F', m.getMazeContent(dragon.getPosition()));
 		
 		m.setDragonMode(DRAGON_MODE.FROZEN);

@@ -5,6 +5,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -12,50 +13,84 @@ import javax.swing.JPanel;
 public class MazeGraphics extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	protected static BufferedImage hero;
-	protected static BufferedImage armed_hero;
-	protected static BufferedImage[][] dragon;
-	protected static BufferedImage wall;
-	protected static BufferedImage path;
-	protected static BufferedImage sword;
-	protected static BufferedImage background;
-	protected static BufferedImage closedDoor;
-	protected static BufferedImage openDoor;
+	protected BufferedImage[][] heroUnarmedImg;
+	protected BufferedImage[][] heroArmedImg;
+	
+	protected BufferedImage[][] dragonActiveImg;
+	protected BufferedImage[][] dragonSleepingImg;
+	
+	protected BufferedImage wallImg;
+	protected BufferedImage pathImg;
+	
+	protected BufferedImage swordImg;
+	
+	protected BufferedImage backgroundImg;
+	
+	protected BufferedImage closedDoorImg;
+	protected BufferedImage openDoorImg;
 
-	static {
+
+	protected static final int UP = 0;
+	protected static final int LEFT = 1;
+	protected static final int DOWN = 2;
+	protected static final int RIGHT = 3;
+
+
+	protected ArrayList<Integer> dragonActiveDirIndex;
+	protected ArrayList<Integer> dragonSleepingDirIndex;
+	protected ArrayList<Integer> heroDirIndex;
+
+
+	MazeGraphics() {
+		super();
+
 
 		try {
-			hero =  ImageIO.read(new File("res\\188.png"));
-			armed_hero =  ImageIO.read(new File("res\\ya.png"));
-			wall = ImageIO.read(new File("res\\wall.jpg"));
-			path = ImageIO.read(new File("res\\path.jpg"));
-			sword = ImageIO.read(new File("res\\sword.png"));
-			background = ImageIO.read(new File("res\\background.jpg"));
-			closedDoor = ImageIO.read(new File("res\\closedDoor.png"));
-			openDoor = ImageIO.read(new File("res\\openDoor.png"));
+
+			dragonActiveDirIndex = new ArrayList<Integer>();
+			dragonSleepingDirIndex = new ArrayList<Integer>();
+			heroDirIndex = new ArrayList<Integer>();
+
+
+			wallImg = ImageIO.read(new File("res\\wall.png"));
+			pathImg = ImageIO.read(new File("res\\path.png"));
+			swordImg = ImageIO.read(new File("res\\sword.png"));
+			backgroundImg = ImageIO.read(new File("res\\background.jpg"));
+			closedDoorImg = ImageIO.read(new File("res\\closedDoor.png"));
+			openDoorImg = ImageIO.read(new File("res\\openDoor.png"));
+
 			
-			BufferedImage temp = ImageIO.read(new File("res\\dragonSheet.png"));
-			int tileWidth, tileHeight;
-			dragon = new BufferedImage[4][4];
+			// Dragons
+			BufferedImage temp = ImageIO.read(new File("res\\dragonActive.png"));
+			dragonActiveImg = createSpriteSheet(temp, 4, 4);
+			dragonActiveDirIndex.add(3);
+			dragonActiveDirIndex.add(1);
+			dragonActiveDirIndex.add(0);
+			dragonActiveDirIndex.add(2);
 			
-			tileWidth = temp.getWidth() / dragon.length;
-			tileHeight = temp.getHeight() / dragon[0].length;
 			
-			for (int i = 0; i < dragon.length; i++) {
-				for (int j = 0; j < dragon[i].length; j++) {
-					dragon[i][j] = temp.getSubimage(j*tileWidth, i*tileHeight, tileWidth, tileHeight);
-				}
-			}
+			temp = ImageIO.read(new File("res\\dragonSleeping.png"));
+			dragonSleepingImg = createSpriteSheet(temp, 1, 3);
+			dragonSleepingDirIndex.add(0);
+			dragonSleepingDirIndex.add(0);
+			dragonSleepingDirIndex.add(0);
+			dragonSleepingDirIndex.add(0);
+			
+
+			// Hero
+			temp = ImageIO.read(new File("res\\heroUnarmed.png"));
+			heroUnarmedImg = createSpriteSheet(temp, 4, 9);
+			temp = ImageIO.read(new File("res\\heroArmed.png"));
+			heroArmedImg = createSpriteSheet(temp, 4, 9);
+			heroDirIndex.add(0);
+			heroDirIndex.add(1);
+			heroDirIndex.add(2);
+			heroDirIndex.add(3);
 			
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		};
-	}
-
-
-	MazeGraphics() {
-		super();
 	}
 
 
@@ -80,5 +115,24 @@ public class MazeGraphics extends JPanel {
 		g.drawImage(image, 0, 0, null);
 		g.dispose();
 		return newImage;
+	}
+
+
+
+	protected static BufferedImage[][] createSpriteSheet(BufferedImage temp, int numAnimations, int numImages) {
+
+		int tileWidth, tileHeight;
+		BufferedImage[][] sheet = new BufferedImage[numAnimations][numImages];
+
+		tileWidth = temp.getWidth() / numImages;
+		tileHeight = temp.getHeight() / numAnimations;
+
+		for (int i = 0; i < sheet.length; i++) {
+			for (int j = 0; j < sheet[i].length; j++) {
+				sheet[i][j] = temp.getSubimage(j*tileWidth, i*tileHeight, tileWidth, tileHeight);
+			}
+		}
+
+		return sheet;
 	}
 }

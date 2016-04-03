@@ -15,6 +15,7 @@ import maze.exceptions.EndGame;
 import maze.logic.Maze;
 import maze.logic.Maze.DIRECTION;
 import maze.logic.Maze.DRAGON_MODE;
+import maze.logic.MovementInfo;
 
 import javax.swing.JButton;
 
@@ -35,7 +36,8 @@ import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
 import java.awt.Color;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Map;
 
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.UIManager;
@@ -48,7 +50,7 @@ public class GUI {
 	private JTextField dimensionField;
 	private JLabel lblDragons;
 	private JTextField dragonNum;
-	private JLabel gameInfo;
+	private JLabel MainInfo;
 	private JPanel panel_menu;
 	private JPanel main_panel;
 	private Maze maze;
@@ -149,16 +151,14 @@ public class GUI {
 			public void actionPerformed(ActionEvent e) {
 
 				showGameFrame();
-				gameInfoLabel.setText("Go pick up the sword!");
-				gameInfoLabel.setForeground(Color.RED);
 			}
 		});
 
 		btnNewGame.setFont(new Font("Tahoma", Font.PLAIN, 15));
 
-		gameInfo = new JLabel("Can start a new game");
-		gameInfo.setHorizontalAlignment(SwingConstants.CENTER);
-		gameInfo.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		MainInfo = new JLabel("Can start a new game");
+		MainInfo.setHorizontalAlignment(SwingConstants.CENTER);
+		MainInfo.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		GroupLayout gl_main_panel = new GroupLayout(main_panel);
 		gl_main_panel.setHorizontalGroup(
 				gl_main_panel.createParallelGroup(Alignment.LEADING)
@@ -171,7 +171,7 @@ public class GUI {
 								.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 145, GroupLayout.PREFERRED_SIZE)
 								.addContainerGap(354, Short.MAX_VALUE))
 								.addGroup(gl_main_panel.createSequentialGroup()
-										.addComponent(gameInfo, GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
+										.addComponent(MainInfo, GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
 										.addGap(24))
 				);
 		gl_main_panel.setVerticalGroup(
@@ -182,7 +182,7 @@ public class GUI {
 						.addGap(29)
 						.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
 						.addGap(38)
-						.addComponent(gameInfo)
+						.addComponent(MainInfo)
 						.addGap(79))
 				);
 
@@ -348,7 +348,7 @@ public class GUI {
 					GameFrame.setVisible(false);
 					MainFrame.setVisible(true);
 					main_panel.requestFocus();
-					break;
+					return;
 
 				default:
 					return;
@@ -396,8 +396,11 @@ public class GUI {
 
 	public void moveAction(DIRECTION dir) {
 
-		try{
-			HashMap<Position, DIRECTION> moveInfo =	maze.update(dir);
+		if (!ShowGamePanel.animationAllowed())
+			return;
+
+		try {
+			ArrayList<MovementInfo> moveInfo =	maze.update(dir);
 			ShowGamePanel.setMovementInfo(moveInfo);
 		}
 		catch (EndGame e){
@@ -405,7 +408,7 @@ public class GUI {
 			return;
 		}
 		finally {
-			ShowGamePanel.update();
+			ShowGamePanel.updateImage();
 		}
 
 
@@ -484,6 +487,9 @@ public class GUI {
 
 	void prepareGame() {
 
+		gameInfoLabel.setText("Go pick up the sword!");
+		gameInfoLabel.setForeground(Color.RED);
+
 		ShowGamePanel.setFocusable(true);
 		ShowGamePanel.requestFocus();
 
@@ -507,11 +513,11 @@ public class GUI {
 					Integer.parseInt(dragonNum.getText()), (DRAGON_MODE)dragonMode.getSelectedItem());
 		}
 		catch (NumberFormatException n){
-			gameInfo.setText("Invalid arguments");
+			MainInfo.setText("Invalid arguments");
 			return;
 		}
 		catch (IllegalArgumentException i){
-			gameInfo.setText(i.getMessage());
+			MainInfo.setText(i.getMessage());
 			return;
 		}
 
