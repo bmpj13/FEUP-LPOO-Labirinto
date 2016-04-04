@@ -300,7 +300,12 @@ public class GameGUI {
 
 	void startGame(char[][] board) {
 
+		try{
 		maze = new Maze(board);
+		}
+		catch(IllegalArgumentException i){
+			throw new IllegalArgumentException();
+		}
 
 		setVisible(true);
 		play(maze);

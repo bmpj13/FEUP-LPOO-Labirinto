@@ -172,7 +172,12 @@ public class MazeBuilderGUI {
 
 	
 	protected void finishBuild() {
+		try{
 		gameGUI.startGame(MBPanel.getBoard());
+		}
+		catch(IllegalArgumentException i){
+			return;
+		}
 		MBFrame.setVisible(false);
 	}
 }

@@ -64,7 +64,7 @@ public class Interface {
 
 		int option = 0;
 
-		System.out.println("Dragon mode:\n" + 
+		System.out.print("Dragon mode:\n" + 
 							"1 - Dragon doesn't move\n" + 
 							"2 - Dragon can move\n" + 
 							"3 - Dragon moves and falls asleep\n" + 

@@ -269,6 +269,17 @@ public class Maze {
 				}
 			}
 		}
+		if(sword == null || hero == null)
+			throw new IllegalArgumentException();
+		if(!Reachable(hero.getPosition(), sword.getPosition()))
+			throw new IllegalArgumentException();
+		if(!Reachable(sword.getPosition(), exit.getPosition()))
+			throw new IllegalArgumentException();
+		for (Iterator<Dragon> iterator = dragonList.iterator(); iterator.hasNext();) {
+			if(!Reachable(iterator.next().getPosition(), exit.getPosition()))
+				throw new IllegalArgumentException();
+		}
+
 	}
 
 	
@@ -506,6 +517,8 @@ public class Maze {
 		return false;
 	}
 
+	
+	
 	private void updateAvailables(Position position,
 			ArrayList<Position> freePositions, HashSet<Position> walls) {
 
@@ -546,6 +559,45 @@ public class Maze {
 
 	}
 
+	private void visit(int i, int j, boolean [][] visited) {
+		if (i < 0 || i >= maze.length || j < 0 || j >= maze.length)
+			return;
+		if (maze[i][j] == Symbol_Wall || visited[i][j])
+			return;
+		visited[i][j] = true;
+		visit(i-1, j, visited);
+		visit(i+1, j, visited);
+		visit(i, j-1, visited);
+		visit(i, j+1, visited);
+	}
+	
+	/*private void visit(int i, int j, boolean [][] visited, Hero hero) {
+		if (i < 0 || i >= maze.length || j < 0 || j >= maze.length)
+			return;
+		if (maze[i][j] == Symbol_Wall || visited[i][j])
+			return;
+		visited[i][j] = true;
+		visit(i-1, j, visited);
+		visit(i+1, j, visited);
+		visit(i, j-1, visited);
+		visit(i, j+1, visited);
+	}*/
+	
+	
+	private boolean Reachable(Position src, Position dest){
+		boolean [][] visited = new boolean[maze.length] [maze.length];
+		
+		visit(src.y, src.x, visited);
+		
+		for (int i = 0; i < maze.length; i++)
+			for (int j = 0; j < maze.length; j++)
+				if (! visited[dest.y][dest.x] )
+					return false;
+		
+		return true; 
+	}
+	
+	
 	//TODO update
 	
 	
@@ -1011,7 +1063,6 @@ public class Maze {
 		hero.pickedSword();
 	}
 
-	
 	/**
 	 * Gets the movement info.
 	 *

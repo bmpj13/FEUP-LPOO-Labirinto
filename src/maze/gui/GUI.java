@@ -254,6 +254,7 @@ public class GUI {
 
 
 	public void goTo() {
+		MainInfo.setText("Start a new game");
 		MainFrame.setVisible(true);
 		main_panel.requestFocus();
 	}
