@@ -143,7 +143,7 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 		if (!onAnimation) {
 			
-			Position heroPos = maze.getHeroPosition();
+			Position heroPos = maze.getHero().getPosition();
 			heroInfo.moveDirection = DIRECTION.STAY;
 			return new Position(heroPos.y * blockHeight, heroPos.x * blockWidth);
 		}
@@ -179,8 +179,8 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 	private void paintStoppedCharacters(Graphics g) {
 
-		Position heroPosition = maze.getHeroPosition();
-		if (maze.heroHasSword()) {
+		Position heroPosition = maze.getHero().getPosition();
+		if (maze.getHero().hasSword()) {
 			g.drawImage(heroArmedImg[DOWN][0], heroPosition.x * blockWidth, heroPosition.y * blockHeight, 
 					(heroPosition.x + 1) * blockWidth, (heroPosition.y + 1) * blockHeight,
 					0, 0, heroArmedImg[DOWN][0].getWidth(), heroArmedImg[DOWN][0].getHeight(), null);

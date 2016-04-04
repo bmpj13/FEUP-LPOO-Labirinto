@@ -273,7 +273,7 @@ public class GameGUI {
 			gameInfoLabel.setText("Proceed to the exit.");
 			gameInfoLabel.setForeground(new Color(0, 128, 0));
 		}
-		else if (maze.heroHasSword()) {
+		else if (maze.getHero().hasSword()) {
 			gameInfoLabel.setForeground(Color.BLUE);
 			gameInfoLabel.setText("Go slay the dragons.");
 		}	
