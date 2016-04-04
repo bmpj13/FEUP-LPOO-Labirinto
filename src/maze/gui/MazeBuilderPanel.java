@@ -41,8 +41,8 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 
 	private Maze maze;
 
-	
-	
+
+
 	public MazeBuilderPanel() {
 		super();
 	}
@@ -99,8 +99,14 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		paintPanel(g);
+	}
 
-		g.drawImage(backgroundImg, 0, 0, this.getWidth(), this.getHeight(), 0, 0, backgroundImg.getWidth(), backgroundImg.getHeight(), null);
+
+	private void paintPanel(Graphics g) {
+
+		g.drawImage(backgroundImg, 0, 0, this.getWidth(), this.getHeight(), 
+				0, 0, backgroundImg.getWidth(), backgroundImg.getHeight(), null);
 
 		blockWidth =  (this.getWidth() - sidebarWidth) / mazeDimension;
 		blockHeight = this.getHeight() / mazeDimension;
@@ -108,54 +114,44 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 		for (int i = 0; i < mazeDimension; i++) {
 
 			int y = i*blockHeight;
-			int height = y + blockHeight;
+			int height = y + blockHeight - 1;
 
 			for (int j = 0; j < mazeDimension; j++) {
 
 				int x = j*blockWidth + sidebarWidth;
 				int width = x + blockWidth - 1;
+				
+				char symbol = maze.getMazeContent(i, j);
 
-				if (maze.getMazeContent(i, j) == Maze.Symbol_Wall) {
+				if (symbol == Maze.Symbol_Wall) {
 					g.drawImage(wallImg, x, y, width, height, 0, 0, wallImg.getWidth(), wallImg.getHeight(), null);
 				}
-				else if (maze.getMazeContent(i, j) == Maze.Symbol_Path) {
+				else if (symbol == Maze.Symbol_Path) {
 					g.drawImage(pathImg, x, y, width, height, 0, 0, pathImg.getWidth(), pathImg.getHeight(), null);
 				}
-				else if (maze.getMazeContent(i, j) == Maze.Symbol_DragonActive) {
+				else if (symbol == Maze.Symbol_DragonActive) {
 					g.drawImage(pathImg, x, y, width, height, 0, 0, pathImg.getWidth(), pathImg.getHeight(), null);
 					g.drawImage(dragonActiveImg[DOWN][0], x, y, width, height, 
 							0, 0, dragonActiveImg[DOWN][0].getWidth(), dragonActiveImg[DOWN][0].getHeight(), null);
 				}
-				else if (maze.getMazeContent(i, j) == Maze.Symbol_HeroUnarmed) {
+				else if (symbol == Maze.Symbol_HeroUnarmed) {
 					g.drawImage(pathImg, x, y, width, height, 0, 0, pathImg.getWidth(), pathImg.getHeight(), null);
 					g.drawImage(heroUnarmedImg[DOWN][0], x, y, width, height,
 							0, 0, heroUnarmedImg[DOWN][0].getWidth(), heroUnarmedImg[DOWN][0].getHeight(), null);
 				}
-				else if (maze.getMazeContent(i, j) == Maze.Symbol_Sword) {
+				else if (symbol == Maze.Symbol_Sword) {
 					g.drawImage(pathImg, x, y, width, height, 0, 0, pathImg.getWidth(), pathImg.getHeight(), null);
 					g.drawImage(swordImg, x, y, width, height, 0, 0, swordImg.getWidth(), swordImg.getHeight(), null);
 				}
-				else if (maze.getMazeContent(i, j) == Maze.Symbol_Exit) {
+				else if (symbol == Maze.Symbol_Exit) {
 					g.drawImage(wallImg, x, y, width, height, 0, 0, wallImg.getWidth(), wallImg.getHeight(), null);
 					g.drawImage(closedDoorImg, x, y, width, height, 0, 0, closedDoorImg.getWidth(), closedDoorImg.getHeight(), null);
 				}
-
 			}
 		}
-
-
-		g.drawImage(pathImg, pathOptPos.x, pathOptPos.y, pathOptPos.x + optionLength, pathOptPos.y + optionLength, 
-				0, 0, wallImg.getWidth(), wallImg.getHeight(), null);
-
-		g.drawImage(dragonActiveImg[DOWN][0], dragonOptPos.x, dragonOptPos.y, dragonOptPos.x + optionLength, dragonOptPos.y + optionLength, 
-				0, 0, dragonActiveImg[DOWN][0].getWidth(), dragonActiveImg[DOWN][0].getHeight(), null);
-
-		g.drawImage(heroUnarmedImg[DOWN][0], heroOptPos.x, heroOptPos.y, heroOptPos.x + optionLength, heroOptPos.y + optionLength,
-				0, 0, heroUnarmedImg[DOWN][0].getWidth(), heroUnarmedImg[DOWN][0].getHeight(), null);
-
-		g.drawImage(swordImg, swordOptPos.x, swordOptPos.y, swordOptPos.x + optionLength, swordOptPos.y + optionLength,
-				0, 0, swordImg.getWidth(), swordImg.getHeight(), null);
 	}
+	
+	
 
 
 	@Override
@@ -201,7 +197,7 @@ public class MazeBuilderPanel extends MazeGraphics implements MouseListener {
 
 
 	private void updateBoard(int mouseX, int mouseY, ACTIVE_OPTION activeOption) {
-		
+
 		int y = mouseY / blockHeight;
 		int x = (mouseX - sidebarWidth) / blockWidth;
 

@@ -30,6 +30,7 @@ import maze.logic.Maze;
 import maze.logic.MovementInfo;
 import maze.logic.Maze.DIRECTION;
 import maze.logic.Maze.DRAGON_MODE;
+import java.awt.SystemColor;
 
 public class GameGUI {
 
@@ -111,48 +112,56 @@ public class GameGUI {
 		buttonPanel.setLayout(null);
 
 		btnUP = new JButton("UP");
+		btnUP.setBackground(SystemColor.textHighlight);
+		btnUP.setFont(new Font("Trebuchet MS", Font.BOLD, 13));
 		btnUP.setEnabled(true);
 		btnUP.setFocusable(false);
-		btnUP.setBounds(54, 13, 88, 31);
+		btnUP.setBounds(44, 13, 88, 31);
 		buttonPanel.add(btnUP);
 
 		btnLEFT = new JButton("LEFT");
+		btnLEFT.setBackground(SystemColor.textHighlight);
+		btnLEFT.setFont(new Font("Trebuchet MS", Font.BOLD, 13));
 		btnLEFT.setEnabled(true);
 		btnLEFT.setFocusable(false);
 		btnLEFT.setBounds(0, 57, 80, 25);
 		buttonPanel.add(btnLEFT);
 
 		btnRIGHT = new JButton("RIGHT");
+		btnRIGHT.setBackground(SystemColor.textHighlight);
+		btnRIGHT.setFont(new Font("Trebuchet MS", Font.BOLD, 13));
 		btnRIGHT.setEnabled(true);
 		btnRIGHT.setFocusable(false);
 		btnRIGHT.setBounds(100, 57, 80, 25);
 		buttonPanel.add(btnRIGHT);
 
 		btnDOWN = new JButton("DOWN");
+		btnDOWN.setBackground(SystemColor.textHighlight);
+		btnDOWN.setFont(new Font("Trebuchet MS", Font.BOLD, 13));
 		btnDOWN.setEnabled(true);
 		btnDOWN.setFocusable(false);
-		btnDOWN.setBounds(54, 95, 88, 31);
+		btnDOWN.setBounds(44, 97, 88, 31);
 		buttonPanel.add(btnDOWN);
 
 
 		GroupLayout gl_sidePanel = new GroupLayout(sidePanel);
 		gl_sidePanel.setHorizontalGroup(
-				gl_sidePanel.createParallelGroup(Alignment.LEADING)
+			gl_sidePanel.createParallelGroup(Alignment.LEADING)
+				.addComponent(gameInfoLabel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
 				.addGroup(gl_sidePanel.createSequentialGroup()
-						.addGap(30)
-						.addComponent(buttonPanel, GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
-						.addContainerGap())
-						.addComponent(gameInfoLabel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
-				);
+					.addGap(30)
+					.addComponent(buttonPanel, GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
+					.addGap(27))
+		);
 		gl_sidePanel.setVerticalGroup(
-				gl_sidePanel.createParallelGroup(Alignment.TRAILING)
+			gl_sidePanel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_sidePanel.createSequentialGroup()
-						.addGap(85)
-						.addComponent(gameInfoLabel, GroupLayout.PREFERRED_SIZE, 16, Short.MAX_VALUE)
-						.addGap(107)
-						.addComponent(buttonPanel, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
-						.addGap(104))
-				);
+					.addGap(85)
+					.addComponent(gameInfoLabel, GroupLayout.PREFERRED_SIZE, 16, Short.MAX_VALUE)
+					.addGap(107)
+					.addComponent(buttonPanel, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
+					.addGap(104))
+		);
 		sidePanel.setLayout(gl_sidePanel);
 		GamePanel.setLayout(gl_GamePanel);
 

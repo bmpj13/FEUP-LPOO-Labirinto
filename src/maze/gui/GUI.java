@@ -1,5 +1,6 @@
 package maze.gui;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -33,6 +34,7 @@ import java.awt.BorderLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 import java.awt.Color;
@@ -48,16 +50,14 @@ public class GUI {
 
 	private JFrame MainFrame;
 	private JTextField dimensionField;
-	private JLabel lblDragons;
-	private JTextField dragonNum;
+	private JLabel dragonsLabel;
+	private JTextField dragonNumField;
 	private JLabel MainInfo;
 	private JPanel panel_menu;
-	private JPanel main_panel;
-	private Maze maze;
-	private JComboBox<DRAGON_MODE> dragonMode;
+	private SingleImagePanel main_panel;
+	private JComboBox<DRAGON_MODE> dragonModeField;
 
 	private GameGUI gameGUI;
-	private MazeBuilderGUI mazeBuilderGUI;
 
 	/**
 	 * Create the application.
@@ -81,7 +81,7 @@ public class GUI {
 		MainFrame.getContentPane().setLayout(new BorderLayout(0, 0));
 		MainFrame.setLocationRelativeTo(null);
 
-		main_panel = new JPanel();
+		main_panel = new SingleImagePanel("res\\mazeBackground.png");
 		main_panel.setFocusable(true);
 
 		JPanel panel_settings = new JPanel();
@@ -89,62 +89,104 @@ public class GUI {
 		panel_settings.setBorder(new LineBorder(new Color(0, 0, 0), 3));
 		panel_settings.setLayout(null);
 
-		JLabel lblNewLabel = new JLabel("Dimension: ");
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setBounds(75, 47, 76, 19);
-		panel_settings.add(lblNewLabel);
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		JLabel dimensionLabel = new JLabel("Dimension: ");
+		dimensionLabel.setBounds(75, 47, 96, 19);
+		panel_settings.add(dimensionLabel);
+		dimensionLabel.setFont(new Font("Trebuchet MS", Font.BOLD, 15));
+		
+		
+		Color myCyan = new Color(0, 153, 153);
+		Border txtFieldBorder = BorderFactory.createLineBorder(myCyan);
 
 		//Dimension of maze
 		dimensionField = new JTextField();
-		dimensionField.setBackground(UIManager.getColor("Button.background"));
+		dimensionField.setBackground(Color.WHITE);
 		dimensionField.setHorizontalAlignment(SwingConstants.CENTER);
 		dimensionField.setBounds(224, 44, 93, 25);
 		panel_settings.add(dimensionField);
-		dimensionField.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		dimensionField.setFont(new Font("Trebuchet MS", Font.PLAIN, 15));
 		dimensionField.setText("11");
 		dimensionField.setColumns(10);
+		dimensionField.setBorder(txtFieldBorder);
 
-		lblDragons = new JLabel("Dragons:");
-		lblDragons.setBounds(78, 97, 59, 19);
-		panel_settings.add(lblDragons);
-		lblDragons.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		dragonsLabel = new JLabel("Dragons:");
+		dragonsLabel.setBounds(78, 97, 93, 19);
+		panel_settings.add(dragonsLabel);
+		dragonsLabel.setFont(new Font("Trebuchet MS", Font.BOLD, 15));
 
 		//Number of dragons
-		dragonNum = new JTextField();
-		dragonNum.setBackground(UIManager.getColor("Button.background"));
-		dragonNum.setHorizontalAlignment(SwingConstants.CENTER);
-		dragonNum.setBounds(224, 94, 93, 25);
-		panel_settings.add(dragonNum);
-		dragonNum.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		dragonNum.setText("1");
-		dragonNum.setColumns(10);
+		dragonNumField = new JTextField();
+		dragonNumField.setBackground(Color.WHITE);
+		dragonNumField.setHorizontalAlignment(SwingConstants.CENTER);
+		dragonNumField.setBounds(224, 94, 93, 25);
+		panel_settings.add(dragonNumField);
+		dragonNumField.setFont(new Font("Trebuchet MS", Font.PLAIN, 15));
+		dragonNumField.setText("1");
+		dragonNumField.setColumns(10);
+		dragonNumField.setBorder(txtFieldBorder);
 
 
-		JLabel lblDragonMode = new JLabel("Dragon Mode:");
-		lblDragonMode.setBounds(78, 147, 93, 19);
-		panel_settings.add(lblDragonMode);
-		lblDragonMode.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		JLabel dragonModeLabel = new JLabel("Dragon Mode:");
+		dragonModeLabel.setBounds(78, 147, 104, 19);
+		panel_settings.add(dragonModeLabel);
+		dragonModeLabel.setFont(new Font("Trebuchet MS", Font.BOLD, 15));
 
 		//Set Dragon Mode
-		dragonMode = new JComboBox<DRAGON_MODE>();
-		dragonMode.setBounds(224, 146, 93, 22);
-		panel_settings.add(dragonMode);
-		dragonMode.setModel(new DefaultComboBoxModel<DRAGON_MODE>(DRAGON_MODE.values()));
-		dragonMode.setSelectedIndex(2);
+		dragonModeField = new JComboBox<DRAGON_MODE>();
+		dragonModeField.setBackground(Color.WHITE);
+		dragonModeField.setFont(new Font("Trebuchet MS", Font.PLAIN, 15));
+		dragonModeField.setBounds(224, 146, 112, 22);
+		panel_settings.add(dragonModeField);
+		dragonModeField.setModel(new DefaultComboBoxModel<DRAGON_MODE>(DRAGON_MODE.values()));
+		dragonModeField.setSelectedIndex(2);
+		dragonModeField.setBorder(txtFieldBorder);
 
 		panel_menu = new JPanel();
 		panel_menu.setLayout(null);
+		panel_menu.setOpaque(false);
 
-		JButton btnNewGame = new JButton("New Game");
-		btnNewGame.setBackground(UIManager.getColor("CheckBoxMenuItem.selectionBackground"));
+
+		MainInfo = new JLabel("Start a new game");
+		MainInfo.setForeground(Color.WHITE);
+		MainInfo.setHorizontalAlignment(SwingConstants.CENTER);
+		MainInfo.setFont(new Font("Trebuchet MS", Font.PLAIN, 17));
+		GroupLayout gl_main_panel = new GroupLayout(main_panel);
+		gl_main_panel.setHorizontalGroup(
+			gl_main_panel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_main_panel.createSequentialGroup()
+					.addGap(352)
+					.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 145, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(347, Short.MAX_VALUE))
+				.addGroup(gl_main_panel.createSequentialGroup()
+					.addGap(217)
+					.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
+					.addGap(217))
+				.addComponent(MainInfo, GroupLayout.DEFAULT_SIZE, 844, Short.MAX_VALUE)
+		);
+		gl_main_panel.setVerticalGroup(
+			gl_main_panel.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_main_panel.createSequentialGroup()
+					.addGap(46)
+					.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+					.addGap(41)
+					.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
+					.addGap(38)
+					.addComponent(MainInfo)
+					.addGap(79))
+		);
+
+		
+		GradientButton btnNewGame = new GradientButton("New Game", new Color(0, 153, 153));
+		btnNewGame.setText("Play");
+		btnNewGame.setForeground(Color.WHITE);
+		btnNewGame.setBackground(Color.BLACK);
 		btnNewGame.setBounds(0, 0, 145, 27);
 		panel_menu.add(btnNewGame);
 		btnNewGame.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				try {
-					gameGUI.startGame(dimensionField, dragonNum, dragonMode);
+					gameGUI.startGame(dimensionField, dragonNumField, dragonModeField);
 				}
 				catch (NumberFormatException n){
 					MainInfo.setText("Invalid arguments");
@@ -157,47 +199,21 @@ public class GUI {
 			}
 		});
 
-
-		btnNewGame.setFont(new Font("Tahoma", Font.BOLD, 15));
-
-		MainInfo = new JLabel("Can start a new game");
-		MainInfo.setHorizontalAlignment(SwingConstants.CENTER);
-		MainInfo.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		GroupLayout gl_main_panel = new GroupLayout(main_panel);
-		gl_main_panel.setHorizontalGroup(
-			gl_main_panel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_main_panel.createSequentialGroup()
-					.addGap(352)
-					.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 145, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(352, Short.MAX_VALUE))
-				.addGroup(gl_main_panel.createSequentialGroup()
-					.addGap(217)
-					.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE)
-					.addGap(217))
-				.addComponent(MainInfo, GroupLayout.DEFAULT_SIZE, 844, Short.MAX_VALUE)
-		);
-		gl_main_panel.setVerticalGroup(
-			gl_main_panel.createParallelGroup(Alignment.TRAILING)
-				.addGroup(gl_main_panel.createSequentialGroup()
-					.addContainerGap(47, Short.MAX_VALUE)
-					.addComponent(panel_settings, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-					.addGap(41)
-					.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
-					.addGap(38)
-					.addComponent(MainInfo)
-					.addGap(79))
-		);
-
-		JButton btnQuit = new JButton("Quit");
-		btnQuit.setBackground(UIManager.getColor("CheckBoxMenuItem.selectionBackground"));
+		btnNewGame.setFont(new Font("Trebuchet MS", Font.BOLD, 17));
+		
+		
+		GradientButton btnQuit = new GradientButton("Quit", new Color(0, 153, 153));
+		btnQuit.setForeground(Color.WHITE);
+		btnQuit.setBackground(Color.BLACK);
 		btnQuit.setBounds(0, 84, 145, 27);
 		panel_menu.add(btnQuit);
-		btnQuit.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnQuit.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
 
 
-		JButton btnMB = new JButton("Build Maze");
-		btnMB.setBackground(UIManager.getColor("CheckBoxMenuItem.selectionBackground"));
-		btnMB.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		GradientButton btnMB = new GradientButton("Build Maze", new Color(0, 153, 153));
+		btnMB.setForeground(Color.WHITE);
+		btnMB.setBackground(Color.BLACK);
+		btnMB.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
 		btnMB.setBounds(0, 40, 145, 27);
 		GUI thisGUI = this;
 		btnMB.addActionListener(new ActionListener() {

@@ -54,9 +54,9 @@ public class MazeGraphicPlay extends MazeGraphics {
 			public void actionPerformed(ActionEvent ae) {
 
 				animateIteration++;
-				if (animateIteration > numAnimations && onAnimation) {
+				if (animateIteration > numAnimations && onAnimation)
 					onAnimation = false;
-				}
+
 
 				if (onAnimation)
 					timer.setDelay(50);
@@ -88,12 +88,24 @@ public class MazeGraphicPlay extends MazeGraphics {
 			}
 			else {
 				heroEndAnimation(g, (MovementInfoHero) movementsInfo.get(0));
-				paintDragons(g);
+				
+				if (onAnimation)
+					paintDragonsAnimated(g);
+				else 
+					paintDragonsStatic(g);
 			}
 		}
 	}
 
 
+
+
+	private void paintDragonsAnimated(Graphics g) {
+		
+		for (int i = 1; i < movementsInfo.size(); i++) {
+			animate(g, movementsInfo.get(i));
+		}
+	}
 
 
 	private void heroEndAnimation(Graphics g, MovementInfoHero heroInfo) {
@@ -115,9 +127,8 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 		if (heroInfo.moveDirection == DIRECTION.STAY) {
 			
-			if (heroInfo.heroState == HERO_STATE.DEAD) {
+			if (heroInfo.heroState == HERO_STATE.DEAD && !onAnimation)
 				return new Position(DOWN, image[DOWN].length - 1);
-			}
 			else
 				return new Position(DOWN, animateIteration % image[DOWN].length);
 		}
@@ -131,28 +142,13 @@ public class MazeGraphicPlay extends MazeGraphics {
 	private Position retrieveDrawPositionEnd(MovementInfoHero heroInfo) {
 
 		if (!onAnimation) {
+			
 			Position heroPos = maze.getHeroPosition();
 			heroInfo.moveDirection = DIRECTION.STAY;
 			return new Position(heroPos.y * blockHeight, heroPos.x * blockWidth);
 		}
 
 		return retrieveDrawPosition(heroInfo);
-	}
-
-
-
-	private ArrayList<Integer> retrieveDirectionIndexerEnd(MovementInfoHero heroInfo) {
-
-		if (heroInfo.heroState == HERO_STATE.DEAD) {
-
-			if (!onAnimation) {
-				return super.heroEndDirIndex;
-			}
-			else
-				return super.heroDirIndex;
-		}
-		else
-			return super.heroDirIndex;
 	}
 
 
@@ -195,13 +191,12 @@ public class MazeGraphicPlay extends MazeGraphics {
 					0, 0, heroUnarmedImg[DOWN][0].getWidth(), heroUnarmedImg[DOWN][0].getHeight(), null);
 		}
 
-
-		paintDragons(g);
+		paintDragonsStatic(g);
 	}
 
 
 
-	private void paintDragons(Graphics g) {
+	private void paintDragonsStatic(Graphics g) {
 
 		LinkedList<Dragon> dragons = maze.getDragonList();
 		for (Dragon dragon : dragons) {
@@ -220,6 +215,8 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 
 	private void paintStaticElements(Graphics g) {
+		
+		g.drawImage(super.backgroundImg, 0, 0, this.getWidth(), this.getHeight(), null);
 
 		int dimension = maze.getDimension();
 		blockWidth =  this.getWidth() / dimension;
@@ -271,25 +268,6 @@ public class MazeGraphicPlay extends MazeGraphics {
 				drawPosition.y + blockHeight,0, 0, image[indexPosition.y][indexPosition.x].getWidth(),
 				image[indexPosition.y][indexPosition.x].getHeight(), null);
 	}
-
-
-
-
-	private ArrayList<Integer> retrieveDirectionIndexer(MovementInfo moveInfo) {
-
-		if (moveInfo instanceof MovementInfoDragon) {
-			MovementInfoDragon infoDragon = (MovementInfoDragon) moveInfo;
-
-			if (infoDragon.dragonState == DRAGON_STATE.SLEEPING)
-				return super.dragonSleepingDirIndex;
-			else
-				return super.dragonActiveDirIndex;
-		}
-		else {
-			return super.heroDirIndex;
-		}
-	}
-
 
 
 
@@ -424,6 +402,7 @@ public class MazeGraphicPlay extends MazeGraphics {
 		return new Position(y, x);
 	}
 
+	
 
 	public void updateImage(ArrayList<MovementInfo> moveInfo) {
 
