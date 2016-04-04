@@ -216,14 +216,18 @@ public class Maze implements Serializable {
 
 		if (dimension < 5)
 			throw new IllegalArgumentException("Dimension can not be inferior to 5.");
-		else if (dimension % 2 == 0)
+		if (dimension % 2 == 0)
 			throw new IllegalArgumentException("Dimension can not be even.");
-
+		
+		if(dragonNum < 0)
+			throw new IllegalArgumentException("Number of dragons can not be negative.");
+		
 		dragonMode = dm;
 
 		maze = new char[dimension][dimension];
 		ArrayList<Position> freePos = generateMaze(dimension);
 		PlaceCharacters(freePos, dragonNum);
+		
 
 	}
 
@@ -543,7 +547,11 @@ public class Maze implements Serializable {
 		Random rand = new Random();
 		int numElem = freePos.size();
 		dragonList = new LinkedList<Dragon>();
-
+		
+		if(dragonNum > numElem -6){
+			throw new IllegalArgumentException("The generated maze cannot place that many dragons.");
+		}
+		
 		int pos = rand.nextInt(numElem);
 		hero = new Hero(freePos.get(pos));
 		setMazeContent(hero.getPosition(), Symbol_HeroUnarmed);
@@ -557,7 +565,7 @@ public class Maze implements Serializable {
 		for(int i = 0; i < dragonNum; i++){
 			Dragon dragon;
 			do {
-
+				
 				pos = rand.nextInt(numElem);
 				dragon = new Dragon(freePos.get(pos));
 				freePos.set(pos, freePos.get(--numElem));
@@ -581,19 +589,6 @@ public class Maze implements Serializable {
 		visit(i, j-1, visited);
 		visit(i, j+1, visited);
 	}
-
-	/*private void visit(int i, int j, boolean [][] visited, Hero hero) {
-		if (i < 0 || i >= maze.length || j < 0 || j >= maze.length)
-			return;
-		if (maze[i][j] == Symbol_Wall || visited[i][j])
-			return;
-		visited[i][j] = true;
-		visit(i-1, j, visited);
-		visit(i+1, j, visited);
-		visit(i, j-1, visited);
-		visit(i, j+1, visited);
-	}*/
-
 
 	private boolean Reachable(Position src, Position dest){
 		boolean [][] visited = new boolean[maze.length] [maze.length];

@@ -26,8 +26,8 @@ public class MazeTest {
 	char [][] m2 = {
 			{'X', 'X', 'X', 'S', 'X',},
 			{'X', 'D', 'X', '.', 'X',},
-			{'X', 'X', 'X', 'H', 'X',},
-			{'X', 'E', '.', '.', 'X',},
+			{'X', 'D', 'X', 'H', 'X',},
+			{'X', '.', 'E', '.', 'X',},
 			{'X', 'X', 'X', 'X', 'X',}
 	};
 
@@ -300,7 +300,7 @@ public class MazeTest {
 			assertSame(IllegalArgumentException.class, i.getClass());
 		}
 		try{
-			Maze maze = new Maze(5,0,DRAGON_MODE.FROZEN);
+			Maze maze = new Maze(5,9,DRAGON_MODE.FROZEN);
 			fail("expected exception");
 		}
 		catch(IllegalArgumentException i){
@@ -322,5 +322,6 @@ public class MazeTest {
 		catch(IllegalArgumentException i){
 			assertSame(IllegalArgumentException.class, i.getClass());
 		}
+		
 	}
 }
