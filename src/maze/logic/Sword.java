@@ -1,11 +1,15 @@
 package maze.logic;
 
+import java.io.Serializable;
+
 /**
  * Sword.java - Element of maze
  * @author João Barbosa and William Fukunaga
  * @version 1.8
  */
-public class Sword extends Element {
+public class Sword extends Element implements Serializable {
+	private static final long serialVersionUID = 1L;
+
 
 	/**
 	 * Creates a new sword given the coordinates

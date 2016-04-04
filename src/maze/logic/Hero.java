@@ -1,11 +1,14 @@
 package maze.logic;
 
+import java.io.Serializable;
+
 /**
  *  Hero.java - Element of maze controlled by the user.
  *  @author João Barbosa and William Fukunaga
  *  @version 1.8
  */
-public class Hero extends Element {
+public class Hero extends Element implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	public enum HERO_STATE {ALIVE, DEAD, WIN};
 	private boolean hasSword;

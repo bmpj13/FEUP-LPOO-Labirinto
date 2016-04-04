@@ -1,5 +1,7 @@
 package maze.logic;
 
+import java.io.Serializable;
+
 import maze.logic.Maze.DIRECTION;
 
 /**
@@ -7,8 +9,9 @@ import maze.logic.Maze.DIRECTION;
  *  @author João Barbosa and William Fukunaga
  *  @version 1.8
  */
-public class MovementInfo {
-
+public class MovementInfo implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 
 	public Position lastPosition;
 

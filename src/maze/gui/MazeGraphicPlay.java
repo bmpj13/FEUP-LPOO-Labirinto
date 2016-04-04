@@ -411,7 +411,7 @@ public class MazeGraphicPlay extends MazeGraphics {
 		animateIteration = 0;
 		repaint();
 
-		if (maze.getDragonList().size() == 0)
+		if (maze.getDragonList().size() == 0 && maze.getHero().hasSword())
 			this.doorImg = super.openDoorImg;
 	}
 

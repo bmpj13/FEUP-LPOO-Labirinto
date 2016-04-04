@@ -1,11 +1,15 @@
 package maze.logic;
 
+import java.io.Serializable;
+
 /**
  * Dragon.java - Element of maze 
  * @author João Barbosa and William Fukunaga
  * @version 1.8
  */
-public class Dragon extends Element {
+public class Dragon extends Element implements Serializable {
+	private static final long serialVersionUID = 1L;
+
 
 	public enum DRAGON_STATE {AWAKE, SLEEPING, DEAD};
 

@@ -1,5 +1,7 @@
 package maze.logic;
 
+import java.io.Serializable;
+
 import maze.logic.Dragon.DRAGON_STATE;
 import maze.logic.Maze.DIRECTION;
 
@@ -8,7 +10,9 @@ import maze.logic.Maze.DIRECTION;
  * @author João Barbosa and William Fukunaga
  * @version 1.8
  */
-public class MovementInfoDragon extends MovementInfo {
+public class MovementInfoDragon extends MovementInfo implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	
 	public DRAGON_STATE dragonState;
 

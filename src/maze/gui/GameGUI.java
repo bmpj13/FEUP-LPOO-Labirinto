@@ -30,7 +30,17 @@ import maze.logic.Maze;
 import maze.logic.MovementInfo;
 import maze.logic.Maze.DIRECTION;
 import maze.logic.Maze.DRAGON_MODE;
+
 import java.awt.SystemColor;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class GameGUI {
 
@@ -68,15 +78,15 @@ public class GameGUI {
 		int fWidth = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 0.95);
 		int fHeight = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.9);
 		GameFrame.setSize(new Dimension(fWidth, fHeight));
-		GameFrame.setMinimumSize(new Dimension(700, 500));
+		GameFrame.setMinimumSize(new Dimension(900, 500));
 		GameFrame.setLocationRelativeTo(null);
 
 		GameFrame.addWindowListener(new WindowAdapter() {
 
 			@Override
 			public void windowClosing(WindowEvent windowEvent) {
-				GameFrame.setVisible(false);
-				MenuGUI.setVisible(true);
+				
+				goBack();
 			}
 		});
 
@@ -146,22 +156,22 @@ public class GameGUI {
 
 		GroupLayout gl_sidePanel = new GroupLayout(sidePanel);
 		gl_sidePanel.setHorizontalGroup(
-			gl_sidePanel.createParallelGroup(Alignment.LEADING)
+				gl_sidePanel.createParallelGroup(Alignment.LEADING)
 				.addComponent(gameInfoLabel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
 				.addGroup(gl_sidePanel.createSequentialGroup()
-					.addGap(30)
-					.addComponent(buttonPanel, GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
-					.addGap(27))
-		);
+						.addGap(30)
+						.addComponent(buttonPanel, GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
+						.addGap(27))
+				);
 		gl_sidePanel.setVerticalGroup(
-			gl_sidePanel.createParallelGroup(Alignment.TRAILING)
+				gl_sidePanel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_sidePanel.createSequentialGroup()
-					.addGap(85)
-					.addComponent(gameInfoLabel, GroupLayout.PREFERRED_SIZE, 16, Short.MAX_VALUE)
-					.addGap(107)
-					.addComponent(buttonPanel, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
-					.addGap(104))
-		);
+						.addGap(85)
+						.addComponent(gameInfoLabel, GroupLayout.PREFERRED_SIZE, 16, Short.MAX_VALUE)
+						.addGap(107)
+						.addComponent(buttonPanel, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
+						.addGap(104))
+				);
 		sidePanel.setLayout(gl_sidePanel);
 		GamePanel.setLayout(gl_GamePanel);
 
@@ -197,14 +207,12 @@ public class GameGUI {
 					break;
 
 				case KeyEvent.VK_ESCAPE:
-					GameFrame.setVisible(false);
-					MenuGUI.goTo();
+					goBack();
 					return;
 
 				case KeyEvent.VK_ENTER:
 					if (gameFinished) {
-						GameFrame.setVisible(false);
-						MenuGUI.goTo();
+						goBack();
 					}
 					return;
 
@@ -249,6 +257,40 @@ public class GameGUI {
 	}
 
 
+
+
+
+	protected void processGame() {
+
+		if (gameFinished) {
+			try {
+				Files.deleteIfExists(new File("save\\maze.dat").toPath());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+
+			ObjectOutputStream os = null;
+
+			try {
+				os = new ObjectOutputStream(new FileOutputStream("save\\maze.dat"));
+				os.writeObject(maze);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			finally {
+				if (os != null)
+					try {
+						os.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+			}
+		}
+	}
 
 
 
@@ -300,18 +342,19 @@ public class GameGUI {
 
 	void startGame(char[][] board) {
 
-		try{
 		maze = new Maze(board);
-		}
-		catch(IllegalArgumentException i){
-			throw new IllegalArgumentException();
-		}
 
 		setVisible(true);
 		play(maze);
 	}
 
 
+	void startGame(Maze maze) {
+
+		this.maze = maze;
+		setVisible(true);
+		play(maze);
+	}
 
 
 	void finishGame(EndGame e) {
@@ -363,5 +406,14 @@ public class GameGUI {
 
 	public void setVisible(boolean visible) {
 		GameFrame.setVisible(visible);
+	}
+	
+	
+	
+	public void goBack() {
+		
+		GameFrame.setVisible(false);
+		processGame();
+		MenuGUI.goTo();
 	}
 }

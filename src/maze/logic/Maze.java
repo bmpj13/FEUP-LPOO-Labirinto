@@ -1,6 +1,7 @@
 package maze.logic;
 
 import java.awt.EventQueue;
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +22,10 @@ import maze.logic.Hero.HERO_STATE;
  * @author João Barbosa and William Fukunaga
  * @version 1.8
  */
-public class Maze {
+public class Maze implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	
 
 	public enum DIRECTION {UP, LEFT, DOWN, RIGHT, STAY};
 	
@@ -269,15 +273,19 @@ public class Maze {
 				}
 			}
 		}
-		if(sword == null || hero == null)
-			throw new IllegalArgumentException();
-		if(!Reachable(hero.getPosition(), sword.getPosition()))
-			throw new IllegalArgumentException();
-		if(!Reachable(sword.getPosition(), exit.getPosition()))
-			throw new IllegalArgumentException();
+		
+		
+		if(hero == null)
+			throw new IllegalArgumentException("You must have an hero!");
+		else if (sword == null)
+			throw new IllegalArgumentException("You must have a sword!");
+		else if(!Reachable(hero.getPosition(), sword.getPosition()))
+			throw new IllegalArgumentException("Sword isn't reachable.");
+		else if(!Reachable(hero.getPosition(), exit.getPosition()))
+			throw new IllegalArgumentException("Exit isn't reachable.");
 		for (Iterator<Dragon> iterator = dragonList.iterator(); iterator.hasNext();) {
-			if(!Reachable(iterator.next().getPosition(), exit.getPosition()))
-				throw new IllegalArgumentException();
+			if(!Reachable(iterator.next().getPosition(), hero.getPosition()))
+				throw new IllegalArgumentException("All dragons must be reachable.");
 		}
 
 	}
@@ -734,7 +742,7 @@ public class Maze {
 
 				hero.move(newHeroPos);
 			}
-			else if (newHeroPos.equals(exit.getPosition()) && dragonList.size()==0) {
+			else if (newHeroPos.equals(exit.getPosition()) && dragonList.size() == 0 && hero.hasSword()) {
 
 				setMazeContent(currHeroPos, Symbol_Path); 
 				setMazeContent(newHeroPos, heroSymbol);

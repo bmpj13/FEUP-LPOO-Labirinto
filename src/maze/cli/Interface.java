@@ -115,7 +115,7 @@ public class Interface {
 
 		int option = 0;
 
-		System.out.println("Game mode:\n" + 
+		System.out.print("Game mode:\n" + 
 							"1 - Graphics\n" + 
 							"2 - Console\n" + 
 							"Choose option: ");

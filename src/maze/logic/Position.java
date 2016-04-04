@@ -1,5 +1,7 @@
 package maze.logic;
 
+import java.io.Serializable;
+
 
 /**
  * Position.java - simple class which stores the coordinates in the maze
@@ -7,8 +9,10 @@ package maze.logic;
  * @version 1.8
  *
  */
-public class Position implements Comparable<Position> {
-
+public class Position implements Comparable<Position>, Serializable {
+	private static final long serialVersionUID = 1L;
+	
+	
 	public int y;
 	public int x;
 

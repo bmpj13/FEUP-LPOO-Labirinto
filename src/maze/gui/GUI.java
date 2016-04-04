@@ -3,6 +3,7 @@ package maze.gui;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
 
@@ -38,6 +39,10 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 import java.awt.Color;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -93,8 +98,8 @@ public class GUI {
 		dimensionLabel.setBounds(75, 47, 96, 19);
 		panel_settings.add(dimensionLabel);
 		dimensionLabel.setFont(new Font("Trebuchet MS", Font.BOLD, 15));
-		
-		
+
+
 		Color myCyan = new Color(0, 153, 153);
 		Border txtFieldBorder = BorderFactory.createLineBorder(myCyan);
 
@@ -152,32 +157,34 @@ public class GUI {
 		MainInfo.setFont(new Font("Trebuchet MS", Font.PLAIN, 17));
 		GroupLayout gl_main_panel = new GroupLayout(main_panel);
 		gl_main_panel.setHorizontalGroup(
-			gl_main_panel.createParallelGroup(Alignment.LEADING)
+				gl_main_panel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_main_panel.createSequentialGroup()
-					.addGap(352)
-					.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 145, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(347, Short.MAX_VALUE))
-				.addGroup(gl_main_panel.createSequentialGroup()
-					.addGap(217)
-					.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
-					.addGap(217))
-				.addComponent(MainInfo, GroupLayout.DEFAULT_SIZE, 844, Short.MAX_VALUE)
-		);
+						.addGap(217)
+						.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
+						.addGap(217))
+						.addGroup(gl_main_panel.createSequentialGroup()
+								.addContainerGap()
+								.addComponent(MainInfo, GroupLayout.DEFAULT_SIZE, 820, Short.MAX_VALUE)
+								.addContainerGap())
+								.addGroup(Alignment.LEADING, gl_main_panel.createSequentialGroup()
+										.addGap(352)
+										.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 145, GroupLayout.PREFERRED_SIZE)
+										.addContainerGap(347, Short.MAX_VALUE))
+				);
 		gl_main_panel.setVerticalGroup(
-			gl_main_panel.createParallelGroup(Alignment.TRAILING)
+				gl_main_panel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_main_panel.createSequentialGroup()
-					.addGap(46)
-					.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-					.addGap(41)
-					.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
-					.addGap(38)
-					.addComponent(MainInfo)
-					.addGap(79))
-		);
+						.addGap(46)
+						.addComponent(panel_settings, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+						.addGap(41)
+						.addComponent(panel_menu, GroupLayout.PREFERRED_SIZE, 154, GroupLayout.PREFERRED_SIZE)
+						.addGap(18)
+						.addComponent(MainInfo)
+						.addGap(56))
+				);
 
-		
+
 		GradientButton btnNewGame = new GradientButton("New Game", new Color(0, 153, 153));
-		btnNewGame.setText("Play");
 		btnNewGame.setForeground(Color.WHITE);
 		btnNewGame.setBackground(Color.BLACK);
 		btnNewGame.setBounds(0, 0, 145, 27);
@@ -200,12 +207,12 @@ public class GUI {
 		});
 
 		btnNewGame.setFont(new Font("Trebuchet MS", Font.BOLD, 17));
-		
-		
+
+
 		GradientButton btnQuit = new GradientButton("Quit", new Color(0, 153, 153));
 		btnQuit.setForeground(Color.WHITE);
 		btnQuit.setBackground(Color.BLACK);
-		btnQuit.setBounds(0, 84, 145, 27);
+		btnQuit.setBounds(0, 123, 145, 31);
 		panel_menu.add(btnQuit);
 		btnQuit.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
 
@@ -214,7 +221,7 @@ public class GUI {
 		btnMB.setForeground(Color.WHITE);
 		btnMB.setBackground(Color.BLACK);
 		btnMB.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
-		btnMB.setBounds(0, 40, 145, 27);
+		btnMB.setBounds(0, 83, 145, 27);
 		GUI thisGUI = this;
 		btnMB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -235,6 +242,30 @@ public class GUI {
 
 
 		panel_menu.add(btnMB);
+
+		GradientButton btnSaved = new GradientButton("Saved Game", new Color(0, 153, 153));
+		btnSaved.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+
+				Maze maze;
+				try {
+					maze = loadGame();
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(MainFrame,
+							"No game saved.",
+							"Error",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				} 
+				
+				gameGUI.startGame(maze);
+			}
+		});
+		btnSaved.setForeground(Color.WHITE);
+		btnSaved.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
+		btnSaved.setBackground(Color.BLACK);
+		btnSaved.setBounds(0, 43, 145, 27);
+		panel_menu.add(btnSaved);
 		btnQuit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
@@ -243,8 +274,21 @@ public class GUI {
 		main_panel.setLayout(gl_main_panel);
 		MainFrame.getContentPane().add(main_panel, BorderLayout.CENTER);	
 
-
 		main_panel.requestFocus();
+	}
+
+
+
+	protected Maze loadGame() throws FileNotFoundException, IOException, ClassNotFoundException {
+
+		ObjectInputStream is = null;
+		Maze maze = null;
+
+		is = new ObjectInputStream(new FileInputStream("save\\maze.dat"));
+		maze = (Maze) is.readObject();
+		if (is != null) is.close();
+
+		return maze;
 	}
 
 
