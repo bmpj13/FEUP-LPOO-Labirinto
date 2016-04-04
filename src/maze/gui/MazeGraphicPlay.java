@@ -122,7 +122,7 @@ public class MazeGraphicPlay extends MazeGraphics {
 
 
 
-	// TODO amizade
+
 	private Position retrieveAnimationIndexEnd(BufferedImage[][] image, MovementInfoHero heroInfo) {
 
 		if (heroInfo.moveDirection == DIRECTION.STAY) {

@@ -6,50 +6,26 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
-
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Toolkit;
-
 import javax.swing.DefaultComboBoxModel;
-
-import maze.exceptions.EndGame;
 import maze.logic.Maze;
-import maze.logic.Maze.DIRECTION;
 import maze.logic.Maze.DRAGON_MODE;
-import maze.logic.MovementInfo;
-
-import javax.swing.JButton;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
 import javax.swing.JPanel;
-
 import java.awt.BorderLayout;
-
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
-
 import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Map;
 
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.UIManager;
-
-import maze.logic.Position;
 
 public class GUI {
 
@@ -196,7 +172,7 @@ public class GUI {
 					gameGUI.startGame(dimensionField, dragonNumField, dragonModeField);
 				}
 				catch (NumberFormatException n){
-					MainInfo.setText("Invalid arguments");
+					MainInfo.setText("Invalid arguments.");
 					return;
 				}
 				catch (IllegalArgumentException i){
@@ -252,7 +228,7 @@ public class GUI {
 					maze = loadGame();
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(MainFrame,
-							"No game saved.",
+							"No saved game.",
 							"Error",
 							JOptionPane.ERROR_MESSAGE);
 					return;

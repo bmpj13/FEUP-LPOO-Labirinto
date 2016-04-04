@@ -9,7 +9,9 @@ import java.awt.Point;
 import javax.swing.JButton;
 
 public class GradientButton extends JButton {
-
+	private static final long serialVersionUID = 1L;
+	
+	
 	private Color color;
 
 

@@ -4,11 +4,11 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.Random;
-
 import maze.logic.Position;
 import maze.logic.Maze;
+
+
 
 
 public class MazeBuilderPanel extends MazeGraphics implements MouseListener {

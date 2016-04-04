@@ -25,10 +25,10 @@ import maze.logic.Hero.HERO_STATE;
 public class Maze implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	
+
 
 	public enum DIRECTION {UP, LEFT, DOWN, RIGHT, STAY};
-	
+
 	public enum DRAGON_MODE {FROZEN, RANDOM, CAN_SLEEP};
 
 
@@ -41,7 +41,7 @@ public class Maze implements Serializable {
 	public static final char Symbol_Sword = 'E';
 	public static final char Symbol_Exit = 'S';
 	public static final char Symbol_DragonOnSword = 'F';
-	
+
 	private char heroSymbol = Symbol_HeroUnarmed;
 	private char dragonSymbol = Symbol_DragonActive;
 
@@ -79,7 +79,7 @@ public class Maze implements Serializable {
 				}
 			});
 			break;
-			
+
 		case 2:
 			int[] dimension = new int[1];
 			int[] numDragons = new int[1];
@@ -102,7 +102,7 @@ public class Maze implements Serializable {
 
 			maze.consolePlay(interf, maze);
 			break;
-			
+
 		default:
 			throw new IllegalArgumentException();
 		}
@@ -133,7 +133,8 @@ public class Maze implements Serializable {
 			throw new IllegalArgumentException();
 		}
 	}
-	//TODO Play through the console
+
+
 
 	private void consolePlay(Interface interf, Maze maze) {
 
@@ -172,8 +173,9 @@ public class Maze implements Serializable {
 		}
 	}
 
-	//TODO Analyse keyboard movement input
-	
+
+
+
 	private DIRECTION key2direction(char key) throws InvalidKey {
 
 		key = Character.toLowerCase(key);
@@ -199,7 +201,7 @@ public class Maze implements Serializable {
 
 
 
-	//TODO Constructors
+	
 	/**
 	 * Creates a new maze
 	 * <p>
@@ -212,10 +214,10 @@ public class Maze implements Serializable {
 	 */
 	public Maze(int dimension, int dragonNum, DRAGON_MODE dm){
 
-		if (dimension <= 4 || dimension % 2 == 0)
-			throw new IllegalArgumentException("Dimension cannot be even or inferior to 5.");
-		if (dragonNum >= (6*(dimension) - 28) || dragonNum <=0)
-			throw new IllegalArgumentException("Can't place that many dragons! Choose another amount.");
+		if (dimension < 5)
+			throw new IllegalArgumentException("Dimension can not be inferior to 5.");
+		else if (dimension % 2 == 0)
+			throw new IllegalArgumentException("Dimension can not be even.");
 
 		dragonMode = dm;
 
@@ -225,17 +227,18 @@ public class Maze implements Serializable {
 
 	}
 
-	
+
 	/**
 	 * Creates a new maze by filling it with walls.
 	 *
 	 * @param dimension the dimension of the new maze
 	 */
 	public Maze(int dimension) {
-		
-		if (dimension < 5 || dimension % 2 == 0)
-			throw new IllegalArgumentException("Dimension cannot be even or inferior to 5.");
 
+		if (dimension < 5)
+			throw new IllegalArgumentException("Dimension can not be inferior to 5.");
+		else if (dimension % 2 == 0)
+			throw new IllegalArgumentException("Dimension can not be even.");
 
 		maze = new char[dimension][dimension];
 		for (int i = 0; i < dimension; i++)
@@ -273,8 +276,8 @@ public class Maze implements Serializable {
 				}
 			}
 		}
-		
-		
+
+
 		if(hero == null)
 			throw new IllegalArgumentException("You must have an hero!");
 		else if (sword == null)
@@ -290,7 +293,7 @@ public class Maze implements Serializable {
 
 	}
 
-	
+
 	/**
 	 * Imports the maze defined in class.
 	 * <br> This maze was given to us in the 2nd iteration of the class.
@@ -332,8 +335,7 @@ public class Maze implements Serializable {
 	}
 
 
-	//TODO Maze algorithm
-	//TODO Create maze 
+
 	private ArrayList<Position> generateMaze(int dimension) {
 
 
@@ -525,8 +527,8 @@ public class Maze implements Serializable {
 		return false;
 	}
 
-	
-	
+
+
 	private void updateAvailables(Position position,
 			ArrayList<Position> freePositions, HashSet<Position> walls) {
 
@@ -534,7 +536,8 @@ public class Maze implements Serializable {
 		walls.remove(position);
 	}
 
-	//TODO Place characters in maze
+
+
 	private void PlaceCharacters(ArrayList<Position> freePos, int dragonNum) {
 
 		Random rand = new Random();
@@ -554,7 +557,7 @@ public class Maze implements Serializable {
 		for(int i = 0; i < dragonNum; i++){
 			Dragon dragon;
 			do {
-				
+
 				pos = rand.nextInt(numElem);
 				dragon = new Dragon(freePos.get(pos));
 				freePos.set(pos, freePos.get(--numElem));
@@ -578,7 +581,7 @@ public class Maze implements Serializable {
 		visit(i, j-1, visited);
 		visit(i, j+1, visited);
 	}
-	
+
 	/*private void visit(int i, int j, boolean [][] visited, Hero hero) {
 		if (i < 0 || i >= maze.length || j < 0 || j >= maze.length)
 			return;
@@ -590,25 +593,25 @@ public class Maze implements Serializable {
 		visit(i, j-1, visited);
 		visit(i, j+1, visited);
 	}*/
-	
-	
+
+
 	private boolean Reachable(Position src, Position dest){
 		boolean [][] visited = new boolean[maze.length] [maze.length];
-		
+
 		visit(src.y, src.x, visited);
-		
+
 		for (int i = 0; i < maze.length; i++)
 			for (int j = 0; j < maze.length; j++)
 				if (! visited[dest.y][dest.x] )
 					return false;
-		
+
 		return true; 
 	}
-	
-	
-	//TODO update
-	
-	
+
+
+
+
+
 	/**
 	 * Moves the hero.
 	 * <br> Also moves all the dragons if possible.
@@ -635,7 +638,7 @@ public class Maze implements Serializable {
 			Dragon dragon = iterator.next();
 
 			dragonInfo = updateDragon(dragon);
-			
+
 			movementInfo.add(dragonInfo);
 			HeroVsDragon(dragon);
 
@@ -648,7 +651,7 @@ public class Maze implements Serializable {
 				throw new EndGame(false);
 			}
 
-			
+
 
 			if (!hero.hasSword() && !dragonOnSword) {
 				if (dragon.getPosition().equals(swordPos))
@@ -663,8 +666,8 @@ public class Maze implements Serializable {
 	}
 
 
-	
-	//TODO move characters
+
+
 	/**
 	 * Moves the hero in the selected direction.
 	 *
@@ -776,7 +779,7 @@ public class Maze implements Serializable {
 		switch(dragonMode){
 		case FROZEN:
 			return new MovementInfoDragon(dragonPos, DIRECTION.STAY);
-			
+
 		case CAN_SLEEP:
 			if(sword.getPosition().equals(dragonPos))
 				break;
@@ -785,12 +788,12 @@ public class Maze implements Serializable {
 				dragon.setState(DRAGON_STATE.SLEEPING);
 			else dragon.setState(DRAGON_STATE.AWAKE);
 			break;
-			
+
 		default:
 			break;
-		
+
 		}
-		
+
 		if (dragon.getState() == DRAGON_STATE.AWAKE) {
 
 			DIRECTION direction[] = new DIRECTION[5];
@@ -878,7 +881,7 @@ public class Maze implements Serializable {
 	}
 
 
-	//TODO check fight
+	
 	/**
 	 * If the hero and the dragon are within fighting distance resolves the dispute
 	 * <p>
@@ -902,7 +905,7 @@ public class Maze implements Serializable {
 		}
 	}
 
-	
+
 	private boolean fightAvailable(Dragon dragon) {
 
 		Position heroPos = hero.getPosition();
@@ -917,7 +920,7 @@ public class Maze implements Serializable {
 	}
 
 
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -931,11 +934,9 @@ public class Maze implements Serializable {
 		}
 		return str;
 	}
-	
-	//TODO get and set
-	
-	//TODO getters and setters
-	
+
+
+
 	/**
 	 * Gets the dragon mode.
 	 *
@@ -944,7 +945,7 @@ public class Maze implements Serializable {
 	public DRAGON_MODE getDragonMode() {
 		return dragonMode;
 	}
-	
+
 	/**
 	 * Sets the dragon mode.
 	 *
@@ -964,7 +965,7 @@ public class Maze implements Serializable {
 	public DRAGON_STATE getDragonState(Dragon dragon) {
 		return dragon.getState();
 	}
-	
+
 	/**
 	 * Gets the dragon list.
 	 *
@@ -973,8 +974,8 @@ public class Maze implements Serializable {
 	public LinkedList<Dragon> getDragonList(){
 		return dragonList;
 	}
-	
-	
+
+
 	/**
 	 * Gets the maze content.
 	 *
@@ -984,7 +985,7 @@ public class Maze implements Serializable {
 	public char getMazeContent(Position pos) {
 		return getMazeContent(pos.y,pos.x);
 	}
-	
+
 	/**
 	 * Gets the maze content.
 	 *
@@ -999,8 +1000,8 @@ public class Maze implements Serializable {
 
 		return maze[y][x];
 	}
-	
-	
+
+
 	/**
 	 * Sets the maze content.
 	 *
@@ -1011,7 +1012,7 @@ public class Maze implements Serializable {
 
 		setMazeContent(pos.y, pos.x, content);
 	}
-	
+
 	/**
 	 * Sets the maze content.
 	 *
@@ -1024,7 +1025,7 @@ public class Maze implements Serializable {
 		maze[i][j] = content;
 	}
 
-	
+
 	/**
 	 * Gets the hero.
 	 *
@@ -1033,7 +1034,7 @@ public class Maze implements Serializable {
 	public Hero getHero(){
 		return hero;
 	}
-	
+
 	/**
 	 * Gets the sword position.
 	 *
@@ -1042,7 +1043,7 @@ public class Maze implements Serializable {
 	public Position getSwordPosition() {
 		return sword.getPosition();
 	}
-	
+
 	/**
 	 * Gets the exit position.
 	 *
@@ -1051,7 +1052,7 @@ public class Maze implements Serializable {
 	public Position getExitPosition() {
 		return exit.getPosition();
 	}
-	
+
 	/**
 	 * Gets the board dimension.
 	 *
@@ -1061,7 +1062,7 @@ public class Maze implements Serializable {
 		return maze.length;
 	}
 
-	
+
 	/**
 	 * Picks up the sword immediately.
 	 * <p>
@@ -1081,7 +1082,7 @@ public class Maze implements Serializable {
 		return movementInfo;
 	}
 
-	
+
 	/**
 	 * Gets the board.
 	 *

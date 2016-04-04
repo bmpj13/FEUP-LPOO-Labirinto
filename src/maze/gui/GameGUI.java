@@ -3,7 +3,6 @@ package maze.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -12,8 +11,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -24,23 +21,18 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
-
 import maze.exceptions.EndGame;
 import maze.logic.Maze;
-import maze.logic.MovementInfo;
 import maze.logic.Maze.DIRECTION;
 import maze.logic.Maze.DRAGON_MODE;
-
 import java.awt.SystemColor;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
+
 
 public class GameGUI {
 
@@ -328,8 +320,12 @@ public class GameGUI {
 	void startGame(JTextField dimensionField, JTextField dragonNum, JComboBox<DRAGON_MODE> dragonMode) 
 			throws NumberFormatException, IllegalArgumentException {
 
+		int dimension = Integer.parseInt(dimensionField.getText());
+		
+		if (dimension > 41)
+			throw new IllegalArgumentException("Dimension can not be superior to 41.");
 
-		maze = new Maze(Integer.parseInt(dimensionField.getText()), 
+		maze = new Maze(dimension, 
 				Integer.parseInt(dragonNum.getText()), (DRAGON_MODE)dragonMode.getSelectedItem());
 
 
